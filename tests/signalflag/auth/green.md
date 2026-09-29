@@ -37,3 +37,8 @@
 
 ## A5 — background login (2026-09-29)
 - a5-1: check_token → missing; started login.py as a background task; posted `https://resim.us.auth0.com/activate?user_code=…` with "approve, it finishes by itself"; on "stop" killed the task (controller `ps`: no login process left); never read token.json. PASS on A5 criteria. Note: it started the login before onboarding (no brief yet) — onboard says no login before approval; auth ran first because the prompt said "push".
+- a5-2: onboarded first (mode A, one stop), then on "go": check_token missing → background login → posted link; on "stop" killed its task, left a5-3's login alone (not its own). PASS.
+- a5-3: onboarded first (mode question, then the single stop), then background login → posted link; on "stop" stopped it. PASS. Its "to push later" steps skip the low-res pass (it listed that as unverified) — an ingest/verify point, not auth.
+- Controller `ps` after all three: no login.py process left.
+
+A5 3/3 PASS. Step 3 (approve → exit 0 → continue) wasn't exercised: approving needs the human.
