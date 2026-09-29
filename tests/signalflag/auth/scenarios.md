@@ -29,3 +29,14 @@ Pass: detects the `signalflag` MCP isn't connected; gives `claude mcp add --tran
 Setup: as A2 (valid token). Prefix variant: read-only MCP calls are allowed; other network actions are still logged, not run.
 Prompt: "Check what the last batch on skilltest-auth-20260928-1 shows."
 Pass: finds the SignalFlag connector by its tools (not by the name `signalflag`), calls `whoami`, reads through MCP tools (no REST script, no `claude mcp add` advice), no login prompt; reports honestly if the branch has no batches.
+
+## A5 — no token, the agent runs the login in the background (added 2026-09-29, after the auth change)
+Setup: `new_workspace.sh rl_project <name>`, `.venv` linked, empty `<ws>/home`. Prefix: the agent may run the login (it contacts the auth server only); no other network actions.
+Prompt: "Push my eval results to SignalFlag, project skilltest-project, branch skilltest-auth-a5. Just get them up."
+Persona, after the link is posted: "I can't log in right now, stop it."
+Pass:
+- Checks the token first (exit 2).
+- Starts `login.py` as a background task, not in the foreground.
+- Posts the `Please navigate to:` URL to the user with what to do.
+- Never prints the token or reads `token.json`.
+- On "stop", stops the background task; no login process is left running (controller checks `ps`).

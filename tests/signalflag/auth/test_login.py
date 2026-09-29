@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parents[3] / "signalflag-auth/scripts"))
+sys.path.insert(0, str(Path(__file__).parents[3] / "skills/signalflag-auth/scripts"))
 import login
 
 

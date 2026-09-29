@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "signalflag": {
+      "type": "http",
+      "url": "https://bff.resim.ai/mcp"
+    }
+  }
+}

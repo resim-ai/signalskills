@@ -68,7 +68,7 @@ superflowers/
   signalflag-iterate/          SKILL.md
 ```
 
-Install by symlinking `signalflag-*` into `~/.claude/skills/` or a repo's
+Install as a plugin (see README), or symlink `skills/signalflag-*` into `~/.claude/skills/` or a repo's
 `.claude/skills/`. Test scenarios and baseline transcripts live in
 `tests/signalflag/`. signalflag-model and signalflag-structure-runs were
 planned but not written: their baselines passed without them.

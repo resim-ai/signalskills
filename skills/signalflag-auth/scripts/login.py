@@ -1,7 +1,7 @@
 """Log in to SignalFlag (device code flow). The SDK reuses the cached token after this."""
 import sys
 
-NOTICE = ("SignalFlag login: a URL will print below. Open it in a browser and approve; "
+NOTICE = ("SignalFlag login: a URL prints below. Open it in a browser and approve; "
           "this finishes by itself. The token is cached in ~/.signalflag/token.json.")
 
 

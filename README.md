@@ -18,17 +18,28 @@ The flow: onboard → auth → design-metrics → compose-metrics → ingest →
 
 ## Install
 
-Symlink the skills into a project's `.claude/skills/` (or `~/.claude/skills/`):
+As a Claude Code plugin (recommended). In Claude Code:
 
-```bash
-for s in /path/to/superflowers/signalflag-*; do ln -s "$s" .claude/skills/; done
+```
+/plugin marketplace add resim-ai/superflowers
+/plugin install superflowers@superflowers
 ```
 
-You need `pip install signalflag==1.8.0` in a venv; the skills create one and never install outside it. You also need the SignalFlag MCP for reading results back:
+This installs the seven skills and registers the SignalFlag MCP server (`https://bff.resim.ai/mcp`). Run `/mcp` once and sign in. Update later with `/plugin marketplace update superflowers`.
+
+Or link the skills yourself, into a project's `.claude/skills/` or `~/.claude/skills/`:
 
 ```bash
+git clone git@github.com:resim-ai/superflowers.git ~/superflowers
+for s in ~/superflowers/skills/signalflag-*; do ln -s "$s" ~/.claude/skills/; done
 claude mcp add --transport http -s user signalflag https://bff.resim.ai/mcp
 ```
+
+The skills need `signalflag==1.8.0` in a venv. They create one when it's missing and never install outside a venv.
+
+## Use
+
+Open Claude Code in the repo that has your runs, and ask in your own words, for example "Get our Isaac route tests into SignalFlag" or "Make my pytest run report to SignalFlag". `signalflag-onboard` starts there. It asks whether you want it to decide or to walk you through each choice, and it asks which project. When a login is needed, it posts a link for you to approve in the browser.
 
 ## Tests
 

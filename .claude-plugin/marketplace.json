@@ -1,0 +1,12 @@
+{
+  "name": "superflowers",
+  "owner": { "name": "ReSim", "url": "https://github.com/resim-ai" },
+  "description": "Claude Code skills for SignalFlag (formerly ReSim).",
+  "plugins": [
+    {
+      "name": "superflowers",
+      "source": "./",
+      "description": "SignalFlag skills: onboard, auth, design-metrics, compose-metrics, ingest, verify, iterate."
+    }
+  ]
+}

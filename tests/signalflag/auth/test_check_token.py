@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import pytest
 
-sys.path.insert(0, str(Path(__file__).parents[3] / "signalflag-auth/scripts"))
+sys.path.insert(0, str(Path(__file__).parents[3] / "skills/signalflag-auth/scripts"))
 import check_token as ct
 
 NOW = datetime(2026, 9, 28, 12, tzinfo=timezone.utc)
