@@ -1,0 +1,11 @@
+# signalflag-compose-metrics — REFACTOR
+## R1: validator ≠ sync parser (GREEN c1-1)
+`CROSS JOIN (VALUES 'RMS', 'peak') AS s (stat)` passed `validate_metrics_config`; the real import rejected it: "Parse error: sql parser error: Expected: ), found: , at Line: 5, Column: 25".
+Counter: new step 6 — sync the exact files to `<branch>-scratch` with the SDK before handing off; trap row added. Retest: C1 ×3 with scratch syncs allowed.
+Retest (C1 ×3, scratch syncs allowed): 3/3 synced to a scratch branch and were accepted; controller re-synced each final file to a fresh branch: 3/3 accepted, check_config 3/3 clean.
+## R2: reused scratch branch collides (retest rep1, rep3)
+Two retests found `m6-eval-scratch` already held another run's topics and switched to a fresh name on their own. Wording now says a fresh `<branch>-scratch-<yyyymmdd-hhmm>` — the behaviour agents already chose; no separate retest.
+## R3: found downstream by ingest RED i4-1 — Emitter rejects `bigint` and rows missing a column
+`signalflag` 1.8.0 `Emitter._validate_value`: types outside TYPE_MAPPING (`boolean,string,int,float,image,video,status,string[],metric[]`) raise; `_validate_data` raises on any missing schema field; `None` fails the type check. The compose reference had recommended `bigint` (the server accepts it) and wide topics with optional columns. Fixed: reference lists the Emitter's types, says every emit carries every column, optional fields get their own topic. check_config now flags `bigint` (test reversed, RED→GREEN). The GREEN compose configs that used bigint are still server-valid but would fail the SDK locally.
+## R4: found downstream by ingest RED i1-1/i1-3 — custom templates don't render on the server
+Server Liquid lacks a `json` filter and loses `assign`ed flags across loop passes: `"type": scatter`, `"x": [1.33.03.01.3]` → `RENDER_ERROR json_parse_failed`, job METRICS_FAILED. The templates.md example used `| json` and assign-based commas; it passed a local python-liquid render only because the test added a json filter. Controller probe on the server (batches <batch-id>, <batch-id> on skilltest-templates-20260929[b]): single-trace box with `forloop.first` commas + hand quotes → rendered; empty raw.liquid → json_parse_failed; `{{ raw_metric[0] }}` → rendered. templates.md rewritten from those results; trap row added.

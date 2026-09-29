@@ -1,0 +1,80 @@
+version: 1
+topics:
+  plan_result:
+    schema:
+      scenario: string
+      path_length_m: float
+      straight_m: float
+      min_clearance_m: float
+      path_ratio: float
+      clearance_margin_m: float
+      passed: boolean
+  planner_event:
+    event: true
+    schema: {name: string, description: string, status: status, tags: "string[]", metrics: "metric[]"}
+metrics:
+  Result:
+    type: test
+    description: The planner's numbers for this scenario.
+    query_string: SELECT scenario AS "Scenario", path_length_m AS "Path (m)", straight_m AS "Straight (m)", min_clearance_m AS "Clearance (m)", passed AS "Passed" FROM plan_result
+    template_type: system
+    template: table
+    skip_if_no_data: true
+  Path Ratio:
+    type: test
+    description: Path length over straight-line distance; the test fails at 1.2.
+    query_string: SELECT path_ratio AS value FROM plan_result
+    template_type: system
+    template: scalar
+    units: ratio
+    skip_if_no_data: true
+    status: {query_string: "SELECT 1 FROM plan_result WHERE path_ratio >= ?", block: 1.2, warn: 1.1}
+  Clearance Margin:
+    type: test
+    description: Minimum clearance minus the 0.25 m limit.
+    query_string: SELECT clearance_margin_m AS value FROM plan_result
+    template_type: system
+    template: scalar
+    units: m
+    skip_if_no_data: true
+    status: {query_string: "SELECT 1 FROM plan_result WHERE clearance_margin_m < ?", block: 0, warn: 0.05}
+  Path vs Straight:
+    type: test
+    description: Planned path length against the straight line (m).
+    query_string: "SELECT 'Length' AS group_name, k AS \"Measure\", v AS \"Metres\" FROM (SELECT 'Path' AS k, path_length_m AS v FROM plan_result UNION ALL SELECT 'Straight', straight_m FROM plan_result)"
+    template_type: system
+    template: bar
+    skip_if_no_data: true
+  Margins:
+    type: test
+    description: Distance to each limit; negative means failed.
+    query_string: "SELECT \"Check\", \"Margin\" FROM (SELECT 'Path ratio (1.2 - ratio)' AS \"Check\", 1.2 - path_ratio AS \"Margin\" FROM plan_result UNION ALL SELECT 'Clearance (m)', clearance_margin_m FROM plan_result)"
+    template_type: system
+    template: table
+    skip_if_no_data: true
+  Path Ratio by Scenario:
+    type: batch
+    description: Path ratio for every scenario in the run.
+    query_string: SELECT 'Ratio' AS group_name, scenario AS "Scenario", path_ratio AS "Path ratio" FROM plan_result ORDER BY 3 DESC
+    template_type: system
+    template: bar
+    skip_if_no_data: true
+  Clearance Margin by Scenario:
+    type: batch
+    description: Clearance margin for every scenario in the run (m).
+    query_string: SELECT 'Margin' AS group_name, scenario AS "Scenario", clearance_margin_m AS "Margin (m)" FROM plan_result ORDER BY 3
+    template_type: system
+    template: bar
+    skip_if_no_data: true
+  Path Ratio Trend:
+    type: dashboard
+    description: Path ratio per scenario across commits.
+    query_string: "SELECT p.scenario AS group_name, m.build_creation_timestamp AS \"Build time\", AVG(p.path_ratio) AS \"Path ratio\" FROM plan_result p JOIN metadata m ON m.job_id = p.job_id GROUP BY 1, 2 ORDER BY 2"
+    template_type: system
+    template: line
+    skip_if_no_data: true
+metrics sets:
+  Planner Tests: {metrics: [Result, Path Ratio, Clearance Margin, Path vs Straight, Margins, Path Ratio by Scenario, Clearance Margin by Scenario]}
+  Planner Trends: {metrics: [Path Ratio Trend]}
+dashboards:
+  Planner Trends: {metrics_set: Planner Trends, refresh: auto, day_range: 90}

@@ -1,0 +1,7 @@
+[project]
+name = "planner"
+version = "0.1.0"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest"]

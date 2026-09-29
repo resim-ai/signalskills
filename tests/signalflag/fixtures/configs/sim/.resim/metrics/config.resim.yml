@@ -1,0 +1,68 @@
+version: 1
+topics:
+  replay:
+    schema: {filename: image}
+  run_summary:
+    schema: {scenario: string, gain: float, final_error_m: float, error_margin_m: float, sim_duration_s: float}
+  tracking:
+    schema: {x: float, y: float, err_m: float}
+  sim_event:
+    event: true
+    schema: {name: string, description: string, status: status, tags: "string[]", metrics: "metric[]"}
+metrics:
+  Replay:
+    type: test
+    description: What ran — the robot's path as an animation.
+    query_string: SELECT filename AS value FROM replay
+    template_type: system
+    template: image
+    skip_if_no_data: true
+  Final Error:
+    type: test
+    description: Distance from the last waypoint at the end of the run.
+    query_string: SELECT final_error_m AS value FROM run_summary
+    template_type: system
+    template: scalar
+    units: m
+    skip_if_no_data: true
+    status: {query_string: "SELECT 1 FROM run_summary WHERE final_error_m > ?", block: 0.5, warn: 0.3}
+  Error Over Time:
+    type: test
+    description: Distance to the current waypoint over the run (m).
+    query_string: SELECT 'Error' AS group_name, timestamp / 1E9 AS "Time (s)", err_m AS "Error (m)" FROM tracking
+    template_type: system
+    template: line
+    skip_if_no_data: true
+  Error Distribution:
+    type: test
+    description: Spread of waypoint error over the run (m).
+    query_string: SELECT err_m AS "Error (m)" FROM tracking
+    template_type: system
+    template: histogram
+    skip_if_no_data: true
+  Run Summary:
+    type: test
+    description: Gain, duration and final error margin for this run.
+    query_string: SELECT scenario AS "Scenario", gain AS "Gain", sim_duration_s AS "Sim time (s)", error_margin_m AS "Margin to 0.5 m" FROM run_summary
+    template_type: system
+    template: table
+    skip_if_no_data: true
+  Final Error by Scenario:
+    type: batch
+    description: Final error for each scenario in the suite run (m).
+    query_string: SELECT 'Final error' AS group_name, scenario AS "Scenario", final_error_m AS "Error (m)" FROM run_summary ORDER BY 3 DESC
+    template_type: system
+    template: bar
+    skip_if_no_data: true
+  Final Error Trend:
+    type: dashboard
+    description: Mean final error across suite runs, by build time.
+    query_string: "SELECT 'Mean' AS group_name, m.build_creation_timestamp AS \"Build time\", AVG(r.final_error_m) AS \"Mean final error (m)\" FROM run_summary r JOIN metadata m ON m.job_id = r.job_id GROUP BY 2 ORDER BY 2"
+    template_type: system
+    template: line
+    skip_if_no_data: true
+metrics sets:
+  Sim Suite: {metrics: [Replay, Final Error, Error Over Time, Error Distribution, Run Summary, Final Error by Scenario]}
+  Sim Trends: {metrics: [Final Error Trend]}
+dashboards:
+  Sim Trends: {metrics_set: Sim Trends, refresh: auto, day_range: 90}

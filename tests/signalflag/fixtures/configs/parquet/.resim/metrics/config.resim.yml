@@ -1,0 +1,383 @@
+version: 1
+
+# Drive telemetry, branch field-telemetry (project skilltest-project). Brief: docs/signalflag/d3.md.
+# Data-first: every parquet column lands in drive_telemetry as-is, one row per sample,
+# emitted with timestamp_ns = t_ns (time since drive start, not wall clock).
+# Schemas only grow on a branch: add columns, never drop or retype.
+
+topics:
+  drive_telemetry:
+    schema:
+      t_ns: bigint
+      speed_mps: float
+      cmd_speed_mps: float
+      battery_pct: float
+      mode: string
+      motor_temp_c: float        # v2 drives only; null on v1
+
+  drive_info:                    # one row per drive
+    schema:
+      source_folder: string      # telemetry | telemetry_v2: the only logger-version signal
+      source_file: string
+      columns: string            # the file's columns, comma-separated
+
+  drive_event:
+    event: true
+    schema:
+      name: string
+      description: string
+      status: status
+      tags: string[]
+      metrics: metric[]
+
+metrics:
+  # ---------------------------------------------------------------- per drive
+  Drive Summary:
+    type: test
+    description: Drive name, source folder and file, duration, sample count, rate and extra columns present.
+    query_string: |
+      WITH t AS (
+        SELECT COUNT(*) AS n, (MAX(timestamp) - MIN(timestamp)) / 1E9 AS dur_s FROM drive_telemetry
+      ), i AS (
+        SELECT ARBITRARY(experience_name) AS drive, ARBITRARY(source_folder) AS folder,
+               ARBITRARY(source_file) AS file, ARBITRARY(columns) AS cols
+        FROM drive_info
+      )
+      SELECT "Field", "Value" FROM (
+        SELECT 1 AS k, 'Drive' AS "Field", i.drive AS "Value" FROM i
+        UNION ALL SELECT 2, 'Source folder', i.folder FROM i
+        UNION ALL SELECT 3, 'Source file', i.file FROM i
+        UNION ALL SELECT 4, 'Duration, first to last sample (s)', format('%.1f', t.dur_s) FROM t
+        UNION ALL SELECT 5, 'Samples', CAST(t.n AS VARCHAR) FROM t
+        UNION ALL SELECT 6, 'Rate (Hz)', format('%.2f', (t.n - 1) / NULLIF(t.dur_s, 0)) FROM t
+        UNION ALL SELECT 7, 'Extra columns',
+          COALESCE(NULLIF(array_join(filter(split(i.cols, ','),
+            c -> c NOT IN ('t_ns', 'speed_mps', 'cmd_speed_mps', 'battery_pct', 'mode')), ', '), ''), 'none')
+        FROM i
+      ) ORDER BY k
+    template_type: system
+    template: table
+    skip_if_no_data: true
+
+  Tracking Error Summary:
+    type: test
+    description: Mean, RMS, p90 and max |speed - cmd| (m/s), whole drive and split by mode.
+    query_string: |
+      WITH e AS (
+        SELECT mode, ABS(speed_mps - cmd_speed_mps) AS a FROM drive_telemetry
+      ), x AS (
+        SELECT 0 AS k, 'All' AS scope, a FROM e
+        UNION ALL SELECT 1, mode, a FROM e
+      )
+      SELECT scope AS "Scope", COUNT(*) AS "Samples",
+             ROUND(AVG(a), 3) AS "Mean |err| (m/s)",
+             ROUND(SQRT(AVG(a * a)), 3) AS "RMS |err| (m/s)",
+             ROUND(approx_percentile(a, 0.9), 3) AS "p90 |err| (m/s)",
+             ROUND(MAX(a), 3) AS "Max |err| (m/s)"
+      FROM x GROUP BY k, scope ORDER BY k, scope
+    template_type: system
+    template: table
+    skip_if_no_data: true
+
+  Battery Summary:
+    type: test
+    description: Start and end battery %, overall drain rate and drain rate per mode (%/min).
+    query_string: |
+      WITH s AS (
+        SELECT mode, timestamp AS ts, battery_pct AS b,
+               LEAD(timestamp) OVER (PARTITION BY job_id ORDER BY timestamp) - timestamp AS dt,
+               battery_pct - LEAD(battery_pct) OVER (PARTITION BY job_id ORDER BY timestamp) AS db
+        FROM drive_telemetry
+      ), o AS (
+        SELECT MIN_BY(b, ts) AS b0, MAX_BY(b, ts) AS b1, MAX(ts) - MIN(ts) AS span FROM s
+      ), m AS (
+        SELECT mode, SUM(db) / NULLIF(SUM(dt), 0) * 6E10 AS rate
+        FROM s WHERE dt IS NOT NULL GROUP BY mode
+      )
+      SELECT "Field", "Value" FROM (
+        SELECT 1 AS k, 'Start (%)' AS "Field", format('%.2f', b0) AS "Value" FROM o
+        UNION ALL SELECT 2, 'End (%)', format('%.2f', b1) FROM o
+        UNION ALL SELECT 3, 'Drain rate, whole drive (%/min)', format('%.3f', (b0 - b1) / NULLIF(span, 0) * 6E10) FROM o
+        UNION ALL SELECT 4, 'Drain rate while ' || mode || ' (%/min)', format('%.3f', rate) FROM m
+      ) ORDER BY k, "Field"
+    template_type: system
+    template: table
+    skip_if_no_data: true
+
+  Mode Summary:
+    type: test
+    description: Seconds in each mode, number of mode changes and number of single-sample (100 ms) flips.
+    query_string: |
+      WITH s AS (
+        SELECT mode,
+               LAG(mode) OVER (PARTITION BY job_id ORDER BY timestamp) AS pm,
+               LEAD(mode) OVER (PARTITION BY job_id ORDER BY timestamp) AS nm,
+               LEAD(timestamp) OVER (PARTITION BY job_id ORDER BY timestamp) - timestamp AS dt
+        FROM drive_telemetry
+      )
+      SELECT "Field", "Value" FROM (
+        SELECT 1 AS k, 'Time in ' || mode || ' (s)' AS "Field", format('%.1f', SUM(dt) / 1E9) AS "Value"
+        FROM s WHERE dt IS NOT NULL GROUP BY mode
+        UNION ALL
+        SELECT 2, 'Mode changes (count)', CAST(COUNT_IF(pm IS NOT NULL AND mode <> pm) AS VARCHAR) FROM s
+        UNION ALL
+        SELECT 3, 'Single-sample flips (count)',
+               CAST(COUNT_IF(pm IS NOT NULL AND nm IS NOT NULL AND mode <> pm AND mode <> nm) AS VARCHAR) FROM s
+      ) ORDER BY k, "Field"
+    template_type: system
+    template: table
+    skip_if_no_data: true
+
+  Tracking Error:
+    type: test
+    description: speed_mps - cmd_speed_mps (m/s) against time since drive start.
+    query_string: |
+      SELECT 'speed - cmd' AS group_name, timestamp / 1E9 AS "Time since start (s)",
+             speed_mps - cmd_speed_mps AS "Tracking error (m/s)"
+      FROM drive_telemetry ORDER BY 2
+    template_type: system
+    template: line
+    skip_if_no_data: true
+    template_settings:
+      yaxis: {label: Tracking error (m/s)}
+
+  Speed vs Command:
+    type: test
+    description: Measured and commanded speed (m/s) as two lines, to read each error spike against the command.
+    query_string: |
+      SELECT 'Measured' AS group_name, timestamp / 1E9 AS "Time since start (s)", speed_mps AS "Speed (m/s)"
+      FROM drive_telemetry
+      UNION ALL
+      SELECT 'Commanded', timestamp / 1E9, cmd_speed_mps FROM drive_telemetry
+      ORDER BY 1, 2
+    template_type: system
+    template: line
+    skip_if_no_data: true
+    template_settings:
+      yaxis: {label: Speed (m/s)}
+      display: {legend: bottom}
+
+  Tracking Error Distribution:
+    type: test
+    description: Histogram of speed - cmd (m/s) over the drive.
+    query_string: SELECT speed_mps - cmd_speed_mps AS "Tracking error (m/s)" FROM drive_telemetry
+    template_type: system
+    template: histogram
+    skip_if_no_data: true
+    template_settings:
+      display: {bins: 40}
+
+  Battery Over Time:
+    type: test
+    description: battery_pct (%) against time since drive start; its slope is the drain rate.
+    query_string: |
+      SELECT 'Battery' AS group_name, timestamp / 1E9 AS "Time since start (s)", battery_pct AS "Battery (%)"
+      FROM drive_telemetry ORDER BY 2
+    template_type: system
+    template: line
+    skip_if_no_data: true
+    template_settings:
+      yaxis: {label: Battery (%)}
+
+  Drain Rate Over Time:
+    type: test
+    description: Battery drain rate (%/min) over a trailing 5 s window. Flat today; the battery signal is synthetic.
+    query_string: |
+      SELECT '5 s window' AS group_name, ts / 1E9 AS "Time since start (s)",
+             (b_first - b) / NULLIF(ts - ts_first, 0) * 6E10 AS "Drain rate (%/min)"
+      FROM (
+        SELECT timestamp AS ts, battery_pct AS b,
+               FIRST_VALUE(battery_pct) OVER (PARTITION BY job_id ORDER BY timestamp
+                 RANGE BETWEEN BIGINT '5000000000' PRECEDING AND CURRENT ROW) AS b_first,
+               FIRST_VALUE(timestamp) OVER (PARTITION BY job_id ORDER BY timestamp
+                 RANGE BETWEEN BIGINT '5000000000' PRECEDING AND CURRENT ROW) AS ts_first,
+               MIN(timestamp) OVER (PARTITION BY job_id) AS t0
+        FROM drive_telemetry
+      )
+      WHERE ts - t0 >= 5E9
+      ORDER BY 2
+    template_type: system
+    template: line
+    skip_if_no_data: true
+    template_settings:
+      yaxis: {label: Drain rate (%/min)}
+
+  Mode Over Time:
+    type: test
+    description: AUTO / IDLE bands over the drive.
+    query_string: |
+      SELECT 'Mode' AS "System", timestamp / 1E9 AS "Time since start (s)", mode AS "Mode"
+      FROM drive_telemetry ORDER BY 2
+    template_type: system
+    template: state_timeline
+    skip_if_no_data: true
+    template_settings:
+      display: {time_axis: elapsed}
+
+  Time Share by Mode:
+    type: test
+    description: Share of drive time (s) in each mode. Not obstacle-avoidance time; no such mode exists yet.
+    query_string: |
+      SELECT mode AS "Mode", SUM(dt) / 1E9 AS "Seconds"
+      FROM (
+        SELECT mode, LEAD(timestamp) OVER (PARTITION BY job_id ORDER BY timestamp) - timestamp AS dt
+        FROM drive_telemetry
+      )
+      WHERE dt IS NOT NULL GROUP BY mode
+    template_type: system
+    template: pie
+    skip_if_no_data: true
+    template_settings:
+      display: {text_info: label_percent}
+
+  # ---------------------------------------------------------------- per batch
+  Drive Leaderboard:
+    type: batch
+    description: One row per drive, worst RMS tracking error first; also p90, max, drain rate and AUTO seconds.
+    query_string: |
+      WITH s AS (
+        SELECT job_id, experience_name, timestamp AS ts, mode, battery_pct AS b,
+               ABS(speed_mps - cmd_speed_mps) AS a,
+               LEAD(timestamp) OVER (PARTITION BY job_id ORDER BY timestamp) - timestamp AS dt
+        FROM drive_telemetry
+      )
+      SELECT experience_name AS "Drive",
+             ROUND(SQRT(AVG(a * a)), 3) AS "RMS |err| (m/s)",
+             ROUND(approx_percentile(a, 0.9), 3) AS "p90 |err| (m/s)",
+             ROUND(MAX(a), 3) AS "Max |err| (m/s)",
+             ROUND((MIN_BY(b, ts) - MAX_BY(b, ts)) / NULLIF(MAX(ts) - MIN(ts), 0) * 6E10, 3) AS "Drain rate (%/min)",
+             ROUND(COALESCE(SUM(CASE WHEN mode = 'AUTO' THEN dt END), 0) / 1E9, 1) AS "AUTO time (s)"
+      FROM s GROUP BY job_id, experience_name
+      ORDER BY 2 DESC
+    template_type: system
+    template: table
+    skip_if_no_data: true
+
+  Tracking RMS by Drive:
+    type: batch
+    description: RMS tracking error (m/s) per drive.
+    query_string: |
+      SELECT 'RMS' AS group_name, experience_name AS "Drive",
+             SQRT(AVG(POWER(speed_mps - cmd_speed_mps, 2))) AS "RMS tracking error (m/s)"
+      FROM drive_telemetry GROUP BY experience_name ORDER BY 2
+    template_type: system
+    template: bar
+    skip_if_no_data: true
+
+  Drain Rate by Drive:
+    type: batch
+    description: Overall battery drain rate (%/min) per drive.
+    query_string: |
+      SELECT 'Drain rate' AS group_name, experience_name AS "Drive",
+             (MIN_BY(battery_pct, timestamp) - MAX_BY(battery_pct, timestamp))
+               / NULLIF(MAX(timestamp) - MIN(timestamp), 0) * 6E10 AS "Drain rate (%/min)"
+      FROM drive_telemetry GROUP BY experience_name ORDER BY 2
+    template_type: system
+    template: bar
+    skip_if_no_data: true
+
+  AUTO Time by Drive:
+    type: batch
+    description: Seconds in AUTO per drive.
+    query_string: |
+      SELECT 'AUTO' AS group_name, experience_name AS "Drive",
+             COALESCE(SUM(CASE WHEN mode = 'AUTO' THEN dt END), 0) / 1E9 AS "AUTO time (s)"
+      FROM (
+        SELECT experience_name, mode,
+               LEAD(timestamp) OVER (PARTITION BY job_id ORDER BY timestamp) - timestamp AS dt
+        FROM drive_telemetry
+      )
+      GROUP BY experience_name ORDER BY 2
+    template_type: system
+    template: bar
+    skip_if_no_data: true
+
+  # ---------------------------------------------------------------- dashboard (x = ISO week from the batch version)
+  Tracking RMS over Weeks:
+    type: dashboard
+    description: Median and max per-drive RMS tracking error (m/s), one point per weekly batch.
+    query_string: |
+      WITH d AS (
+        SELECT build_version, job_id, SQRT(AVG(POWER(speed_mps - cmd_speed_mps, 2))) AS rms
+        FROM drive_telemetry GROUP BY build_version, job_id
+      ), w AS (
+        SELECT TRY(from_iso8601_date(build_version)) AS wk,
+               approx_percentile(rms, 0.5) AS med, MAX(rms) AS mx
+        FROM d GROUP BY 1
+      )
+      SELECT 'Median' AS group_name, wk AS "Week start date", med AS "RMS tracking error (m/s)" FROM w WHERE wk IS NOT NULL
+      UNION ALL
+      SELECT 'Max', wk, mx FROM w WHERE wk IS NOT NULL
+      ORDER BY 1, 2
+    template_type: system
+    template: line
+    skip_if_no_data: true
+
+  Drain Rate over Weeks:
+    type: dashboard
+    description: Median per-drive battery drain rate (%/min), one point per weekly batch.
+    query_string: |
+      WITH d AS (
+        SELECT build_version, job_id,
+               (MIN_BY(battery_pct, timestamp) - MAX_BY(battery_pct, timestamp))
+                 / NULLIF(MAX(timestamp) - MIN(timestamp), 0) * 6E10 AS rate
+        FROM drive_telemetry GROUP BY build_version, job_id
+      ), w AS (
+        SELECT TRY(from_iso8601_date(build_version)) AS wk, approx_percentile(rate, 0.5) AS med
+        FROM d GROUP BY 1
+      )
+      SELECT 'Median' AS group_name, wk AS "Week start date", med AS "Drain rate (%/min)"
+      FROM w WHERE wk IS NOT NULL ORDER BY 2
+    template_type: system
+    template: line
+    skip_if_no_data: true
+
+  AUTO Share over Weeks:
+    type: dashboard
+    description: Share of drive time in AUTO (%) per weekly batch.
+    query_string: |
+      WITH s AS (
+        SELECT build_version, mode,
+               LEAD(timestamp) OVER (PARTITION BY job_id ORDER BY timestamp) - timestamp AS dt
+        FROM drive_telemetry
+      ), w AS (
+        SELECT TRY(from_iso8601_date(build_version)) AS wk,
+               100 * COALESCE(SUM(CASE WHEN mode = 'AUTO' THEN dt END), 0) / NULLIF(SUM(dt), 0) AS pct
+        FROM s WHERE dt IS NOT NULL GROUP BY 1
+      )
+      SELECT 'AUTO' AS group_name, wk AS "Week start date", pct AS "AUTO share (%)"
+      FROM w WHERE wk IS NOT NULL ORDER BY 2
+    template_type: system
+    template: line
+    skip_if_no_data: true
+
+metrics sets:
+  Drive Telemetry:
+    metrics:
+      - Drive Summary
+      - Tracking Error Summary
+      - Battery Summary
+      - Mode Summary
+      - Tracking Error
+      - Speed vs Command
+      - Tracking Error Distribution
+      - Battery Over Time
+      - Drain Rate Over Time
+      - Mode Over Time
+      - Time Share by Mode
+      - Drive Leaderboard
+      - Tracking RMS by Drive
+      - Drain Rate by Drive
+      - AUTO Time by Drive
+  Drive Telemetry Trends:
+    metrics:
+      - Tracking RMS over Weeks
+      - Drain Rate over Weeks
+      - AUTO Share over Weeks
+
+dashboards:
+  Drive Telemetry Trends:
+    description: Week-over-week tracking error, battery drain and AUTO share across field drives.
+    metrics_set: Drive Telemetry Trends
+    refresh: auto
+    day_range: 365

@@ -1,0 +1,5 @@
+tests/signalflag/work/
+tests/signalflag/.venv/
+__pycache__/
+*.pyc
+.venv*/
