@@ -6,7 +6,7 @@ Claude Code skills for getting experiment and simulation results into [SignalFla
 
 | Skill | Does |
 |---|---|
-| `signalflag-onboard` | The entry point. It checks for an existing brief and asks one question first: *you decide* (only the project is asked) or *walk me through it* (options with a recommendation at each step). Then it writes `docs/signalflag/<topic>-brief.md`. Today it routes to the SDK path; cloud runs will branch here later. |
+| `signalflag-onboard` | The entry point. It checks for an existing brief and asks one question first: *you decide* (only the project is asked) or *walk me through it* (options with a recommendation at each step). Then it writes the plan as `docs/signalflag/<test-type>-test-brief.md`. Today it routes to the SDK path; cloud runs will branch here later. |
 | `signalflag-auth` | Checks the SDK's device-code token with `check_token.py`. The person runs `login.py` themselves. Finds the SignalFlag MCP by its tools. |
 | `signalflag-design-metrics` | Profiles the data and writes the metrics plan: what ran first, 5–20 test metrics, margins, threshold sources, events. |
 | `signalflag-compose-metrics` | Writes `.resim/metrics/config.resim.yml` and templates, validates and previews them, and proves them with a scratch-branch sync. |

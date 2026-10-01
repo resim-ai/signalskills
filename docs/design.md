@@ -76,7 +76,7 @@ planned but not written: their baselines passed without them.
 ## The brief
 
 One brief per test type or modality, in the user's repo at
-`docs/signalflag/<topic>-brief.md`. It is the spec the other skills read and
+`docs/signalflag/<test-type>-test-brief.md`. It is the spec the other skills read and
 append to. A fresh session resumes from it.
 
 | Section | Owner | Holds |

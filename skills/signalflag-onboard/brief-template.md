@@ -1,4 +1,4 @@
-# <Test type> — SignalFlag brief
+# <Test type> — SignalFlag test brief
 
 One brief per test type or modality. Each skill fills its own section; leave the others as `_pending: <skill>_`.
 

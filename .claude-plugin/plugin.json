@@ -2,7 +2,7 @@
   "name": "superflowers",
   "displayName": "SignalFlag skills",
   "description": "Get experiment and simulation results into SignalFlag (formerly ReSim) through its Python SDK: onboarding interview, auth, metrics design and config, ingest, verification and iteration.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": { "name": "ReSim", "url": "https://github.com/resim-ai" },
   "homepage": "https://github.com/resim-ai/signalskills",
   "repository": "https://github.com/resim-ai/signalskills",

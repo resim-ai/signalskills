@@ -9,7 +9,7 @@ The entry point. Interview the user, write the brief, route to the SDK skills (c
 
 ## 0. Existing briefs first
 
-Read `docs/signalflag/*-brief.md`. One covers this test type (same runner and artifacts)? Use it, no interview: go to its first `_pending_` section's skill, or `signalflag-iterate` if none. A neighbour (other modality)? New brief, same project and branch conventions.
+Read `docs/signalflag/*-test-brief.md` (or older `*-brief.md`). One covers this test type (same runner and artifacts)? Use it, no interview: go to its first `_pending_` section's skill, or `signalflag-iterate` if none. A neighbour (other modality)? New brief, same project and branch conventions.
 
 ## 1. Read before asking
 
@@ -35,7 +35,7 @@ Record it in Control. Always ask the project; never create it.
 
 ## 4. Write the brief
 
-Copy `brief-template.md` to `docs/signalflag/<topic>-brief.md`, one per test type. Fill Current state, Intent, Control, Mapping, Integration. Mode B: show it; revise until approved. Mode A: don't stop here.
+Copy `brief-template.md` to `docs/signalflag/<test-type>-test-brief.md`. Fill Current state, Intent, Control, Mapping, Integration. Mode B: show it; revise until approved. Mode A: don't stop here.
 
 ## 5. Route
 
