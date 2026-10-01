@@ -1,4 +1,4 @@
-# superflowers
+# signalskills
 
 Claude Code skills for getting experiment and simulation results into [SignalFlag](https://signalflag.ai) (formerly ReSim) through its Python SDK. They're written for engineers who don't know SignalFlag's object model. The agent reads their runs, asks about them, writes one brief per test type, then builds the metrics config and upload code and checks the numbers.
 
@@ -21,7 +21,7 @@ The flow: onboard → auth → design-metrics → compose-metrics → ingest →
 As a Claude Code plugin (recommended). In Claude Code:
 
 ```
-/plugin marketplace add resim-ai/superflowers
+/plugin marketplace add resim-ai/signalskills
 /plugin install superflowers@superflowers
 ```
 
@@ -30,8 +30,8 @@ This installs the seven skills and registers the SignalFlag MCP server (`https:/
 Or link the skills yourself, into a project's `.claude/skills/` or `~/.claude/skills/`:
 
 ```bash
-git clone git@github.com:resim-ai/superflowers.git ~/superflowers
-for s in ~/superflowers/skills/signalflag-*; do ln -s "$s" ~/.claude/skills/; done
+git clone https://github.com/resim-ai/signalskills.git ~/signalskills
+for s in ~/signalskills/skills/signalflag-*; do ln -s "$s" ~/.claude/skills/; done
 claude mcp add --transport http -s user signalflag https://bff.resim.ai/mcp
 ```
 
