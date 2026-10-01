@@ -38,7 +38,7 @@ metrics:
     template_type: system
     template: scalar
     units: m
-    skip_if_no_data: true
+    skip_if_no_data: false          # a gate: must exist every run
     status:
       query_string: SELECT 1 FROM run_summary WHERE margin_m < ?   # exactly one ?
       block: 0
@@ -53,6 +53,36 @@ dashboards:
     metrics_set: Isaac Route Trends  # a set of type: dashboard metrics
     refresh: auto                    # auto | manual
     day_range: 90
+```
+
+## Required vs optional data
+
+`skip_if_no_data: true` hides a metric whose query returns nothing. That's right for **optional** data, which may legitimately be absent from a run: a topic only some tests emit under a shared layout, events, a camera some rigs lack. Without it, such a metric shows as an error or `NO_DATA` on every test that doesn't emit it.
+
+It's wrong for **required** data, which must exist in every run: the verdict, gated numbers, headline metrics. Turning skip off isn't enough on its own. Verified on the server, 2026-10-01:
+
+| Setup, topic emitted nothing | Metric | Job |
+|---|---|---|
+| `skip_if_no_data: true` | hidden | PASSED |
+| `false`, no status | `NO_DATA` | PASSED |
+| `false`, status query that blocks on absence | `NO_DATA`; the status never runs on an empty result | PASSED |
+| `false`, `MIN(x)` query (one NULL row) | `NO_DATA` | PASSED |
+| `false`, `COUNT(*)` query + status below | **FAIL_BLOCK** | **BLOCKER** |
+
+**Design choice first:** if whole groups of metrics only apply to some tests (say, detection metrics for perception tests only), consider one metrics set per test type instead of one shared layout full of optional metrics. A batch picks its set with `Batch(metrics_set_name=…)`, so each test type keeps its required metrics strict. That's the user's test design to decide; raise it, don't impose it.
+
+Every topic a required metric reads gets a presence gate in the test set:
+
+```yaml
+  Run Summary Present:
+    type: test
+    description: Rows in run_summary; blocks when this run emitted none.
+    query_string: SELECT COUNT(*) AS value FROM run_summary
+    template_type: system
+    template: scalar
+    units: rows
+    skip_if_no_data: false
+    status: {query_string: "SELECT 1 FROM (SELECT COUNT(*) AS n FROM run_summary) s WHERE s.n <= ?", block: 0}
 ```
 
 ## Topic types
@@ -72,6 +102,15 @@ Presto/Trino style (`ARBITRARY`, `CAST(x AS VARCHAR)`, window functions). Alias 
 
 ## Branches
 Schemas are additive per branch: removing or retyping a topic or column is refused. Archiving a topic hides its history and can't be undone. Prototype on a scratch branch.
+
+## Scratch sync
+
+```python
+from signalflag.sdk.auth import DeviceCodeClient
+from signalflag.sdk.bff_client import metrics
+metrics.sync_config(DeviceCodeClient(), "<project_id>", "<branch>-scratch-<yyyymmdd-hhmm>",
+    config_path=".resim/metrics/config.resim.yml", templates_path=".resim/metrics/templates")
+```
 
 ## Multiple files
 `Batch(metrics_config_path=[a, b])` merges files; each topic may appear in only one.

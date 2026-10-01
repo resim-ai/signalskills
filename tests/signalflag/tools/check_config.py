@@ -23,8 +23,11 @@ def _topic_violations(topics: dict) -> list[str]:
 def _metric_violations(metrics: dict, templates_dir: Path) -> list[str]:
     out = []
     for name, m in metrics.items():
-        if m.get("skip_if_no_data") is not True:
-            out.append(f"metric {name}: skip_if_no_data must be true")
+        skip = m.get("skip_if_no_data")
+        if not isinstance(skip, bool):
+            out.append(f"metric {name}: set skip_if_no_data explicitly (true only if the data may be absent)")
+        elif skip and m.get("status"):
+            out.append(f"metric {name}: has a status check, so skip_if_no_data must be false (missing data would pass silently)")
         d = str(m.get("description", ""))
         if not d or "\n" in d.strip() or len(d) > MAX_DESCRIPTION:
             out.append(f"metric {name}: description must be one line, <= {MAX_DESCRIPTION} chars")

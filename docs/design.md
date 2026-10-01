@@ -259,7 +259,7 @@ Turns the metrics plan into `.resim/metrics/config.resim.yml` and
   long-format `(name, value)` topics.
 - **Metrics:** `query_string`, `type`, `template_type`, `template` /
   `template_file`, `template_settings`, `units`, `description`,
-  `skip_if_no_data: true` on every metric, `status` (`query_string` with `?`,
+  `skip_if_no_data: true` only on optional metrics (required ones get `false` plus a presence gate), `status` (`query_string` with `?`,
   `warn`, `block`).
 - **`metadata` table** for batch, job, branch, build, experience, status, tags,
   custom fields; `build_version` groups dashboards by version.

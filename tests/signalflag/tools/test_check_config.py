@@ -80,3 +80,24 @@ def test_bigint_rejected_because_the_sdk_emitter_rejects_it(tmp_path):
 def test_dashboard_only_set_needs_no_test_metrics(tmp_path):
     text = GOOD.replace("metrics sets:", "  Trend: {type: dashboard, query_string: SELECT 1, template_type: system, template: line, skip_if_no_data: true, description: t.}\nmetrics sets:\n  Trends: {metrics: [Trend]}")
     assert check(tmp_path, text) == []
+
+
+GATE = """
+  Margin: {type: test, query_string: SELECT err_m AS value FROM err, template_type: system, template: scalar, units: m, skip_if_no_data: SKIP, description: Margin., status: {query_string: "SELECT 1 FROM err WHERE err_m > ?", block: 0.5}}
+"""
+
+
+def _with_gate(skip):
+    return GOOD.replace("metrics sets:", GATE.replace("SKIP", skip).strip("\n") + "\nmetrics sets:").replace("[Replay, Error, Peak, A, B]", "[Replay, Error, Peak, A, B, Margin]")
+
+
+def test_skip_false_is_allowed(tmp_path):
+    assert check(tmp_path, GOOD.replace("skip_if_no_data: true, description: b.", "skip_if_no_data: false, description: b.")) == []
+
+
+def test_status_checked_metric_must_not_skip(tmp_path):
+    assert any("status" in v and "skip_if_no_data" in v for v in check(tmp_path, _with_gate("true")))
+
+
+def test_status_checked_metric_with_skip_false_is_clean(tmp_path):
+    assert check(tmp_path, _with_gate("false")) == []

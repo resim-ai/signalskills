@@ -24,7 +24,7 @@ metrics:
     template_type: system
     template: scalar
     units: m
-    skip_if_no_data: true
+    skip_if_no_data: false
     status: {query_string: "SELECT 1 FROM run_summary WHERE final_error_m > ?", block: 0.5, warn: 0.3}
   Error Over Time:
     type: test
@@ -61,8 +61,17 @@ metrics:
     template_type: system
     template: line
     skip_if_no_data: true
+  Run Summary Present:
+    type: test
+    description: Rows in run_summary; blocks when this run emitted none.
+    query_string: SELECT COUNT(*) AS value FROM run_summary
+    template_type: system
+    template: scalar
+    units: rows
+    skip_if_no_data: false
+    status: {query_string: "SELECT 1 FROM (SELECT COUNT(*) AS n FROM run_summary) s WHERE s.n <= ?", block: 0}
 metrics sets:
-  Sim Suite: {metrics: [Replay, Final Error, Error Over Time, Error Distribution, Run Summary, Final Error by Scenario]}
+  Sim Suite: {metrics: [Replay, Final Error, Error Over Time, Error Distribution, Run Summary, Final Error by Scenario, Run Summary Present]}
   Sim Trends: {metrics: [Final Error Trend]}
 dashboards:
   Sim Trends: {metrics_set: Sim Trends, refresh: auto, day_range: 90}
