@@ -58,7 +58,7 @@ Our onboard skill is `signalflag-onboard`, so it can't be confused with the serv
 ## Layout
 
 ```
-superflowers/
+signalskills/
   signalflag-onboard/          SKILL.md, mapping.md, brief-template.md
   signalflag-auth/             SKILL.md, scripts/check_token.py, scripts/login.py
   signalflag-design-metrics/   SKILL.md, catalog.md

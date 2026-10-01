@@ -22,10 +22,10 @@ As a Claude Code plugin (recommended). In Claude Code:
 
 ```
 /plugin marketplace add resim-ai/signalskills
-/plugin install superflowers@superflowers
+/plugin install signalskills@signalskills
 ```
 
-This installs the seven skills and registers the SignalFlag MCP server (`https://bff.resim.ai/mcp`). Run `/mcp` once and sign in. Update later with `/plugin marketplace update superflowers`.
+This installs the seven skills and registers the SignalFlag MCP server (`https://bff.resim.ai/mcp`). Run `/mcp` once and sign in. Update later with `/plugin marketplace update signalskills`.
 
 Or link the skills yourself, into a project's `.claude/skills/` or `~/.claude/skills/`:
 
@@ -36,6 +36,13 @@ claude mcp add --transport http -s user signalflag https://bff.resim.ai/mcp
 ```
 
 The skills need `signalflag==1.8.0` in a venv. They create one when it's missing and never install outside a venv.
+
+Installed it before under the old name `superflowers`? Remove it first, then install as above:
+
+```
+/plugin uninstall superflowers@superflowers
+/plugin marketplace remove superflowers
+```
 
 ## Use
 
@@ -67,8 +74,8 @@ Installed plugins update only when `version` in `.claude-plugin/plugin.json` cha
 Users then pick it up with:
 
 ```
-/plugin marketplace update superflowers
-/plugin update superflowers@superflowers
+/plugin marketplace update signalskills
+/plugin update signalskills@signalskills
 ```
 
 and restart Claude Code. If you push without bumping the version, people who already installed it keep the old copy.
