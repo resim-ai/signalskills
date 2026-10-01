@@ -1,6 +1,8 @@
 # Templates
 
-System templates (MCP `list_chart_templates`): `line, bar, table, scalar, image, state_timeline, histogram, pie, artifact`. `video` isn't listed but sync accepts it; animated GIFs render as `image`.
+System templates (MCP `list_chart_templates`): `line, bar, table, scalar, image, state_timeline, histogram, pie, artifact`. `video` isn't listed but sync accepts it.
+
+**Media type follows the file:** `.gif` (animated or not), `.png`, `.jpg` → `image`; `.mp4`, `.webm` → `video`. Both the topic column and the metric's template. A GIF typed `video` syncs, uploads and renders with no error — it just gets a video player that can't play it.
 
 | Template | Columns, in order | Working query |
 |---|---|---|
@@ -11,7 +13,8 @@ System templates (MCP `list_chart_templates`): `line, bar, table, scalar, image,
 | histogram | values | `SELECT err_m AS "Error (m)" FROM cross_track` (`display: {bins: 30}`) |
 | pie | label, value | `SELECT mode AS "Mode", COUNT(*) AS "Samples" FROM telemetry GROUP BY 1` |
 | state_timeline | system, timestamp, state | `SELECT 'Mission' AS "System", timestamp, state FROM mission_state` |
-| image / video | filename — a topic column typed `image` / `video`, not `string`; value = the `attach_log` basename | `SELECT filename FROM replay` |
+| image | filename — topic column typed `image` (GIF, PNG, JPG); value = the `attach_log` basename | `SELECT filename FROM replay` |
+| video | filename — topic column typed `video` (MP4, WebM only) | `SELECT filename FROM camera` |
 
 ## Escape hatches (no system template draws it)
 

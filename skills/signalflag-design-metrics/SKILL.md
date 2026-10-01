@@ -21,7 +21,7 @@ Control: <agent-led | partial | user-led, from the brief>
 
 | # | Question (from the brief) | Metric | Level | Template | Status check | Units | Threshold source | Description (one line) |
 |---|---|---|---|---|---|---|---|---|
-| 1 | What actually ran? | replay | test | video / image | — | — | — | Replay of the run. |
+| 1 | What actually ran? | replay | test | image (GIF) / video (MP4) | — | — | — | Replay of the run. |
 | … |
 
 ### Emitted, not charted
@@ -32,16 +32,16 @@ Control: <agent-led | partial | user-led, from the brief>
 ```
 
 Rules for the table:
-- **Row 1 is what ran** when a camera, replay or GIF exists: a `video`/`image` metric, not just an attachment.
-- **5–20 test-level rows.** A scalar takes a line chart's placard: group headline numbers in one `table` row.
+- **Row 1 is what ran** when a camera or replay exists: a metric, not just an attachment. GIF → `image`, MP4 → `video`.
+- **5–20 test-level rows.** A scalar takes a line chart's placard: group headline numbers in a `table`.
 - **Agent-led uses a spread of templates** — at least four of line, bar, table, scalar, histogram, state_timeline, image/video, pie.
-- **Every pass/fail gets a margin row** (distance to the threshold).
-- **Every threshold names its source**: a spec, a measured percentile, the user, or "provisional — needs a repeat run".
+- **Every pass/fail gets a margin row** (distance to threshold).
+- **Every threshold names its source**: spec, measured percentile, the user, or "provisional — needs a repeat run".
 - **A chart no system template draws** → custom template (Plotly), not dropped or bent.
 
 Levels: `test` (one run) · `batch` (its tests) · `dashboard` (batches over time, one branch).
 
-Template per question: top of `catalog.md`.
+Templates per question: `catalog.md`.
 
 ## 3. Events
 

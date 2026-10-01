@@ -5,7 +5,7 @@ description: Use when a SignalFlag (formerly ReSim) ingest exists and needs chec
 
 # signalflag-verify
 
-Proves the ingest puts the right numbers in SignalFlag. **REQUIRED:** `signalflag-auth` first. Two passes, in order; the real branch only ever gets real rounds.
+Proves the ingest puts the right numbers in SignalFlag. **REQUIRED:** `signalflag-auth`. Two passes; the real branch only gets real rounds.
 
 ## 1. Low-res — scratch branch
 
@@ -19,7 +19,8 @@ Check:
 |---|---|
 | Config synced, every emit validated | the run's output |
 | Every job SUCCEEDED, no `LogUploadError` | `get_batch`, `list_jobs` |
-| Every metric in the set has data | `get_metrics_summary` with `statuses: [ERROR, NO_DATA]` → must be empty |
+| Media type matches the file (GIF → `image`, MP4 → `video`) | summary `type` vs `list_logs` names |
+| Every metric has data | `get_metrics_summary`, `statuses: [ERROR, NO_DATA]` → empty |
 | Statuses are what the brief expects | `get_metrics_summary` per job |
 | Values right | step 3, on the low-res tests |
 
@@ -33,7 +34,7 @@ Only after low-res passes: `--branch <branch> --version V`, nothing else. Then:
 - Values: step 3 on every test.
 - Dashboard: `get_dashboard` shows the version, or say it hasn't refreshed.
 
-**Never push a duplicate round to the real branch** to feed a dashboard or "since last round" metric — it's a fake round in their history. Check that query on the scratch branch.
+**Never push a duplicate round to the real branch** to feed a dashboard or "since last round" metric; check that query on the scratch branch.
 
 ## 3. Values: recompute from the source, not the reader
 

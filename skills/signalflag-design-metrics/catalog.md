@@ -19,7 +19,7 @@ Propose a row only when the data profile has the fields in "Needs".
 ## Navigation / path following
 | Metric | Needs | Level | Template |
 |---|---|---|---|
-| Replay of the run | camera topic, replay GIF or video | test | video / image |
+| Replay of the run | replay GIF → `image`; MP4 → `video` | test | image / video by file |
 | Cross-track error over time | pose + reference path, timestamps | test | line |
 | RMS / peak cross-track | same | test | table |
 | Terminal distance, and margin to tolerance | final pose, goal, tolerance | test | table + status |
@@ -33,7 +33,7 @@ Propose a row only when the data profile has the fields in "Needs".
 ## Manipulation
 | Metric | Needs | Level | Template |
 |---|---|---|---|
-| Replay | camera | test | video |
+| Replay | camera (GIF → `image`, MP4 → `video`) | test | image / video by file |
 | Stage reached, and time to each stage | stage events with timestamps | test | bar |
 | Success rate by build | per-test success | dashboard | bar |
 | Grasp attempts per success | attempt events | batch | histogram |
@@ -41,7 +41,7 @@ Propose a row only when the data profile has the fields in "Needs".
 ## Perception
 | Metric | Needs | Level | Template |
 |---|---|---|---|
-| Input beside output | camera + output grid/detections | test | video / image |
+| Input beside output | camera + output grid/detections | test | image / video by file |
 | Precision / recall / detection rate | truth + detections | test | table + status |
 | Latency distribution | input and output stamps | test | histogram |
 | Output cadence | output stamps | test | line |

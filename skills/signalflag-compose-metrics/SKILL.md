@@ -17,17 +17,18 @@ Turns the Metrics plan into the synced config. Syntax, columns, queries: `config
 ## Every metric carries
 
 - `skip_if_no_data: true`
-- `description:` one line, ≤ 120 characters
+- `description:` one line, ≤ 120 chars
 - `units:` on every `scalar`
+- media typed by file, column and template: GIF → `image`, MP4 → `video` (GIF as `video` fails silently)
 - the plan's template; the media ("what ran") metric first in the test set; 5–20 test metrics per set
 
 ## Order of work
 
 1. **Start from the branch.** Find the project with a paged `list_projects` (`whoami` shows only some). If the brief's branch exists, read its config (`get_metrics_config`): **keep every existing topic and column as-is** — schemas only grow per branch.
-2. **Topics** from the plan and the `Emitted, not charted` list. Every emit must carry every column and no `None`, so a field only some rows have gets its own topic; data-first leans long-format `(name, value)`. Event topics: `event: true` + `name, description, status, tags, metrics: metric[]`.
-3. **Metrics** row by row. No system template draws it → custom template (`templates.md`), never dropped or bent.
-4. **Validate** with MCP `validate_metrics_config` on the brief's branch. No branch yet? Validate against any branch; read "topic X would be removed" as that branch's history. Validate the file you wrote, never a copy edited to pass.
-5. **Preview** with `preview_metric` where the branch has data; it checks SQL columns. It spends the org's daily query budget.
+2. **Topics** from the plan and `Emitted, not charted`. Every emit carries every column, no `None`, so a field only some rows have gets its own topic; data-first leans long-format `(name, value)`. Event topics: `event: true` + `name, description, status, tags, metrics: metric[]`.
+3. **Metrics** row by row. No system template draws it → custom template (`templates.md`), never dropped.
+4. **Validate** with MCP `validate_metrics_config` on the brief's branch. No branch yet? Validate against any branch; read "topic X would be removed" as that branch's history. Validate the file you wrote, not an edited copy.
+5. **Preview** with `preview_metric` where the branch has data; it checks SQL columns; costs daily query budget.
 6. **Prove it with a scratch sync.** The validator can't see templates and parses SQL more loosely than import. After `check_token.py` exits 0, sync the exact files to a fresh `<branch>-scratch-<yyyymmdd-hhmm>`; accepted there = accepted on the branch, bar step 1's additive check:
    ```python
    from signalflag.sdk.auth import DeviceCodeClient
@@ -35,7 +36,7 @@ Turns the Metrics plan into the synced config. Syntax, columns, queries: `config
    metrics.sync_config(DeviceCodeClient(), "<project_id>", "<branch>-scratch-<yyyymmdd-hhmm>",
        config_path=".resim/metrics/config.resim.yml", templates_path=".resim/metrics/templates")
    ```
-7. **Fill the brief's `## Config`**: path, topics with the columns ingest must emit, sets, dashboards, what was and wasn't previewed.
+7. **Fill the brief's `## Config`**: path, topics and their columns, sets, dashboards, what was previewed.
 
 ## Traps
 
@@ -49,4 +50,4 @@ Turns the Metrics plan into the synced config. Syntax, columns, queries: `config
 | Custom chart `RENDER_ERROR json_parse_failed` | Server Liquid has no `json` filter; see `templates.md` |
 | Validator passes, sync fails to parse | Stricter parser at import, e.g. `VALUES ('a'), ('b')` needs the parentheses |
 
-Hand-off: the config syncs when `signalflag-ingest` opens its `Batch`. Next: `signalflag-ingest`.
+Next: `signalflag-ingest`; the config syncs when its `Batch` opens.

@@ -45,7 +45,7 @@ with Batch(client, project_name=P, branch=B, version=V, name=N, metrics_set_name
         with Test(client, batch, name=run.test_name) as t:   # same name => same experience
             t.emit_series("tracking", {"err_m": errs[::stride]}, timestamps=ts[::stride])
             t.attach_log(str(gif), LogType.OTHER_LOG)
-            t.emit("replay", {"filename": gif.name}, ts[0])   # == the attached basename
+            t.emit("replay", {"filename": gif.name}, ts[0])   # basename; column typed image (GIF)
 print(f"https://app.signalflag.ai/projects/{batch.project_id}/batches/{batch.id}")
 ```
 
