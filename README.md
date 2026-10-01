@@ -55,3 +55,20 @@ bash tools/new_workspace.sh rl_project demo-1       # a fresh workspace from a s
 The `rl_project`, `pytest_suite`, `parquet_dump` and `sim_runner` fixtures are synthetic (`tools/make_fixtures.py`). The `m6` and `replay` scenarios used private robot data. Their records are kept, but their fixtures aren't in this repo.
 
 `docs/design.md` is the spec and `docs/plan.md` the implementation plan.
+
+## Releasing changes
+
+Installed plugins update only when `version` in `.claude-plugin/plugin.json` changes. Claude Code compares that number, not the commits. So with every change users should get:
+
+1. Bump `version`, following semver: patch for skill wording and fixes, minor for new skills or behaviour, major for breaking renames.
+2. Run `claude plugin validate .`.
+3. Commit and push to `main`.
+
+Users then pick it up with:
+
+```
+/plugin marketplace update superflowers
+/plugin update superflowers@superflowers
+```
+
+and restart Claude Code. If you push without bumping the version, people who already installed it keep the old copy.
