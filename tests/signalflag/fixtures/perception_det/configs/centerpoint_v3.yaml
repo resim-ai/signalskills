@@ -1,0 +1,12 @@
+model: centerpoint_pillar
+voxel_size: [0.2, 0.2, 8.0]
+point_cloud_range: [-51.2, -51.2, -5.0, 51.2, 51.2, 3.0]
+classes: [car, truck, bus, pedestrian, bicycle, traffic_cone]
+train:
+  epochs: 30
+  lr: 0.001
+  batch_size: 16
+  save_every: 5
+eval:
+  splits: [day, night, rain]
+  dist_ths: [0.5, 1.0, 2.0, 4.0]

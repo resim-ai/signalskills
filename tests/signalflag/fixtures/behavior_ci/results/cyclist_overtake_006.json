@@ -1,0 +1,9 @@
+{
+  "scenario_id": "cyclist_overtake_006",
+  "family": "cyclist_overtake",
+  "pass": true,
+  "min_ttc_s": 4.421,
+  "max_decel": 2.037,
+  "collisions": 0,
+  "route_completion": 1.0
+}

@@ -1,0 +1,3 @@
+[replay] scenario=roundabout_merge_05 bag=/scenarios/roundabout_merge_05.mcap rate=1.0 clock=on
+[replay] recorded /perception/detections /perception/tracks -> /outputs/roundabout_merge_05/output.mcap
+[replay] done: exit 0

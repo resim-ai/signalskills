@@ -1,0 +1,8 @@
+[project]
+name = "acme-sim-tests"
+version = "0.3.0"
+dependencies = ["numpy"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+signalflag = ["signalflag==1.8.0"]

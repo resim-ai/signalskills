@@ -1,0 +1,32 @@
+{
+  "image_id": "da_0067",
+  "file_name": "images/dashcam_a/da_0067.jpg",
+  "width": 960,
+  "height": 640,
+  "annotations": [
+    {
+      "id": 1,
+      "category": "truck",
+      "bbox": [
+        725.2,
+        281.4,
+        43.8,
+        33.7
+      ],
+      "area": 1476.1,
+      "iscrowd": 0
+    },
+    {
+      "id": 2,
+      "category": "pedestrian",
+      "bbox": [
+        656.4,
+        323.4,
+        61.5,
+        153.7
+      ],
+      "area": 9452.5,
+      "iscrowd": 0
+    }
+  ]
+}

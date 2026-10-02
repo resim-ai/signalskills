@@ -1,6 +1,6 @@
 ---
 name: signalflag-verify
-description: Use when a SignalFlag (formerly ReSim) ingest exists and needs checking against its brief — before the first real push, after changing a reader, config or uploader, or when SignalFlag numbers look wrong.
+description: Use when a SignalFlag (formerly ReSim) ingest and its brief in docs/signalflag/ both exist and the ingest needs checking against the brief — before the first real push, after changing a reader, config or uploader, or when SignalFlag numbers look wrong. No brief yet → signalflag-onboard first.
 ---
 
 # signalflag-verify

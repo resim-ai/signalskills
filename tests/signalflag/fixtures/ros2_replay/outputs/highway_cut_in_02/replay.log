@@ -1,0 +1,3 @@
+[replay] scenario=highway_cut_in_02 bag=/scenarios/highway_cut_in_02.mcap rate=1.0 clock=on
+[replay] recorded /perception/detections /perception/tracks -> /outputs/highway_cut_in_02/output.mcap
+[replay] done: exit 0

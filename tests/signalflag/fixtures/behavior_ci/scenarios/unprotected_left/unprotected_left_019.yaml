@@ -1,0 +1,13 @@
+id: unprotected_left_019
+family: unprotected_left
+seed: 5481
+duration_s: 15.0
+map: town_grid_v3
+params:
+  ego_speed: 16.8
+  actor_speed: 14.5
+  gap_m: 43.3
+  actor_brake: 1.0
+  event_t: 1.6
+  planner_ttc: 5.0
+  route_m: 119.6

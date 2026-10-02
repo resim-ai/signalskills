@@ -1,0 +1,14 @@
+# Replay one scenario in the release image: SCENARIO=rain_crosswalk docker compose run --rm replay
+name: yard-perception-replay
+
+services:
+  replay:
+    image: acme/perception:2026.09.4
+    working_dir: /work
+    command: python replay/run_replay.py --scenario ${SCENARIO:-day_parking_lot}
+    volumes:
+      - ./scenarios:/work/scenarios:ro
+      - ./recordings:/work/recordings:ro
+      - ./labels:/work/labels:ro
+      - ./replay:/work/replay:ro
+      - ./outputs:/work/outputs

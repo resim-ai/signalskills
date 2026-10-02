@@ -1,0 +1,5 @@
+site: warehouse-a
+robots:
+  amr-01: {zone: aisles-north, sensors: [lidar, wheel_odom, imu]}
+  amr-02: {zone: aisles-south, sensors: [lidar, wheel_odom, imu]}
+  amr-03: {zone: yard, sensors: [lidar, wheel_odom, imu, gnss]}

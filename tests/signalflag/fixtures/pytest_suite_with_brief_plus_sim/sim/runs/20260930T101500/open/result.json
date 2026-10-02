@@ -1,0 +1,8 @@
+{
+  "scenario": "open",
+  "reached_goal": true,
+  "time_to_goal_s": 8.1,
+  "min_clearance_m": 5.0,
+  "max_tracking_error_m": 0.0962,
+  "planned_path_m": 8.0
+}

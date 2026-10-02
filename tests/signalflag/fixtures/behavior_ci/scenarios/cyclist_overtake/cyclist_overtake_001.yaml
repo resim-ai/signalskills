@@ -1,0 +1,13 @@
+id: cyclist_overtake_001
+family: cyclist_overtake
+seed: 9281
+duration_s: 15.0
+map: suburb_loop_v2
+params:
+  ego_speed: 21.1
+  actor_speed: 20.9
+  gap_m: 57.9
+  actor_brake: 2.9
+  event_t: 1.5
+  planner_ttc: 5.0
+  route_m: 172.4

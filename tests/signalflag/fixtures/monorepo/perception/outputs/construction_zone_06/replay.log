@@ -1,0 +1,3 @@
+[replay] scenario=construction_zone_06 bag=/scenarios/construction_zone_06.mcap rate=1.0 clock=on
+[replay] recorded /perception/detections /perception/tracks -> /outputs/construction_zone_06/output.mcap
+[replay] done: exit 0

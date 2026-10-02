@@ -1,0 +1,20 @@
+{
+  "image_id": "da_0015",
+  "file_name": "images/dashcam_a/da_0015.jpg",
+  "width": 960,
+  "height": 640,
+  "annotations": [
+    {
+      "id": 1,
+      "category": "car",
+      "bbox": [
+        800.0,
+        295.7,
+        70.9,
+        44.3
+      ],
+      "area": 3140.9,
+      "iscrowd": 0
+    }
+  ]
+}

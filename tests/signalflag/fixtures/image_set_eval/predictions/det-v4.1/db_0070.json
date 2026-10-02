@@ -1,0 +1,36 @@
+{
+  "image_id": "db_0070",
+  "model_version": "det-v4.1",
+  "detections": [
+    {
+      "category": "car",
+      "bbox": [
+        428.7,
+        318.7,
+        140.6,
+        83.1
+      ],
+      "score": 0.732
+    },
+    {
+      "category": "car",
+      "bbox": [
+        248.7,
+        292.9,
+        28.3,
+        20.3
+      ],
+      "score": 0.727
+    },
+    {
+      "category": "car",
+      "bbox": [
+        440.1,
+        283.4,
+        41.9,
+        27.0
+      ],
+      "score": 0.67
+    }
+  ]
+}

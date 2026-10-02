@@ -1,0 +1,11 @@
+trial,success,time_s,notes
+1,yes,9.3,
+2,yes,8.5,
+3,no,11.3,dropped cube during carry
+4,yes,6.8,
+5,yes,9.9,
+6,yes,5.5,
+7,no,11.3,"grasped cube edge, slipped"
+8,yes,8.6,re-grasped once
+9,yes,9.5,
+10,no,11.6,placed next to bin

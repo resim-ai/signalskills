@@ -1,0 +1,6 @@
+case,robot,run,result,notes
+UAT-003,rover-07,1,PASS,
+UAT-006,rover-07,1,FAIL,"stopped 4cm off, retried, timed out"
+UAT-006,rover-07,2,PASS,docked first try
+UAT-012,rover-07,1,PASS,
+UAT-018,rover-07,1,PASS,

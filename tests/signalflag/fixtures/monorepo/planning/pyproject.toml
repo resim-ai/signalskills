@@ -1,0 +1,7 @@
+[project]
+name = "acme-planning"
+version = "0.4.0"
+dependencies = ["numpy"]
+
+[project.optional-dependencies]
+test = ["pytest"]

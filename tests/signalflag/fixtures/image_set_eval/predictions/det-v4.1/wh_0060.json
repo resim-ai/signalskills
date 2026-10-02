@@ -1,0 +1,16 @@
+{
+  "image_id": "wh_0060",
+  "model_version": "det-v4.1",
+  "detections": [
+    {
+      "category": "pedestrian",
+      "bbox": [
+        648.8,
+        369.8,
+        16.5,
+        41.2
+      ],
+      "score": 0.302
+    }
+  ]
+}

@@ -22,5 +22,9 @@ case "$1" in
     ln -s "$repo/test-orchestrator/experiences" "$ws/experiences" ;;
   *) cp -r "$skt/fixtures/$1/." "$ws/" ;;
 esac
+# A fixture's _post_commit/ holds uncommitted local edits: kept out of the commit, applied after it (dirty tree).
+post=""
+if [ -d "$ws/_post_commit" ]; then post="$(mktemp -d)"; mv "$ws/_post_commit" "$post/"; fi
 git -C "$ws" init -q && git -C "$ws" add -A && git -C "$ws" commit -qm fixture
+if [ -n "$post" ]; then cp -r "$post/_post_commit/." "$ws/" && rm -rf "$post"; fi
 echo "$ws"

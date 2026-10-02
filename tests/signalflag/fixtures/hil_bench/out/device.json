@@ -1,0 +1,8 @@
+{
+  "model": "MC4",
+  "serial": "MC4-00172",
+  "firmware": "2.7.1",
+  "hw_rev": "C",
+  "bootloader": "1.3.0",
+  "port": "/dev/ttyACM0"
+}

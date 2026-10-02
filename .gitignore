@@ -3,3 +3,5 @@ tests/signalflag/.venv/
 __pycache__/
 *.pyc
 .venv*/
+# local eval/hillclimb runs (results, transcripts, reports): kept on the machine that ran them
+.claude/hillclimb/

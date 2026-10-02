@@ -1,0 +1,68 @@
+{
+  "image_id": "da_0072",
+  "file_name": "images/dashcam_a/da_0072.jpg",
+  "width": 960,
+  "height": 640,
+  "annotations": [
+    {
+      "id": 1,
+      "category": "truck",
+      "bbox": [
+        194.3,
+        281.4,
+        38.1,
+        29.3
+      ],
+      "area": 1116.3,
+      "iscrowd": 0
+    },
+    {
+      "id": 2,
+      "category": "truck",
+      "bbox": [
+        559.2,
+        286.3,
+        45.9,
+        35.3
+      ],
+      "area": 1620.3,
+      "iscrowd": 0
+    },
+    {
+      "id": 3,
+      "category": "pedestrian",
+      "bbox": [
+        62.0,
+        299.0,
+        16.4,
+        41.1
+      ],
+      "area": 674.0,
+      "iscrowd": 0
+    },
+    {
+      "id": 4,
+      "category": "pedestrian",
+      "bbox": [
+        745.9,
+        286.5,
+        20.9,
+        52.3
+      ],
+      "area": 1093.1,
+      "iscrowd": 0
+    },
+    {
+      "id": 5,
+      "category": "car",
+      "bbox": [
+        322.1,
+        304.9,
+        107.7,
+        67.3
+      ],
+      "area": 7248.2,
+      "iscrowd": 0
+    }
+  ]
+}

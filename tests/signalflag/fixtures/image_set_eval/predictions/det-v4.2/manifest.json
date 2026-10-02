@@ -1,0 +1,11 @@
+{
+  "model_version": "det-v4.2",
+  "checkpoint": "s3://acme-ml/detector/det-v4.2/model.onnx",
+  "input_px": [
+    960,
+    640
+  ],
+  "eval_set": "acme-eval-2026.09",
+  "score_export_min": 0.05,
+  "exported_at": "2026-09-29T16:30:00Z"
+}

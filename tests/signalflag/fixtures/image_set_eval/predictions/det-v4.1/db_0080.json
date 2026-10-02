@@ -1,0 +1,36 @@
+{
+  "image_id": "db_0080",
+  "model_version": "det-v4.1",
+  "detections": [
+    {
+      "category": "car",
+      "bbox": [
+        738.3,
+        310.5,
+        138.6,
+        79.8
+      ],
+      "score": 0.673
+    },
+    {
+      "category": "car",
+      "bbox": [
+        69.4,
+        299.9,
+        55.8,
+        31.4
+      ],
+      "score": 0.662
+    },
+    {
+      "category": "truck",
+      "bbox": [
+        108.1,
+        377.6,
+        86.4,
+        66.5
+      ],
+      "score": 0.38
+    }
+  ]
+}

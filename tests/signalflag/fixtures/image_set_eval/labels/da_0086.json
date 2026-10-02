@@ -1,0 +1,44 @@
+{
+  "image_id": "da_0086",
+  "file_name": "images/dashcam_a/da_0086.jpg",
+  "width": 960,
+  "height": 640,
+  "annotations": [
+    {
+      "id": 1,
+      "category": "truck",
+      "bbox": [
+        105.8,
+        303.0,
+        129.8,
+        99.9
+      ],
+      "area": 12967.0,
+      "iscrowd": 0
+    },
+    {
+      "id": 2,
+      "category": "car",
+      "bbox": [
+        474.0,
+        306.5,
+        125.2,
+        78.3
+      ],
+      "area": 9803.2,
+      "iscrowd": 0
+    },
+    {
+      "id": 3,
+      "category": "truck",
+      "bbox": [
+        374.1,
+        307.1,
+        105.0,
+        80.8
+      ],
+      "area": 8484.0,
+      "iscrowd": 0
+    }
+  ]
+}

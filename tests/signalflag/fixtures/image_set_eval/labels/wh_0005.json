@@ -1,0 +1,56 @@
+{
+  "image_id": "wh_0005",
+  "file_name": "images/warehouse_cam/wh_0005.jpg",
+  "width": 960,
+  "height": 640,
+  "annotations": [
+    {
+      "id": 1,
+      "category": "forklift",
+      "bbox": [
+        330.2,
+        332.3,
+        133.1,
+        147.9
+      ],
+      "area": 19685.5,
+      "iscrowd": 0
+    },
+    {
+      "id": 2,
+      "category": "truck",
+      "bbox": [
+        528.9,
+        286.1,
+        38.6,
+        29.7
+      ],
+      "area": 1146.4,
+      "iscrowd": 0
+    },
+    {
+      "id": 3,
+      "category": "forklift",
+      "bbox": [
+        456.5,
+        297.1,
+        44.6,
+        49.6
+      ],
+      "area": 2212.2,
+      "iscrowd": 0
+    },
+    {
+      "id": 4,
+      "category": "pedestrian",
+      "bbox": [
+        479.5,
+        347.5,
+        97.8,
+        244.5
+      ],
+      "area": 23912.1,
+      "iscrowd": 0
+    }
+  ]
+}

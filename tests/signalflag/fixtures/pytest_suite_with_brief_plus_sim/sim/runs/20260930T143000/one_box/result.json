@@ -1,0 +1,8 @@
+{
+  "scenario": "one_box",
+  "reached_goal": true,
+  "time_to_goal_s": 9.2,
+  "min_clearance_m": 0.1429,
+  "max_tracking_error_m": 0.1355,
+  "planned_path_m": 9.2
+}

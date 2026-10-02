@@ -1,0 +1,13 @@
+id: stop_and_go_013
+family: stop_and_go
+seed: 9402
+duration_s: 15.0
+map: highway_ring_v1
+params:
+  ego_speed: 20.3
+  actor_speed: 18.3
+  gap_m: 37.2
+  actor_brake: 0.3
+  event_t: 4.9
+  planner_ttc: 5.0
+  route_m: 151.0

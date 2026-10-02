@@ -1,0 +1,16 @@
+{
+  "image_id": "wh_0001",
+  "model_version": "det-v4.1",
+  "detections": [
+    {
+      "category": "forklift",
+      "bbox": [
+        591.0,
+        313.7,
+        113.5,
+        114.8
+      ],
+      "score": 0.764
+    }
+  ]
+}

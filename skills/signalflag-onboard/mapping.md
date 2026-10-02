@@ -20,6 +20,7 @@
 | Value computed to assert on | Emitted metric |
 | CI trigger | Integration form; `version` is probably the commit |
 | Logged, never asserted | Data-first for that data |
+| Written test case / procedure ID, repeated on robots or attempts | Test name = the case; repeats are fields inside it or tests — ask |
 
 ## Shape follows what they want to see
 
@@ -37,7 +38,7 @@ RL, two cases — ask which:
 
 | Present | Form | Where the code goes |
 |---|---|---|
-| Sim harness / suite runner | **harness** — SignalFlag wired into the runner | Their runner |
+| Sim harness / suite runner (containerised too) | **harness** — SignalFlag wired into the runner | Their runner; an image without the SDK → the runner's host-side entry point, per run |
 | Local test harness (pytest, eval script) | **hook** — `conftest.py` plugin or eval wrapper | Their repo; dependency via their manager (pyproject extra, etc.) |
 | Loose artifacts, no harness | **script** — ingest over run folders, re-run on new results | Separate; own venv |
 | Existing results, shown once | **one-off** | Separate; own venv |

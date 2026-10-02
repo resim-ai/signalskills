@@ -1,0 +1,1 @@
+loaded checkpoints/ckpt_40000

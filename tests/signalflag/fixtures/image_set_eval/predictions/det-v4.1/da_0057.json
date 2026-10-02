@@ -1,0 +1,46 @@
+{
+  "image_id": "da_0057",
+  "model_version": "det-v4.1",
+  "detections": [
+    {
+      "category": "truck",
+      "bbox": [
+        744.0,
+        284.8,
+        50.6,
+        39.2
+      ],
+      "score": 0.887
+    },
+    {
+      "category": "car",
+      "bbox": [
+        501.1,
+        299.4,
+        145.0,
+        80.6
+      ],
+      "score": 0.668
+    },
+    {
+      "category": "truck",
+      "bbox": [
+        335.5,
+        265.1,
+        102.7,
+        79.0
+      ],
+      "score": 0.093
+    },
+    {
+      "category": "pedestrian",
+      "bbox": [
+        711.7,
+        269.5,
+        35.0,
+        87.6
+      ],
+      "score": 0.05
+    }
+  ]
+}

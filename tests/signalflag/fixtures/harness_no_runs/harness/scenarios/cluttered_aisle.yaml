@@ -1,0 +1,6 @@
+name: cluttered_aisle
+world: worlds/cluttered_aisle.world
+start: [0, 0, 1.57]
+goal: [0, 12]
+timeout_s: 60
+obstacles: [[0.4, 3, 0.3], [-0.5, 6, 0.3], [0.3, 9, 0.3]]

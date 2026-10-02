@@ -39,4 +39,4 @@ Each entry is an object — `{name, type, value}` plus optional `unit`. Proven o
 
 ## Which events
 
-Whatever the brief's `### Events` table lists — typically threshold crossings, state changes, and harness failures (an exception, timeout or failed assertion, backed by a `text` entry with the log excerpt).
+Whatever the brief's `### Events` table lists — typically threshold crossings, state changes that matter, and harness failures (an exception, timeout or failed assertion, backed by a `text` entry with the log excerpt). Set `status` by severity as the brief says (`FAIL_BLOCK` bad run, `FAIL_WARN` worth a look, `PASSED` context). Detectors return episodes, not samples: merge repeats within a few seconds and cap per test (≈ 20, worst first); the full count goes in a metric.

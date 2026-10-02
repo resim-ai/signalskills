@@ -1,0 +1,10 @@
+{
+  "dataset": {
+    "repo_id": "acme/so101_pick_cube",
+    "root": "data"
+  },
+  "steps": 100000,
+  "save_freq": 20000,
+  "batch_size": 8,
+  "seed": 1000
+}

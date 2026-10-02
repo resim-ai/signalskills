@@ -1,0 +1,6 @@
+name: narrow_door
+world: worlds/narrow_door.world
+start: [0, 0, 0]
+goal: [6, 3]
+timeout_s: 60
+obstacles: [[3, 1.2, 0.4], [3, -0.2, 0.4]]

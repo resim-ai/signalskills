@@ -1,0 +1,835 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites><testsuite name="simtest" tests="412" failures="8" errors="0" timestamp="2026-09-30T03:00:12+00:00">
+<testcase classname="simtest.cut_in" name="cut_in_001" time="0.004">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_002" time="0.005">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_003" time="0.006">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_004" time="0.007">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_005" time="0.008">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_006" time="0.009">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_007" time="0.010">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_008" time="0.004">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_009" time="0.005">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_010" time="0.006">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_011" time="0.007">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_012" time="0.008">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_013" time="0.009">
+<failure message="collisions=0, min_ttc_s=0.784, max_decel=5.123, route_completion=1.0">{"scenario_id": "cut_in_013", "family": "cut_in", "pass": false, "min_ttc_s": 0.784, "max_decel": 5.123, "collisions": 0, "route_completion": 1.0}</failure>
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_014" time="0.010">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_015" time="0.004">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_016" time="0.005">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_017" time="0.006">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_018" time="0.007">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_019" time="0.008">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_020" time="0.009">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_021" time="0.010">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_022" time="0.004">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_023" time="0.005">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_024" time="0.006">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_025" time="0.007">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_026" time="0.008">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_027" time="0.009">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_028" time="0.010">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_029" time="0.004">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_030" time="0.005">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_031" time="0.006">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_032" time="0.007">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_033" time="0.008">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_034" time="0.009">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_035" time="0.010">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_036" time="0.004">
+<failure message="collisions=0, min_ttc_s=1.357, max_decel=8.113, route_completion=0.6972">{"scenario_id": "cut_in_036", "family": "cut_in", "pass": false, "min_ttc_s": 1.357, "max_decel": 8.113, "collisions": 0, "route_completion": 0.6972}</failure>
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_037" time="0.005">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_038" time="0.006">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_039" time="0.007">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_040" time="0.008">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_041" time="0.009">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_042" time="0.010">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_043" time="0.004">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_044" time="0.005">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_045" time="0.006">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_046" time="0.007">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_047" time="0.008">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_048" time="0.009">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_049" time="0.010">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_050" time="0.004">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_051" time="0.005">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_052" time="0.006">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_053" time="0.007">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_054" time="0.008">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_055" time="0.009">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_056" time="0.010">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_057" time="0.004">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_058" time="0.005">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_059" time="0.006">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_060" time="0.007">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_061" time="0.008">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_062" time="0.009">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_063" time="0.010">
+</testcase>
+<testcase classname="simtest.cut_in" name="cut_in_064" time="0.004">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_001" time="0.005">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_002" time="0.006">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_003" time="0.007">
+<failure message="collisions=0, min_ttc_s=2.569, max_decel=7.884, route_completion=1.0">{"scenario_id": "cyclist_overtake_003", "family": "cyclist_overtake", "pass": false, "min_ttc_s": 2.569, "max_decel": 7.884, "collisions": 0, "route_completion": 1.0}</failure>
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_004" time="0.008">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_005" time="0.009">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_006" time="0.010">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_007" time="0.004">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_008" time="0.005">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_009" time="0.006">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_010" time="0.007">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_011" time="0.008">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_012" time="0.009">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_013" time="0.010">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_014" time="0.004">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_015" time="0.005">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_016" time="0.006">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_017" time="0.007">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_018" time="0.008">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_019" time="0.009">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_020" time="0.010">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_021" time="0.004">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_022" time="0.005">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_023" time="0.006">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_024" time="0.007">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_025" time="0.008">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_026" time="0.009">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_027" time="0.010">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_028" time="0.004">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_029" time="0.005">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_030" time="0.006">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_031" time="0.007">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_032" time="0.008">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_033" time="0.009">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_034" time="0.010">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_035" time="0.004">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_036" time="0.005">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_037" time="0.006">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_038" time="0.007">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_039" time="0.008">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_040" time="0.009">
+</testcase>
+<testcase classname="simtest.cyclist_overtake" name="cyclist_overtake_041" time="0.010">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_001" time="0.004">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_002" time="0.005">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_003" time="0.006">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_004" time="0.007">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_005" time="0.008">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_006" time="0.009">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_007" time="0.010">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_008" time="0.004">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_009" time="0.005">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_010" time="0.006">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_011" time="0.007">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_012" time="0.008">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_013" time="0.009">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_014" time="0.010">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_015" time="0.004">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_016" time="0.005">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_017" time="0.006">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_018" time="0.007">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_019" time="0.008">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_020" time="0.009">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_021" time="0.010">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_022" time="0.004">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_023" time="0.005">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_024" time="0.006">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_025" time="0.007">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_026" time="0.008">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_027" time="0.009">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_028" time="0.010">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_029" time="0.004">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_030" time="0.005">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_031" time="0.006">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_032" time="0.007">
+<failure message="collisions=0, min_ttc_s=2.934, max_decel=5.546, route_completion=0.9367">{"scenario_id": "lead_brake_032", "family": "lead_brake", "pass": false, "min_ttc_s": 2.934, "max_decel": 5.546, "collisions": 0, "route_completion": 0.9367}</failure>
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_033" time="0.008">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_034" time="0.009">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_035" time="0.010">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_036" time="0.004">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_037" time="0.005">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_038" time="0.006">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_039" time="0.007">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_040" time="0.008">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_041" time="0.009">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_042" time="0.010">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_043" time="0.004">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_044" time="0.005">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_045" time="0.006">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_046" time="0.007">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_047" time="0.008">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_048" time="0.009">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_049" time="0.010">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_050" time="0.004">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_051" time="0.005">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_052" time="0.006">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_053" time="0.007">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_054" time="0.008">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_055" time="0.009">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_056" time="0.010">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_057" time="0.004">
+</testcase>
+<testcase classname="simtest.lead_brake" name="lead_brake_058" time="0.005">
+</testcase>
+<testcase classname="simtest.merge" name="merge_001" time="0.006">
+</testcase>
+<testcase classname="simtest.merge" name="merge_002" time="0.007">
+</testcase>
+<testcase classname="simtest.merge" name="merge_003" time="0.008">
+</testcase>
+<testcase classname="simtest.merge" name="merge_004" time="0.009">
+</testcase>
+<testcase classname="simtest.merge" name="merge_005" time="0.010">
+</testcase>
+<testcase classname="simtest.merge" name="merge_006" time="0.004">
+</testcase>
+<testcase classname="simtest.merge" name="merge_007" time="0.005">
+</testcase>
+<testcase classname="simtest.merge" name="merge_008" time="0.006">
+</testcase>
+<testcase classname="simtest.merge" name="merge_009" time="0.007">
+</testcase>
+<testcase classname="simtest.merge" name="merge_010" time="0.008">
+</testcase>
+<testcase classname="simtest.merge" name="merge_011" time="0.009">
+</testcase>
+<testcase classname="simtest.merge" name="merge_012" time="0.010">
+</testcase>
+<testcase classname="simtest.merge" name="merge_013" time="0.004">
+</testcase>
+<testcase classname="simtest.merge" name="merge_014" time="0.005">
+</testcase>
+<testcase classname="simtest.merge" name="merge_015" time="0.006">
+</testcase>
+<testcase classname="simtest.merge" name="merge_016" time="0.007">
+</testcase>
+<testcase classname="simtest.merge" name="merge_017" time="0.008">
+</testcase>
+<testcase classname="simtest.merge" name="merge_018" time="0.009">
+</testcase>
+<testcase classname="simtest.merge" name="merge_019" time="0.010">
+</testcase>
+<testcase classname="simtest.merge" name="merge_020" time="0.004">
+</testcase>
+<testcase classname="simtest.merge" name="merge_021" time="0.005">
+</testcase>
+<testcase classname="simtest.merge" name="merge_022" time="0.006">
+</testcase>
+<testcase classname="simtest.merge" name="merge_023" time="0.007">
+</testcase>
+<testcase classname="simtest.merge" name="merge_024" time="0.008">
+</testcase>
+<testcase classname="simtest.merge" name="merge_025" time="0.009">
+</testcase>
+<testcase classname="simtest.merge" name="merge_026" time="0.010">
+</testcase>
+<testcase classname="simtest.merge" name="merge_027" time="0.004">
+</testcase>
+<testcase classname="simtest.merge" name="merge_028" time="0.005">
+</testcase>
+<testcase classname="simtest.merge" name="merge_029" time="0.006">
+</testcase>
+<testcase classname="simtest.merge" name="merge_030" time="0.007">
+</testcase>
+<testcase classname="simtest.merge" name="merge_031" time="0.008">
+</testcase>
+<testcase classname="simtest.merge" name="merge_032" time="0.009">
+</testcase>
+<testcase classname="simtest.merge" name="merge_033" time="0.010">
+</testcase>
+<testcase classname="simtest.merge" name="merge_034" time="0.004">
+</testcase>
+<testcase classname="simtest.merge" name="merge_035" time="0.005">
+</testcase>
+<testcase classname="simtest.merge" name="merge_036" time="0.006">
+</testcase>
+<testcase classname="simtest.merge" name="merge_037" time="0.007">
+</testcase>
+<testcase classname="simtest.merge" name="merge_038" time="0.008">
+</testcase>
+<testcase classname="simtest.merge" name="merge_039" time="0.009">
+</testcase>
+<testcase classname="simtest.merge" name="merge_040" time="0.010">
+</testcase>
+<testcase classname="simtest.merge" name="merge_041" time="0.004">
+</testcase>
+<testcase classname="simtest.merge" name="merge_042" time="0.005">
+</testcase>
+<testcase classname="simtest.merge" name="merge_043" time="0.006">
+</testcase>
+<testcase classname="simtest.merge" name="merge_044" time="0.007">
+</testcase>
+<testcase classname="simtest.merge" name="merge_045" time="0.008">
+</testcase>
+<testcase classname="simtest.merge" name="merge_046" time="0.009">
+</testcase>
+<testcase classname="simtest.merge" name="merge_047" time="0.010">
+</testcase>
+<testcase classname="simtest.merge" name="merge_048" time="0.004">
+</testcase>
+<testcase classname="simtest.merge" name="merge_049" time="0.005">
+</testcase>
+<testcase classname="simtest.merge" name="merge_050" time="0.006">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_001" time="0.007">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_002" time="0.008">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_003" time="0.009">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_004" time="0.010">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_005" time="0.004">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_006" time="0.005">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_007" time="0.006">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_008" time="0.007">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_009" time="0.008">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_010" time="0.009">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_011" time="0.010">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_012" time="0.004">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_013" time="0.005">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_014" time="0.006">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_015" time="0.007">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_016" time="0.008">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_017" time="0.009">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_018" time="0.010">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_019" time="0.004">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_020" time="0.005">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_021" time="0.006">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_022" time="0.007">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_023" time="0.008">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_024" time="0.009">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_025" time="0.010">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_026" time="0.004">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_027" time="0.005">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_028" time="0.006">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_029" time="0.007">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_030" time="0.008">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_031" time="0.009">
+<failure message="collisions=0, min_ttc_s=2.517, max_decel=7.749, route_completion=1.0">{"scenario_id": "occluded_ped_031", "family": "occluded_ped", "pass": false, "min_ttc_s": 2.517, "max_decel": 7.749, "collisions": 0, "route_completion": 1.0}</failure>
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_032" time="0.010">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_033" time="0.004">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_034" time="0.005">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_035" time="0.006">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_036" time="0.007">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_037" time="0.008">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_038" time="0.009">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_039" time="0.010">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_040" time="0.004">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_041" time="0.005">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_042" time="0.006">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_043" time="0.007">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_044" time="0.008">
+</testcase>
+<testcase classname="simtest.occluded_ped" name="occluded_ped_045" time="0.009">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_001" time="0.010">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_002" time="0.004">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_003" time="0.005">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_004" time="0.006">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_005" time="0.007">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_006" time="0.008">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_007" time="0.009">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_008" time="0.010">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_009" time="0.004">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_010" time="0.005">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_011" time="0.006">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_012" time="0.007">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_013" time="0.008">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_014" time="0.009">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_015" time="0.010">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_016" time="0.004">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_017" time="0.005">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_018" time="0.006">
+<failure message="collisions=0, min_ttc_s=1.296, max_decel=8.174, route_completion=1.0">{"scenario_id": "ped_crossing_018", "family": "ped_crossing", "pass": false, "min_ttc_s": 1.296, "max_decel": 8.174, "collisions": 0, "route_completion": 1.0}</failure>
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_019" time="0.007">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_020" time="0.008">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_021" time="0.009">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_022" time="0.010">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_023" time="0.004">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_024" time="0.005">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_025" time="0.006">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_026" time="0.007">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_027" time="0.008">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_028" time="0.009">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_029" time="0.010">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_030" time="0.004">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_031" time="0.005">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_032" time="0.006">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_033" time="0.007">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_034" time="0.008">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_035" time="0.009">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_036" time="0.010">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_037" time="0.004">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_038" time="0.005">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_039" time="0.006">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_040" time="0.007">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_041" time="0.008">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_042" time="0.009">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_043" time="0.010">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_044" time="0.004">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_045" time="0.005">
+<failure message="collisions=0, min_ttc_s=2.256, max_decel=5.987, route_completion=0.3205">{"scenario_id": "ped_crossing_045", "family": "ped_crossing", "pass": false, "min_ttc_s": 2.256, "max_decel": 5.987, "collisions": 0, "route_completion": 0.3205}</failure>
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_046" time="0.006">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_047" time="0.007">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_048" time="0.008">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_049" time="0.009">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_050" time="0.010">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_051" time="0.004">
+</testcase>
+<testcase classname="simtest.ped_crossing" name="ped_crossing_052" time="0.005">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_001" time="0.006">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_002" time="0.007">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_003" time="0.008">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_004" time="0.009">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_005" time="0.010">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_006" time="0.004">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_007" time="0.005">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_008" time="0.006">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_009" time="0.007">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_010" time="0.008">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_011" time="0.009">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_012" time="0.010">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_013" time="0.004">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_014" time="0.005">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_015" time="0.006">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_016" time="0.007">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_017" time="0.008">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_018" time="0.009">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_019" time="0.010">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_020" time="0.004">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_021" time="0.005">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_022" time="0.006">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_023" time="0.007">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_024" time="0.008">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_025" time="0.009">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_026" time="0.010">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_027" time="0.004">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_028" time="0.005">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_029" time="0.006">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_030" time="0.007">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_031" time="0.008">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_032" time="0.009">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_033" time="0.010">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_034" time="0.004">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_035" time="0.005">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_036" time="0.006">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_037" time="0.007">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_038" time="0.008">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_039" time="0.009">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_040" time="0.010">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_041" time="0.004">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_042" time="0.005">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_043" time="0.006">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_044" time="0.007">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_045" time="0.008">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_046" time="0.009">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_047" time="0.010">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_048" time="0.004">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_049" time="0.005">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_050" time="0.006">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_051" time="0.007">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_052" time="0.008">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_053" time="0.009">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_054" time="0.010">
+</testcase>
+<testcase classname="simtest.stop_and_go" name="stop_and_go_055" time="0.004">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_001" time="0.005">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_002" time="0.006">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_003" time="0.007">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_004" time="0.008">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_005" time="0.009">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_006" time="0.010">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_007" time="0.004">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_008" time="0.005">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_009" time="0.006">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_010" time="0.007">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_011" time="0.008">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_012" time="0.009">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_013" time="0.010">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_014" time="0.004">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_015" time="0.005">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_016" time="0.006">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_017" time="0.007">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_018" time="0.008">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_019" time="0.009">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_020" time="0.010">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_021" time="0.004">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_022" time="0.005">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_023" time="0.006">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_024" time="0.007">
+<failure message="collisions=0, min_ttc_s=0.696, max_decel=4.212, route_completion=1.0">{"scenario_id": "unprotected_left_024", "family": "unprotected_left", "pass": false, "min_ttc_s": 0.696, "max_decel": 4.212, "collisions": 0, "route_completion": 1.0}</failure>
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_025" time="0.008">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_026" time="0.009">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_027" time="0.010">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_028" time="0.004">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_029" time="0.005">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_030" time="0.006">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_031" time="0.007">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_032" time="0.008">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_033" time="0.009">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_034" time="0.010">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_035" time="0.004">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_036" time="0.005">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_037" time="0.006">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_038" time="0.007">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_039" time="0.008">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_040" time="0.009">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_041" time="0.010">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_042" time="0.004">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_043" time="0.005">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_044" time="0.006">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_045" time="0.007">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_046" time="0.008">
+</testcase>
+<testcase classname="simtest.unprotected_left" name="unprotected_left_047" time="0.009">
+</testcase>
+</testsuite></testsuites>

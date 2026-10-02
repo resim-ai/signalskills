@@ -1,0 +1,16 @@
+name: night_parking_lot
+description: "Same lot after dark (lot lights off), three pedestrians among parked cars."
+site: acme yard 3
+vehicle: yt-07
+recorded_at: "2026-09-14T21:40:00Z"
+duration_s: 8.0
+conditions:
+  lighting: night
+  weather: clear
+recording: recordings/night_parking_lot.mcap
+labels: labels/night_parking_lot.jsonl
+camera:
+  topic: /camera/front/image
+  rate_hz: 10
+  sensor_px: [1920, 1280]
+  preview_px: [96, 64]

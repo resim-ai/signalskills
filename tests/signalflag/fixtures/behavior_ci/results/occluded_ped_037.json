@@ -1,0 +1,9 @@
+{
+  "scenario_id": "occluded_ped_037",
+  "family": "occluded_ped",
+  "pass": true,
+  "min_ttc_s": 5.731,
+  "max_decel": 0.485,
+  "collisions": 0,
+  "route_completion": 1.0
+}

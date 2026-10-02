@@ -1,0 +1,13 @@
+id: occluded_ped_045
+family: occluded_ped
+seed: 4896
+duration_s: 15.0
+map: town_grid_v3
+params:
+  ego_speed: 10.9
+  actor_speed: 8.3
+  gap_m: 60.4
+  actor_brake: 0.5
+  event_t: 3.4
+  planner_ttc: 5.0
+  route_m: 68.5

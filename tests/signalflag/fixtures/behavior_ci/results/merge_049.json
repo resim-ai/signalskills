@@ -1,0 +1,9 @@
+{
+  "scenario_id": "merge_049",
+  "family": "merge",
+  "pass": true,
+  "min_ttc_s": 49.0,
+  "max_decel": 0.487,
+  "collisions": 0,
+  "route_completion": 1.0
+}

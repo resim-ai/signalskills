@@ -1,0 +1,7 @@
+case,robot,run,result,notes
+UAT-003,rover-07,1,PASS,
+UAT-006,rover-07,1,PASS,
+UAT-006,rover-11,1,PASS,slow approach
+UAT-006,rover-11,2,PASS,
+UAT-012,rover-07,1,PASS,
+UAT-018,rover-07,1,PASS,"looked fine, slight wobble after loop 2"

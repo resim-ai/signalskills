@@ -1,0 +1,6 @@
+name: empty_room
+world: worlds/empty_room.world
+start: [0, 0, 0]
+goal: [8, 0]
+timeout_s: 60
+obstacles: []

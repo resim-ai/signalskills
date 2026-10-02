@@ -1,0 +1,16 @@
+name: day_parking_lot
+description: "Creeping through the north lot past parked cars, two pedestrians and a cyclist."
+site: acme yard 3
+vehicle: yt-07
+recorded_at: "2026-09-14T15:02:10Z"
+duration_s: 8.0
+conditions:
+  lighting: day
+  weather: clear
+recording: recordings/day_parking_lot.mcap
+labels: labels/day_parking_lot.jsonl
+camera:
+  topic: /camera/front/image
+  rate_hz: 10
+  sensor_px: [1920, 1280]
+  preview_px: [96, 64]

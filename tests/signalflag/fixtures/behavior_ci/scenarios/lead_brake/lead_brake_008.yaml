@@ -1,0 +1,13 @@
+id: lead_brake_008
+family: lead_brake
+seed: 4552
+duration_s: 15.0
+map: highway_ring_v1
+params:
+  ego_speed: 9.8
+  actor_speed: 7.8
+  gap_m: 44.3
+  actor_brake: 2.7
+  event_t: 2.2
+  planner_ttc: 5.0
+  route_m: 64.4

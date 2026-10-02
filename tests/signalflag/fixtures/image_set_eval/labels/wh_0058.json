@@ -1,0 +1,56 @@
+{
+  "image_id": "wh_0058",
+  "file_name": "images/warehouse_cam/wh_0058.jpg",
+  "width": 960,
+  "height": 640,
+  "annotations": [
+    {
+      "id": 1,
+      "category": "pedestrian",
+      "bbox": [
+        349.3,
+        301.2,
+        23.7,
+        59.1
+      ],
+      "area": 1400.7,
+      "iscrowd": 0
+    },
+    {
+      "id": 2,
+      "category": "truck",
+      "bbox": [
+        273.2,
+        301.4,
+        50.7,
+        39.0
+      ],
+      "area": 1977.3,
+      "iscrowd": 0
+    },
+    {
+      "id": 3,
+      "category": "pedestrian",
+      "bbox": [
+        388.6,
+        320.0,
+        42.8,
+        107.0
+      ],
+      "area": 4579.6,
+      "iscrowd": 0
+    },
+    {
+      "id": 4,
+      "category": "pedestrian",
+      "bbox": [
+        170.8,
+        342.5,
+        70.7,
+        176.8
+      ],
+      "area": 12499.8,
+      "iscrowd": 0
+    }
+  ]
+}

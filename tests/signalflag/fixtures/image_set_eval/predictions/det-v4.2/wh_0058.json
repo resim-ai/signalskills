@@ -1,0 +1,56 @@
+{
+  "image_id": "wh_0058",
+  "model_version": "det-v4.2",
+  "detections": [
+    {
+      "category": "pedestrian",
+      "bbox": [
+        161.8,
+        356.3,
+        72.7,
+        177.8
+      ],
+      "score": 0.719
+    },
+    {
+      "category": "pedestrian",
+      "bbox": [
+        347.6,
+        297.0,
+        23.0,
+        64.3
+      ],
+      "score": 0.701
+    },
+    {
+      "category": "pedestrian",
+      "bbox": [
+        386.2,
+        307.0,
+        43.0,
+        96.9
+      ],
+      "score": 0.688
+    },
+    {
+      "category": "truck",
+      "bbox": [
+        274.8,
+        304.3,
+        51.6,
+        38.6
+      ],
+      "score": 0.53
+    },
+    {
+      "category": "car",
+      "bbox": [
+        321.5,
+        219.4,
+        75.3,
+        47.1
+      ],
+      "score": 0.113
+    }
+  ]
+}

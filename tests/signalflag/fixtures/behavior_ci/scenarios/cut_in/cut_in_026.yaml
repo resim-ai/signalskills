@@ -1,0 +1,13 @@
+id: cut_in_026
+family: cut_in
+seed: 3007
+duration_s: 15.0
+map: highway_ring_v1
+params:
+  ego_speed: 22.5
+  actor_speed: 17.8
+  gap_m: 45.4
+  actor_brake: 2.2
+  event_t: 3.9
+  planner_ttc: 5.0
+  route_m: 146.9

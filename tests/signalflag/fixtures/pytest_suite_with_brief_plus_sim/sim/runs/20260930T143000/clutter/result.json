@@ -1,0 +1,8 @@
+{
+  "scenario": "clutter",
+  "reached_goal": true,
+  "time_to_goal_s": 17.6,
+  "min_clearance_m": -0.1985,
+  "max_tracking_error_m": 0.1898,
+  "planned_path_m": 17.6
+}

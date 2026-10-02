@@ -1,0 +1,13 @@
+id: lead_brake_046
+family: lead_brake
+seed: 739
+duration_s: 15.0
+map: town_grid_v3
+params:
+  ego_speed: 24.2
+  actor_speed: 21.3
+  gap_m: 67.9
+  actor_brake: 0.2
+  event_t: 3.3
+  planner_ttc: 5.0
+  route_m: 175.7

@@ -1,0 +1,16 @@
+{
+  "image_id": "da_0033",
+  "model_version": "det-v4.2",
+  "detections": [
+    {
+      "category": "pedestrian",
+      "bbox": [
+        641.7,
+        324.1,
+        46.9,
+        117.3
+      ],
+      "score": 0.247
+    }
+  ]
+}

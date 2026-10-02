@@ -1,0 +1,6 @@
+case,robot,run,result,notes
+UAT-003,rover-11,1,PASS,wet grass
+UAT-006,rover-11,1,FAIL,two retries then gave up
+UAT-012,rover-11,1,PASS,"recording not started, forgot"
+UAT-018,rover-07,1,PASS,
+UAT-018,rover-11,1,FAIL,cut the corner at the top of the 8

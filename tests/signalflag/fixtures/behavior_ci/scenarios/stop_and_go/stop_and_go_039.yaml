@@ -1,0 +1,13 @@
+id: stop_and_go_039
+family: stop_and_go
+seed: 1650
+duration_s: 15.0
+map: suburb_loop_v2
+params:
+  ego_speed: 16.9
+  actor_speed: 14.7
+  gap_m: 47.0
+  actor_brake: 2.6
+  event_t: 1.1
+  planner_ttc: 5.0
+  route_m: 121.3

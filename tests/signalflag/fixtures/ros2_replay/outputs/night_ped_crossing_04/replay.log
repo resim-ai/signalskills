@@ -1,0 +1,3 @@
+[replay] scenario=night_ped_crossing_04 bag=/scenarios/night_ped_crossing_04.mcap rate=1.0 clock=on
+[replay] recorded /perception/detections /perception/tracks -> /outputs/night_ped_crossing_04/output.mcap
+[replay] done: exit 0

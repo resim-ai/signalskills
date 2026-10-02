@@ -1,0 +1,56 @@
+{
+  "image_id": "db_0047",
+  "model_version": "det-v4.1",
+  "detections": [
+    {
+      "category": "truck",
+      "bbox": [
+        614.7,
+        328.0,
+        218.9,
+        171.4
+      ],
+      "score": 0.793
+    },
+    {
+      "category": "pedestrian",
+      "bbox": [
+        854.8,
+        321.2,
+        42.5,
+        109.2
+      ],
+      "score": 0.701
+    },
+    {
+      "category": "car",
+      "bbox": [
+        134.1,
+        306.0,
+        121.8,
+        67.4
+      ],
+      "score": 0.678
+    },
+    {
+      "category": "car",
+      "bbox": [
+        702.3,
+        303.4,
+        70.2,
+        40.0
+      ],
+      "score": 0.654
+    },
+    {
+      "category": "car",
+      "bbox": [
+        553.7,
+        265.6,
+        186.2,
+        116.4
+      ],
+      "score": 0.556
+    }
+  ]
+}

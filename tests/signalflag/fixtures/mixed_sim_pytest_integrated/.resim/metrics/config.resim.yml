@@ -1,0 +1,88 @@
+version: 1
+
+topics:
+  clock:
+    schema: {sim_time_s: float, wall_time_s: float, rtf: float}
+  odometry:
+    schema: {x: float, y: float, yaw: float, vx: float, wz: float}
+  obstacle_state:
+    schema: {obstacle_id: string, distance_m: float, relative_speed_mps: float, in_path: boolean}
+  test_result:
+    schema: {test: string, passed: boolean, duration_s: float}
+
+metrics:
+  Verdict:
+    type: test
+    description: Whether the pytest test passed.
+    query_string: SELECT CASE WHEN passed THEN 1 ELSE 0 END AS value FROM test_result
+    template_type: system
+    template: scalar
+    skip_if_no_data: false
+    status: {query_string: "SELECT 1 FROM test_result WHERE NOT passed AND ? = 0", block: 0}
+  Trajectory:
+    type: test
+    description: Robot position over the run.
+    query_string: SELECT 'robot' AS group_name, x AS "x (m)", y AS "y (m)" FROM odometry ORDER BY timestamp
+    template_type: system
+    template: line
+    skip_if_no_data: false
+  Speed:
+    type: test
+    description: Forward speed over time.
+    query_string: SELECT 'vx' AS group_name, timestamp / 1E9 AS "Time (s)", vx AS "Speed (m/s)" FROM odometry
+    template_type: system
+    template: line
+    skip_if_no_data: false
+  Real-time Factor:
+    type: test
+    description: Sim time over wall time.
+    query_string: SELECT 'rtf' AS group_name, sim_time_s AS "Sim time (s)", rtf AS "RTF" FROM clock
+    template_type: system
+    template: line
+    skip_if_no_data: false
+  Min Obstacle Distance:
+    type: test
+    description: Closest approach to any obstacle in the path.
+    query_string: SELECT MIN(distance_m) AS value FROM obstacle_state WHERE in_path
+    template_type: system
+    template: scalar
+    units: m
+    skip_if_no_data: false
+    status: {query_string: "SELECT 1 FROM (SELECT MIN(distance_m) AS d FROM obstacle_state WHERE in_path) s WHERE s.d < ?", block: 0.3, warn: 0.4}
+  Obstacle Distance:
+    type: test
+    description: Distance to each obstacle over time.
+    query_string: SELECT obstacle_id AS group_name, timestamp / 1E9 AS "Time (s)", distance_m AS "Distance (m)" FROM obstacle_state
+    template_type: system
+    template: line
+    skip_if_no_data: false
+  Stop Margin:
+    type: test
+    description: Closest approach minus the 0.3 m stop margin, per obstacle.
+    query_string: SELECT obstacle_id AS "Obstacle", MIN(distance_m) - 0.3 AS "Margin (m)" FROM obstacle_state GROUP BY obstacle_id
+    template_type: system
+    template: table
+    skip_if_no_data: false
+  Tests Passed:
+    type: batch
+    description: Passed and failed tests in this session.
+    query_string: SELECT CASE WHEN passed THEN 'passed' ELSE 'failed' END AS group_name, 'tests' AS "Result", COUNT(*) AS "Count" FROM test_result GROUP BY 1
+    template_type: system
+    template: bar
+    skip_if_no_data: false
+  Pass Rate Trend:
+    type: dashboard
+    description: Share of tests passing per session.
+    query_string: "SELECT 'pass rate' AS group_name, m.build_creation_timestamp AS \"Build time\", AVG(CASE WHEN r.passed THEN 1.0 ELSE 0.0 END) AS \"Pass rate\" FROM test_result r JOIN metadata m ON m.job_id = r.job_id GROUP BY 2 ORDER BY 2"
+    template_type: system
+    template: line
+    skip_if_no_data: true
+
+metrics sets:
+  Sim Integration:
+    metrics: [Verdict, Trajectory, Speed, Real-time Factor, Min Obstacle Distance, Obstacle Distance, Stop Margin, Tests Passed]
+  Sim Trends:
+    metrics: [Pass Rate Trend]
+
+dashboards:
+  Sim Trends: {metrics_set: Sim Trends, refresh: auto, day_range: 90}

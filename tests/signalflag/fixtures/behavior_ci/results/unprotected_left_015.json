@@ -1,0 +1,9 @@
+{
+  "scenario_id": "unprotected_left_015",
+  "family": "unprotected_left",
+  "pass": true,
+  "min_ttc_s": 4.286,
+  "max_decel": 3.297,
+  "collisions": 0,
+  "route_completion": 1.0
+}

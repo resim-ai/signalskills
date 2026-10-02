@@ -1,0 +1,26 @@
+{
+  "image_id": "db_0031",
+  "model_version": "det-v4.2",
+  "detections": [
+    {
+      "category": "pedestrian",
+      "bbox": [
+        493.7,
+        304.5,
+        45.2,
+        115.1
+      ],
+      "score": 0.942
+    },
+    {
+      "category": "car",
+      "bbox": [
+        813.2,
+        294.1,
+        93.3,
+        68.5
+      ],
+      "score": 0.815
+    }
+  ]
+}

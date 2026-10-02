@@ -1,0 +1,29 @@
+# Perception replay: `docker compose --profile replay up`
+name: perception-replay
+
+x-ros: &ros
+  network_mode: host
+  ipc: host
+  environment:
+    ROS_DOMAIN_ID: "42"
+    RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+
+services:
+  perception:
+    <<: *ros
+    image: registry.acme.dev/perception/stack:2026.09.3
+    profiles: [replay]
+    command: ros2 launch perception_bringup replay.launch.py use_sim_time:=true
+    volumes:
+      - ./config:/opt/perception/config:ro
+
+  replay:
+    <<: *ros
+    image: registry.acme.dev/tools/ros2-replay:humble-1.4.0
+    profiles: [replay]
+    depends_on: [perception]
+    command: python3 /replay/run_replay.py --scenarios /scenarios --out /outputs
+    volumes:
+      - ./replay:/replay:ro
+      - ./scenarios:/scenarios:ro
+      - ./outputs:/outputs

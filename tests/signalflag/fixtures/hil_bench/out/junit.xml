@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="6" time="3.412" timestamp="2026-09-30T22:14:05.118342+00:00" hostname="hil-bench-01"><testcase classname="tests.hil.test_motor" name="test_step_response[500rpm]" time="0.731" /><testcase classname="tests.hil.test_motor" name="test_step_response[1500rpm]" time="0.702" /><testcase classname="tests.hil.test_motor" name="test_step_response[3000rpm]" time="0.744"><failure message="assert 0.1339999999999999 &lt; 0.12&#10; +  where 0.1339999999999999 = rise_time([(3.602, 6.0028, 40.43, 0), (3.604, 5.9929, 71.97, 0), (3.606, 5.9875, 110.56, 0), (3.608, 6.005, 148.31, 0), (3.61, 5.9931, 183.49, 0), (3.612, 5.9976, 223.99, 0), ...], 3000)">controller = &lt;bench.sim.SimController object at 0x7f3a1c2e4b90&gt;
+trace = &lt;function trace.&lt;locals&gt;.record at 0x7f3a1c2e4b90&gt;, rpm = 3000
+
+    @pytest.mark.hil
+    @pytest.mark.parametrize("rpm", [500, 1500, 3000], ids=lambda r: f"{r}rpm")
+    def test_step_response(controller, trace, rpm):
+        controller.set_velocity(rpm)
+        s = trace(300)
+&gt;       assert rise_time(s, rpm) &lt; RISE_TIME_MAX_S
+E       assert 0.1339999999999999 &lt; 0.12
+E        +  where 0.1339999999999999 = rise_time([(3.602, 6.0028, 40.43, 0), (3.604, 5.9929, 71.97, 0), (3.606, 5.9875, 110.56, 0), (3.608, 6.005, 148.31, 0), (3.61, 5.9931, 183.49, 0), (3.612, 5.9976, 223.99, 0), ...], 3000)
+
+tests/hil/test_motor.py:29: AssertionError</failure></testcase><testcase classname="tests.hil.test_motor" name="test_current_limit" time="0.698" /><testcase classname="tests.hil.test_motor" name="test_reverse" time="0.810" /><testcase classname="tests.hil.test_motor" name="test_stall_detect" time="0.512" /></testsuite></testsuites>

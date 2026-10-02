@@ -1,0 +1,16 @@
+name: highway_merge_far
+description: "Merging onto the perimeter road: traffic from 18 m out to 80 m."
+site: acme yard 3
+vehicle: yt-07
+recorded_at: "2026-09-21T13:30:45Z"
+duration_s: 8.0
+conditions:
+  lighting: day
+  weather: clear
+recording: recordings/highway_merge_far.mcap
+labels: labels/highway_merge_far.jsonl
+camera:
+  topic: /camera/front/image
+  rate_hz: 10
+  sensor_px: [1920, 1280]
+  preview_px: [96, 64]

@@ -1,0 +1,11 @@
+trial,success,time_s,notes
+1,yes,8.6,
+2,no,11.3,"timeout, hovered over cube"
+3,yes,6.6,slow approach
+4,no,13.2,knocked cube off table
+5,no,9.8,knocked cube off table
+6,yes,6.9,
+7,no,12.3,placed next to bin
+8,yes,6.9,re-grasped once
+9,no,13.4,placed next to bin
+10,yes,8.7,

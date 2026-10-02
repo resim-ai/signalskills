@@ -1,0 +1,26 @@
+{
+  "image_id": "da_0044",
+  "model_version": "det-v4.2",
+  "detections": [
+    {
+      "category": "car",
+      "bbox": [
+        548.6,
+        312.8,
+        115.9,
+        65.1
+      ],
+      "score": 0.78
+    },
+    {
+      "category": "car",
+      "bbox": [
+        737.7,
+        296.4,
+        58.5,
+        42.1
+      ],
+      "score": 0.724
+    }
+  ]
+}

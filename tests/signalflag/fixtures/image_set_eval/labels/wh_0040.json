@@ -1,0 +1,32 @@
+{
+  "image_id": "wh_0040",
+  "file_name": "images/warehouse_cam/wh_0040.jpg",
+  "width": 960,
+  "height": 640,
+  "annotations": [
+    {
+      "id": 1,
+      "category": "pedestrian",
+      "bbox": [
+        819.9,
+        330.2,
+        57.7,
+        144.2
+      ],
+      "area": 8320.3,
+      "iscrowd": 0
+    },
+    {
+      "id": 2,
+      "category": "forklift",
+      "bbox": [
+        571.5,
+        319.5,
+        108.9,
+        121.0
+      ],
+      "area": 13176.9,
+      "iscrowd": 0
+    }
+  ]
+}

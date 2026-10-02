@@ -1,0 +1,3 @@
+[replay] scenario=urban_intersection_01 bag=/scenarios/urban_intersection_01.mcap rate=1.0 clock=on
+[replay] recorded /perception/detections /perception/tracks -> /outputs/urban_intersection_01/output.mcap
+[replay] done: exit 0

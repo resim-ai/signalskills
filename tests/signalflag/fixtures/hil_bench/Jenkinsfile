@@ -1,0 +1,14 @@
+pipeline {
+  agent { label 'hil-bench-01' }
+  options { timeout(time: 30, unit: 'MINUTES') }
+  stages {
+    stage('Setup') { steps { sh 'python3 -m venv .venv && .venv/bin/pip install -r requirements.txt' } }
+    stage('HIL') { steps { sh 'rm -rf out && .venv/bin/pytest tests/hil -m hil --junitxml=out/junit.xml' } }
+  }
+  post {
+    always {
+      junit 'out/junit.xml'
+      archiveArtifacts artifacts: 'out/**', fingerprint: false
+    }
+  }
+}

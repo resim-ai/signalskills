@@ -1,0 +1,20 @@
+{
+  "image_id": "db_0022",
+  "file_name": "images/dashcam_b/db_0022.jpg",
+  "width": 960,
+  "height": 640,
+  "annotations": [
+    {
+      "id": 1,
+      "category": "pedestrian",
+      "bbox": [
+        136.0,
+        291.6,
+        28.0,
+        70.1
+      ],
+      "area": 1962.8,
+      "iscrowd": 0
+    }
+  ]
+}

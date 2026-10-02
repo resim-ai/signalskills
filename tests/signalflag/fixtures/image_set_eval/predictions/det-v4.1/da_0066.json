@@ -1,0 +1,36 @@
+{
+  "image_id": "da_0066",
+  "model_version": "det-v4.1",
+  "detections": [
+    {
+      "category": "car",
+      "bbox": [
+        404.0,
+        299.5,
+        117.9,
+        78.2
+      ],
+      "score": 0.817
+    },
+    {
+      "category": "car",
+      "bbox": [
+        494.5,
+        327.0,
+        218.4,
+        181.1
+      ],
+      "score": 0.616
+    },
+    {
+      "category": "forklift",
+      "bbox": [
+        221.2,
+        203.1,
+        66.8,
+        74.2
+      ],
+      "score": 0.408
+    }
+  ]
+}

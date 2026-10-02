@@ -1,0 +1,32 @@
+{
+  "image_id": "db_0042",
+  "file_name": "images/dashcam_b/db_0042.jpg",
+  "width": 960,
+  "height": 640,
+  "annotations": [
+    {
+      "id": 1,
+      "category": "car",
+      "bbox": [
+        89.2,
+        326.2,
+        207.4,
+        129.6
+      ],
+      "area": 26879.0,
+      "iscrowd": 0
+    },
+    {
+      "id": 2,
+      "category": "pedestrian",
+      "bbox": [
+        317.2,
+        292.9,
+        14.2,
+        35.6
+      ],
+      "area": 505.5,
+      "iscrowd": 0
+    }
+  ]
+}

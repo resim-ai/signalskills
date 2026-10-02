@@ -1,0 +1,9 @@
+{
+  "scenario_id": "stop_and_go_022",
+  "family": "stop_and_go",
+  "pass": true,
+  "min_ttc_s": 8.203,
+  "max_decel": 0.439,
+  "collisions": 0,
+  "route_completion": 1.0
+}

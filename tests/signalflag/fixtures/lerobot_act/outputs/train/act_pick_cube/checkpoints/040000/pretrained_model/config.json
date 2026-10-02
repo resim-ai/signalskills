@@ -1,0 +1,33 @@
+{
+  "type": "act",
+  "n_obs_steps": 1,
+  "chunk_size": 100,
+  "n_action_steps": 100,
+  "dim_model": 512,
+  "n_heads": 8,
+  "vision_backbone": "resnet18",
+  "input_features": {
+    "observation.state": {
+      "type": "STATE",
+      "shape": [
+        6
+      ]
+    },
+    "observation.images.top": {
+      "type": "VISUAL",
+      "shape": [
+        3,
+        64,
+        64
+      ]
+    }
+  },
+  "output_features": {
+    "action": {
+      "type": "ACTION",
+      "shape": [
+        6
+      ]
+    }
+  }
+}

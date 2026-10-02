@@ -1,0 +1,36 @@
+{
+  "image_id": "wh_0022",
+  "model_version": "det-v4.1",
+  "detections": [
+    {
+      "category": "forklift",
+      "bbox": [
+        676.3,
+        404.8,
+        132.0,
+        146.7
+      ],
+      "score": 0.437
+    },
+    {
+      "category": "pedestrian",
+      "bbox": [
+        871.7,
+        293.7,
+        16.8,
+        34.9
+      ],
+      "score": 0.42
+    },
+    {
+      "category": "forklift",
+      "bbox": [
+        507.3,
+        270.8,
+        35.0,
+        38.8
+      ],
+      "score": 0.194
+    }
+  ]
+}

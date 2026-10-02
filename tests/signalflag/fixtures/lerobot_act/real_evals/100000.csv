@@ -1,0 +1,11 @@
+trial,success,time_s,notes
+1,yes,8.3,
+2,no,12.0,placed next to bin
+3,yes,6.2,
+4,yes,7.1,
+5,no,8.6,knocked cube off table
+6,yes,7.0,
+7,yes,8.4,re-grasped once
+8,no,11.6,placed next to bin
+9,yes,10.7,
+10,no,12.1,"missed grasp, gripper closed early"

@@ -7,6 +7,8 @@ description: Use when about to call the SignalFlag (formerly ReSim) API or SDK â
 
 Before the first SignalFlag API call of a session: the SDK needs a token, and the MCP must be connected if results will be read back.
 
+During onboarding, auth runs only after the user's go (signalflag-onboard). An unknown project before then is an open item in the brief, not a reason to log in; look it up here, after the go, with a paged `list_projects`.
+
 ## 1. Check the token
 
 ```bash

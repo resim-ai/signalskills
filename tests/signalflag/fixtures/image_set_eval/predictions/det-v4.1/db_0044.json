@@ -1,0 +1,56 @@
+{
+  "image_id": "db_0044",
+  "model_version": "det-v4.1",
+  "detections": [
+    {
+      "category": "car",
+      "bbox": [
+        286.5,
+        300.7,
+        102.6,
+        52.6
+      ],
+      "score": 0.894
+    },
+    {
+      "category": "pedestrian",
+      "bbox": [
+        128.1,
+        355.3,
+        92.2,
+        215.6
+      ],
+      "score": 0.869
+    },
+    {
+      "category": "car",
+      "bbox": [
+        457.2,
+        283.3,
+        78.5,
+        44.7
+      ],
+      "score": 0.698
+    },
+    {
+      "category": "pedestrian",
+      "bbox": [
+        87.1,
+        309.2,
+        42.6,
+        99.8
+      ],
+      "score": 0.676
+    },
+    {
+      "category": "car",
+      "bbox": [
+        392.9,
+        330.3,
+        192.9,
+        120.9
+      ],
+      "score": 0.663
+    }
+  ]
+}

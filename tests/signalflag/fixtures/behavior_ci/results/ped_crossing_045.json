@@ -1,0 +1,9 @@
+{
+  "scenario_id": "ped_crossing_045",
+  "family": "ped_crossing",
+  "pass": false,
+  "min_ttc_s": 2.256,
+  "max_decel": 5.987,
+  "collisions": 0,
+  "route_completion": 0.3205
+}

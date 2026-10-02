@@ -1,0 +1,56 @@
+{
+  "image_id": "wh_0009",
+  "model_version": "det-v4.1",
+  "detections": [
+    {
+      "category": "pedestrian",
+      "bbox": [
+        284.5,
+        295.9,
+        20.1,
+        54.3
+      ],
+      "score": 0.836
+    },
+    {
+      "category": "forklift",
+      "bbox": [
+        665.5,
+        295.4,
+        18.9,
+        19.8
+      ],
+      "score": 0.644
+    },
+    {
+      "category": "truck",
+      "bbox": [
+        523.1,
+        297.5,
+        45.9,
+        34.6
+      ],
+      "score": 0.62
+    },
+    {
+      "category": "forklift",
+      "bbox": [
+        726.2,
+        300.3,
+        26.1,
+        25.8
+      ],
+      "score": 0.45
+    },
+    {
+      "category": "pedestrian",
+      "bbox": [
+        386.7,
+        461.7,
+        49.7,
+        124.3
+      ],
+      "score": 0.05
+    }
+  ]
+}

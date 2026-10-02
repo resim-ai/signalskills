@@ -1,0 +1,36 @@
+{
+  "image_id": "wh_0014",
+  "model_version": "det-v4.2",
+  "detections": [
+    {
+      "category": "pedestrian",
+      "bbox": [
+        815.7,
+        315.1,
+        30.7,
+        76.6
+      ],
+      "score": 0.825
+    },
+    {
+      "category": "pedestrian",
+      "bbox": [
+        125.6,
+        333.0,
+        81.5,
+        191.0
+      ],
+      "score": 0.582
+    },
+    {
+      "category": "car",
+      "bbox": [
+        621.6,
+        228.1,
+        161.4,
+        100.9
+      ],
+      "score": 0.278
+    }
+  ]
+}

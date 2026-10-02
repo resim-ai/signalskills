@@ -1,0 +1,56 @@
+{
+  "image_id": "da_0066",
+  "file_name": "images/dashcam_a/da_0066.jpg",
+  "width": 960,
+  "height": 640,
+  "annotations": [
+    {
+      "id": 1,
+      "category": "car",
+      "bbox": [
+        406.6,
+        297.4,
+        123.4,
+        77.1
+      ],
+      "area": 9514.1,
+      "iscrowd": 0
+    },
+    {
+      "id": 2,
+      "category": "car",
+      "bbox": [
+        666.1,
+        294.8,
+        81.3,
+        50.8
+      ],
+      "area": 4130.0,
+      "iscrowd": 0
+    },
+    {
+      "id": 3,
+      "category": "pedestrian",
+      "bbox": [
+        87.8,
+        290.8,
+        12.3,
+        30.7
+      ],
+      "area": 377.6,
+      "iscrowd": 0
+    },
+    {
+      "id": 4,
+      "category": "car",
+      "bbox": [
+        486.7,
+        326.6,
+        270.1,
+        168.8
+      ],
+      "area": 45592.9,
+      "iscrowd": 0
+    }
+  ]
+}

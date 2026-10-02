@@ -1,0 +1,20 @@
+{
+  "image_id": "wh_0041",
+  "file_name": "images/warehouse_cam/wh_0041.jpg",
+  "width": 960,
+  "height": 640,
+  "annotations": [
+    {
+      "id": 1,
+      "category": "truck",
+      "bbox": [
+        207.1,
+        286.6,
+        36.1,
+        27.8
+      ],
+      "area": 1003.6,
+      "iscrowd": 0
+    }
+  ]
+}

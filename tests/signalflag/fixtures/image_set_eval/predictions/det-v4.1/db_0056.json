@@ -1,0 +1,46 @@
+{
+  "image_id": "db_0056",
+  "model_version": "det-v4.1",
+  "detections": [
+    {
+      "category": "truck",
+      "bbox": [
+        528.1,
+        298.7,
+        51.0,
+        41.6
+      ],
+      "score": 0.737
+    },
+    {
+      "category": "pedestrian",
+      "bbox": [
+        669.8,
+        337.7,
+        55.0,
+        111.3
+      ],
+      "score": 0.67
+    },
+    {
+      "category": "forklift",
+      "bbox": [
+        48.6,
+        505.8,
+        27.6,
+        30.7
+      ],
+      "score": 0.243
+    },
+    {
+      "category": "car",
+      "bbox": [
+        425.3,
+        315.0,
+        176.3,
+        110.2
+      ],
+      "score": 0.162
+    }
+  ]
+}

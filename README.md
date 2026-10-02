@@ -14,7 +14,7 @@ Claude Code skills for getting experiment and simulation results into [SignalFla
 | `signalflag-verify` | Low-res pass on a scratch branch, with values recomputed from the source files, fixes at the cause, then one full push to the real branch. |
 | `signalflag-iterate` | For the agent's own experiments: a campaign branch, one read-back batch per attempt, and a progression dashboard. |
 
-The flow: onboard → auth → design-metrics → compose-metrics → ingest → verify, then iterate for later changes.
+The flow: onboard → design-metrics → (your go) → auth → compose-metrics → ingest → verify, then iterate for later changes. Nothing is installed, logged in or uploaded before your go.
 
 ## Install
 
@@ -60,6 +60,20 @@ bash tools/new_workspace.sh rl_project demo-1       # a fresh workspace from a s
 ```
 
 The `rl_project`, `pytest_suite`, `parquet_dump` and `sim_runner` fixtures are synthetic (`tools/make_fixtures.py`). The `m6` and `replay` scenarios used private robot data. Their records are kept, but their fixtures aren't in this repo.
+
+### Evals
+
+Two end-to-end evals run the real skills headlessly (`claude -p` with only this plugin) against simulated engineers. A Claude persona answers from its facts, and a judge plus programmatic checks grade the result. Nothing is uploaded.
+
+- `tests/signalflag/eval/onboard/`: 32 personas covering RL, imitation learning, perception, localization, behavior, test, fleet and data-QA work, from junior to lead, with mcap, ROS1, LeRobot, h5, parquet, video and pytest data. Graded on the interview and the brief.
+- `tests/signalflag/eval/design-metrics/`: 23 cases that start from an approved brief, with faults planted in the fixture data. Graded on whether the plan catches each bad run and points to its cause, fits its reader, keeps to one metric per question, uses charts and media (video vs GIF), keeps events leveled and not spammy, and computes in Python what SQL can't.
+
+```bash
+cd tests/signalflag/eval/onboard && ../../.venv/bin/python run_eval.py --approve-harness   # once, after reviewing the harness
+../../.venv/bin/python run_eval.py --variant baseline --reps 2                       # writes .claude/hillclimb/onboard/
+```
+
+A full onboarding pass costs about $125 in API calls (64 conversations). Cases drawn from real customer threads are anonymized patterns only.
 
 `docs/design.md` is the spec and `docs/plan.md` the implementation plan.
 

@@ -1,0 +1,26 @@
+{
+  "image_id": "wh_0043",
+  "model_version": "det-v4.1",
+  "detections": [
+    {
+      "category": "truck",
+      "bbox": [
+        366.2,
+        318.0,
+        166.8,
+        126.6
+      ],
+      "score": 0.891
+    },
+    {
+      "category": "truck",
+      "bbox": [
+        398.6,
+        287.4,
+        32.2,
+        33.7
+      ],
+      "score": 0.743
+    }
+  ]
+}

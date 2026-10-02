@@ -1,0 +1,44 @@
+{
+  "image_id": "db_0043",
+  "file_name": "images/dashcam_b/db_0043.jpg",
+  "width": 960,
+  "height": 640,
+  "annotations": [
+    {
+      "id": 1,
+      "category": "car",
+      "bbox": [
+        158.1,
+        331.7,
+        259.5,
+        162.2
+      ],
+      "area": 42090.9,
+      "iscrowd": 0
+    },
+    {
+      "id": 2,
+      "category": "car",
+      "bbox": [
+        69.6,
+        298.6,
+        48.0,
+        30.0
+      ],
+      "area": 1440.0,
+      "iscrowd": 0
+    },
+    {
+      "id": 3,
+      "category": "pedestrian",
+      "bbox": [
+        395.9,
+        299.7,
+        34.1,
+        85.3
+      ],
+      "area": 2908.7,
+      "iscrowd": 0
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+detector:
+  model: centerpoint_pillar
+  score_threshold: 0.3
+  classes: [car, truck, bus, pedestrian, bicycle, traffic_cone]
+tracker:
+  type: multi_hypothesis
+  max_age_s: 1.5
+  min_hits: 3

@@ -1,0 +1,46 @@
+{
+  "image_id": "da_0076",
+  "model_version": "det-v4.1",
+  "detections": [
+    {
+      "category": "pedestrian",
+      "bbox": [
+        434.5,
+        323.1,
+        54.2,
+        141.2
+      ],
+      "score": 0.918
+    },
+    {
+      "category": "pedestrian",
+      "bbox": [
+        311.5,
+        286.7,
+        20.8,
+        46.4
+      ],
+      "score": 0.684
+    },
+    {
+      "category": "car",
+      "bbox": [
+        821.5,
+        297.7,
+        108.3,
+        68.4
+      ],
+      "score": 0.627
+    },
+    {
+      "category": "forklift",
+      "bbox": [
+        802.5,
+        501.3,
+        56.7,
+        63.0
+      ],
+      "score": 0.57
+    }
+  ]
+}

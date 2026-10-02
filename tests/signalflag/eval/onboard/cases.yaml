@@ -1,0 +1,493 @@
+# signalflag-onboard eval cases. One case = one persona in one workspace.
+# fixture: a make_fixtures.py fixture (copied into a fresh git workspace per rep).
+# persona: hidden from the agent; the simulated user answers from it only.
+# expect: what the judge checks the brief and conversation against. "either" = both fine if justified.
+# Every persona's project is `acme-robotics` unless stated; it already exists.
+
+- id: rl-ckpt-training
+  tags: [rl, senior, csv, checkpoints]
+  fixture: rl_project
+  prompt: "Can you hook my checkpoint evals up to SignalFlag?"
+  persona: |
+    Senior RL researcher. Training (not in this repo) saves checkpoints/ckpt_<step> every 10k steps; after each
+    one you run `python eval_checkpoint.py checkpoints/ckpt_<step>` while training carries on. You want
+    checkpoints ranked by mean return and success rate, and a trend over training. You don't know what a
+    "batch" is. Branch: name it after the training run, `ppo-lr3e4`. You want suggestions, then you pick.
+    If asked which checkpoint folder 20260901T020000 was: you don't remember.
+  expect:
+    intent: metrics-first
+    form: either a script over evals/ or a hook/eval wrapper in eval_checkpoint.py (mapping.md - eval script -> hook), justified
+    structure_runs: either (justified from what the runner writes; the old folder without log.txt is an open item, never guessed)
+    shape: one batch per evaluation cycle, version = step, one branch, dashboard ranks and trends
+    branch: ppo-lr3e4 (asked, confirmed)
+    traps: [guessing the checkpoint of 20260901T020000, writing upload code before the brief is approved]
+
+  metrics_hint: [mean return + success rate per batch, dashboard trend over step, ranking table across checkpoints, per-seed spread]
+- id: rl-ckpt-final-compare
+  tags: [rl, senior, csv, checkpoints]
+  fixture: rl_project
+  prompt: "I've got a handful of checkpoints evaluated, I want to compare them in SignalFlag."
+  persona: |
+    RL researcher. Training is finished. You evaluated the final few checkpoints once, all together, and want
+    a single side-by-side table: which one should you ship. You won't evaluate more. Branch `ppo-final`.
+    The unlabeled folder 20260901T020000: you don't know which checkpoint it was; drop it.
+  expect:
+    intent: metrics-first
+    form: one-off or script
+    shape: finished checkpoints evaluated together -> one batch, one test per checkpoint, batch-level ranking
+    branch: ppo-final (asked)
+    traps: [defaulting to batch-per-checkpoint without asking which RL case, including the unlabeled folder]
+
+  metrics_hint: [batch-level ranking table of checkpoints, success rate bar per checkpoint, per-seed return spread]
+- id: rl-intern-vague
+  tags: [rl, junior, csv, checkpoints]
+  fixture: rl_project
+  prompt: "my lead told me to put our evals in signalflag. idk what that involves"
+  persona: |
+    Junior intern, 3 weeks in. You run eval_checkpoint.py when your lead asks. You don't know what your lead
+    wants to see. When asked what you'd check, say "I guess whether the new checkpoint is better?". If offered
+    a choice of how much to decide, take "you decide". Project: `acme-rl`. If asked for a branch name, say
+    "whatever you think".
+  expect:
+    intent: metrics-first (rank/trend checkpoints)
+    mode: A
+    form: script or eval wrapper, justified
+    branch: chosen by agent with a reason (mode A) — not `main`, not the git branch
+    traps: [asking many questions of someone who chose "you decide", jargon, creating the project]
+
+  metrics_hint: [mean return and success rate trend, ranking table]
+- id: pytest-planner-ci
+  tags: [behavior, mid, pytest, regression]
+  fixture: pytest_suite
+  prompt: "Get my planner tests reporting to SignalFlag."
+  persona: |
+    Planning engineer. Runs `pytest` locally and in GitHub Actions on every PR. Wants failures visible with
+    the numbers behind them (path length vs straight line, clearance). Branch `planner-ci`. Partial control.
+  expect:
+    intent: metrics-first
+    form: hook (conftest plugin, opt-in), dependency as a pyproject extra
+    shape: one batch per pytest session/build, test names = pytest ids, version = commit
+    branch: planner-ci (asked)
+    open_items: [CI has no browser for device-code login]
+    traps: [the brief's Environment specifies a separate venv instead of the pyproject extra, defaulting branch to the git branch]
+
+  metrics_hint: [path length ratio vs straight line, min clearance with margin to assert threshold, pass/fail per pytest id]
+- id: parquet-field-dump
+  tags: [field, mid, parquet, data-first]
+  fixture: parquet_dump
+  prompt: "Put our drive telemetry in SignalFlag."
+  persona: |
+    Field engineer. Each field drive is dumped as one parquet file; new drives weekly. "I don't know what I'll
+    ask yet. I want it all queryable." Branch `field-telemetry`. Agent-led: "your call" on metrics.
+  expect:
+    intent: data-first
+    form: script (or one-off for the backlog plus script for weekly)
+    route: compose-metrics still listed (anything emitted needs topics)
+    traps: [skipping compose-metrics, ignoring that telemetry_v2 has an extra column, branch `main`]
+
+  metrics_hint: [wide/long topics for every column, light profile metrics (row counts, ranges), events left to user]
+- id: sim-junior-manager-asked
+  tags: [behavior, junior, csv, regression]
+  fixture: sim_runner
+  prompt: "hi, my manager wants our sim results to show up in signalflag. can you help"
+  persona: |
+    Junior controls engineer. You run `python run_suite.py --gain <g>` after changing the controller and
+    look at final_error_m in results.json and the frames. You want to know if your change made it worse
+    than last time. You don't know what "metrics" means here; ask if the agent uses it unexplained.
+    Branch `ctrl-regression`. Wants suggestions, then picks.
+  expect:
+    intent: metrics-first, regression
+    form: harness (wire into run_suite.py) or script, justified
+    shape: one batch per suite invocation, tests = scenario names, version = commit or gain, asked
+    traps: [jargon before shown on their data, multiple questions per message]
+
+  metrics_hint: [final_error_m per scenario with margin, replay GIF as row 1, error trajectory line]
+- id: sim-gain-sweep
+  tags: [behavior, senior, csv, sweep]
+  fixture: sim_runner
+  prompt: "I swept the controller gain over a few values, want to see which is best per scenario in SignalFlag"
+  persona: |
+    Senior controls engineer. You ran run_suite.py with gain 0.5, 1.0, 2.0 and will try more. You want a
+    leaderboard: per scenario, which gain gives the lowest final error. Not a pass/fail gate.
+    Branch `gain-sweep`. You choose "walk me through it".
+  expect:
+    intent: metrics-first, leaderboard/sweep (not regression)
+    shape: batch per gain (version = gain) + dashboard ranking, on one branch; or one batch with test per (scenario, gain) — justified
+    branch: gain-sweep (asked)
+    traps: [treating it as A/B regression, splitting gains across branches, inventing test names]
+
+  metrics_hint: [final error per (scenario, gain) ranking table, dashboard bar by gain, replay per test]
+- id: ros2-perception-replay
+  tags: [perception, senior, mcap, regression]
+  fixture: ros2_replay
+  prompt: "Wire SignalFlag into our perception replay harness."
+  persona: |
+    Senior perception engineer. `docker compose --profile replay up` plays each scenario bag in scenarios/
+    through the perception stack and writes outputs/<scenario>/output.mcap (/perception/detections,
+    /perception/tracks). Grading against labels is a separate later step that isn't built. You want every
+    replay run reported so you can look at it. Branch `perception-replay`. Partial control.
+    The image tag of the perception stack is in compose.yaml; commit isn't recorded anywhere.
+  expect:
+    intent: data-first now (grading later) or metrics-first — accept either if argued
+    form: harness
+    route: compose-metrics kept
+    open_items: [commit/build not recorded per run]
+    traps: [offering the cloud/ECR path, skipping compose-metrics]
+
+  metrics_hint: [detections/tracks counts per frame, track lifetime histogram, replay media, no grading metrics yet]
+- id: perception-det-checkpoints
+  tags: [perception, mid, json, checkpoints]
+  fixture: perception_det
+  prompt: "I train a 3D detector and evaluate checkpoints on our val splits. I want that in SignalFlag."
+  persona: |
+    Perception ML engineer. `python eval.py --ckpt runs/centerpoint_v3/ckpt_<epoch>.pth` writes
+    eval/<epoch>/metrics_<split>.json (mAP, NDS, per-class AP) for splits day, night, rain. Training saves a
+    checkpoint every 5 epochs. You want to see mAP per split over training and catch night regressing while
+    day improves. Branch `centerpoint-v3`. Partial.
+  expect:
+    intent: metrics-first, checkpoints as training runs
+    shape: batch per evaluated checkpoint (version = epoch), tests = splits, one branch + dashboard
+    form: script (or hook into eval.py, justified)
+    traps: [one test per checkpoint mixing splits, inventing split names]
+
+  metrics_hint: [mAP/NDS per split, per-class AP table, dashboard trend per split over epochs, night-vs-day gap]
+- id: loc-ate-pr
+  tags: [localization, senior, csv, regression]
+  fixture: loc_bench
+  prompt: "Every PR we run our localization benchmark. Can SignalFlag track it?"
+  persona: |
+    Senior localization engineer. `python bench.py` runs the estimator on sequences/ (TUM format
+    groundtruth + estimate) and pytest asserts ATE < 0.15 m and RPE < 0.05 m per sequence. Runs in CI on
+    each PR. You want to know which PR made which sequence worse. Branch `loc-bench`. User-led on metrics:
+    you'll choose the metrics yourself.
+  expect:
+    intent: metrics-first, regression gate
+    form: hook (pytest) or harness (bench.py) — justified from what exists
+    shape: batch per PR build, tests = sequence names, version = commit; thresholds from the existing asserts
+    open_items: [CI auth: no browser]
+    control: user-led
+    traps: [inventing thresholds instead of reading the asserts]
+
+  metrics_hint: [ATE and RPE per sequence with margins to the asserted 0.15/0.05 m, error-over-time line, XY path custom chart]
+- id: loc-field-no-gt
+  tags: [localization, mid, mcap, physical, data-first]
+  fixture: field_mcap
+  prompt: "We log our robots' localization in the field. Want to look at drift in SignalFlag."
+  persona: |
+    Localization engineer. Physical warehouse robots record one mcap per shift into logs/<robot>/<date>.mcap
+    with /odom, /localization/pose, /gps/fix (outdoor yard only) and /diagnostics. No ground truth. You want
+    to explore drift and relocalization jumps; you're not sure what thresholds make sense yet. Branch
+    `fleet-loc`. Agent-led.
+  expect:
+    intent: data-first (with events for jumps) or light metrics — justified
+    form: script, re-run on new shifts
+    shape: batch per ingest run or per day; test per log (robot+date)
+    traps: [inventing thresholds, uploading full-rate data (low-res first), assuming ground truth exists]
+
+  metrics_hint: [pose jump events, odom-vs-localization divergence, gps residual where available, drift rate per hour]
+- id: field-ops-lead-interventions
+  tags: [field, lead, mcap, physical]
+  fixture: field_mcap
+  prompt: "I run a robot fleet team. I want weekly numbers on interventions in SignalFlag, my engineers will set it up later but I want the plan."
+  persona: |
+    Engineering lead, not hands-on with the code. Operators press the e-stop / take over; that shows as
+    /teleop/takeover messages in the mcaps (you know that much). You want interventions per hour of autonomy
+    by robot and by week, for a Monday review. Choose "you decide". Project `acme-fleet`.
+  expect:
+    intent: metrics-first, trend over weeks
+    mode: A
+    shape: batch per week (or per ingest), tests per robot or per log, dashboard for the trend
+    output: brief only; stops at the plan (no code), open items listed
+    traps: [writing ingest code, asking the lead code-level questions]
+
+  metrics_hint: [interventions per autonomy hour per robot, weekly dashboard trend, takeover events with context]
+- id: lerobot-act-real-robot
+  tags: [imitation, mid, lerobot, checkpoints, physical]
+  fixture: lerobot_act
+  prompt: "I'm training ACT policies with lerobot and testing checkpoints on our real arm. How do I get this into SignalFlag?"
+  persona: |
+    IL engineer. Training with lerobot saves outputs/train/act_pick_cube/checkpoints/<step>/. You roll each
+    checkpoint on the physical SO-101 arm for 10 trials; the operator records success, time and notes in
+    real_evals/<step>.csv; the robot's episodes are recorded as a LeRobot dataset (eval_data/) with videos.
+    You want to pick the checkpoint to deploy and see failure modes. Branch `act-pick-cube`. Partial.
+  expect:
+    intent: metrics-first, checkpoint leaderboard
+    shape: batch per checkpoint evaluation (version = step) + dashboard; or one batch with test per checkpoint if evaluated together — asked
+    form: script
+    open_items: [operator notes free-text; trials linked to dataset episodes]
+    traps: [treating the training dataset as eval data, uploading full videos]
+
+  metrics_hint: [success rate per checkpoint, time-to-success, failure-mode tally from notes, one episode video per trial (downscaled)]
+- id: lerobot-dataset-quality
+  tags: [imitation, mid, lerobot, data-first]
+  fixture: lerobot_act
+  prompt: "Can SignalFlag help me look at the quality of our teleop demos? They're a lerobot dataset."
+  persona: |
+    IL data engineer. The training data is the LeRobot dataset in data/ (parquet per episode, meta/,
+    videos/). Collected by 3 operators over 2 weeks. You want to spot bad demos (too long, gripper never
+    closes, jerky actions) before training. "I don't know what I'm looking for yet." Branch `demo-qa`.
+  expect:
+    intent: data-first (events for suspicious demos)
+    form: one-off for the backlog, script for new collections
+    shape: one test per episode; batch per collection pass
+    traps: [confusing eval checkpoints with the dataset, uploading every video at full res]
+
+  metrics_hint: [episode length histogram, gripper open/close coverage, action jerk, events for suspicious demos]
+- id: robomimic-h5-diffusion
+  tags: [imitation, senior, h5, checkpoints]
+  fixture: robomimic_h5
+  prompt: "Diffusion policy rollouts are saved as h5 per checkpoint. Put them in SignalFlag."
+  persona: |
+    Senior IL researcher. `python rollout.py --ckpt ckpts/epoch_<n>.pt` writes rollouts/epoch_<n>.hdf5 with
+    data/demo_<i>/{obs,actions,rewards,dones} and attrs success, task for tasks lift, can, square
+    (50 rollouts each). You want success rate per task over epochs. Branch `dp-robomimic`. Walk-through mode.
+  expect:
+    intent: metrics-first, checkpoints as training runs
+    shape: batch per epoch (version = epoch), tests = tasks, dashboard
+    form: script
+    traps: [one test per rollout (2500 tests), ignoring the attrs]
+
+  metrics_hint: [success rate per task per epoch, dashboard trend, rollout length distribution]
+- id: behavior-nightly-400
+  tags: [testing, lead, json, regression, large]
+  fixture: behavior_ci
+  prompt: "We run ~400 behavior scenarios nightly in CI. I need SignalFlag to show regressions vs last night and block releases."
+  persona: |
+    Test lead. .github/workflows/nightly.yml runs `python -m simtest run scenarios/ --out results/` which
+    writes results/<scenario_id>.json (pass, min_ttc_s, max_decel, collisions, route_completion) and a
+    junit.xml. Scenario ids are stable. Release candidates are tagged rc-*. Branch: nightly on `nightly`,
+    RCs on `release`. Partial.
+  expect:
+    intent: metrics-first, regression gate (block)
+    form: harness (simtest) or script after the run — justified
+    shape: batch per nightly run, tests = scenario ids, version = commit
+    branch: user-given, two branches with the reason
+    open_items: [CI auth: no browser]
+    traps: [inventing test names, one batch per scenario]
+
+  metrics_hint: [pass/fail per scenario, min TTC and max decel with margins, collisions gate, route completion, batch pass-rate vs last night]
+- id: hil-bench-pytest
+  tags: [testing, mid, pytest, physical, regression]
+  fixture: hil_bench
+  prompt: "Our hardware-in-the-loop bench runs pytest against a real motor controller. Want results in SignalFlag."
+  persona: |
+    Test engineer. Jenkins on the bench PC runs `pytest tests/hil -m hil --junitxml=out/junit.xml` against
+    real hardware. Tests log current/velocity traces to out/<test>/trace.csv. Firmware version comes from
+    the device over serial (in out/device.json). You want to see trace plots for failures and track rise
+    time per firmware. Branch `hil-motor`.
+  expect:
+    intent: metrics-first
+    form: hook (conftest)
+    version: firmware version from device.json (asked), not the repo commit
+    open_items: [bench PC has no browser for device-code login]
+    traps: [version = git commit without asking]
+
+  metrics_hint: [rise time per test with threshold margin, current/velocity trace charts on failure, per-firmware trend]
+- id: existing-brief-pending
+  tags: [routing, mid, csv, checkpoints]
+  fixture: rl_project_with_brief
+  brief: existing
+  prompt: "Ok let's continue the SignalFlag setup."
+  persona: |
+    The RL researcher from before; the brief in docs/signalflag/ was approved last week. You just want it to
+    carry on. Don't re-answer questions already in the brief; say "it's in the brief" if asked.
+  expect:
+    behavior: no new interview; reads the brief and routes to its first pending section's skill
+    traps: [re-interviewing, overwriting the brief]
+
+  metrics_hint: [as in the existing brief]
+- id: neighbour-brief-new-type
+  tags: [routing, mid, pytest, regression]
+  fixture: pytest_suite_with_brief_plus_sim
+  prompt: "The pytest stuff is in SignalFlag already. Now I want the sim runs in there too."
+  persona: |
+    Planning engineer. There's an approved planner-ci brief. sim/run_suite.py is new. Same project. For the
+    sim, branch `planner-sim`.
+  expect:
+    behavior: new brief for the sim test type, same project and branch conventions; does not edit the pytest brief
+    traps: [appending sim into the existing brief, reusing branch planner-ci]
+
+  metrics_hint: [sim final error per scenario, replay media]
+- id: monorepo-everything
+  tags: [routing, lead, mcap, mixed]
+  fixture: monorepo
+  prompt: "Put all our testing into SignalFlag."
+  persona: |
+    Autonomy lead. The repo has perception/ (mcap replay harness) and planning/ (pytest suite). You care
+    most about planning regressions first. Project `acme-av`. Partial.
+  expect:
+    behavior: recognises two test types -> one brief per type; asks which first; does one
+    traps: [one brief for everything, one branch for both]
+
+  metrics_hint: ["planning - assertion margins per test", "perception - replay stats"]
+- id: impatient-just-do-it
+  tags: [behavior, senior, pytest, regression]
+  fixture: pytest_suite
+  prompt: "Hook pytest up to SignalFlag. Don't ask me a bunch of questions, just do it."
+  persona: |
+    Senior engineer, busy. Project `acme-robotics`. Anything else: "your call". If the agent asks more than
+    two things total, get annoyed: "I said just do it".
+  expect:
+    mode: A
+    behavior: asks only the project; writes the brief with each choice "chosen by agent — why"; doesn't stop for brief approval; nothing reaches SignalFlag before the single approval after design-metrics
+    traps: [skipping the brief, installing before approval, branch main or the git branch]
+
+  metrics_hint: [as pytest-planner-ci, agent-chosen]
+- id: wants-cloud-sims
+  tags: [behavior, mid, csv, scope]
+  fixture: sim_runner
+  prompt: "Can SignalFlag run my sim suite in the cloud for me?"
+  persona: |
+    Controls engineer. You'd like cloud runs eventually, but you'd accept reporting local runs for now.
+    Branch `ctrl-local`.
+  expect:
+    behavior: says cloud runs aren't set up by this path today; offers the SDK path for local runs; brief notes cloud as a later branch
+    traps: [walking through ECR/builds/experiences, promising cloud]
+
+  metrics_hint: [final_error_m per scenario, replay GIF]
+- id: ros1-bags-legacy
+  tags: [perception, mid, rosbag1, data-first]
+  fixture: ros1_bags
+  prompt: "We have a few years of ROS1 bags from the test track. Get them in SignalFlag."
+  persona: |
+    Perception engineer. bags/*.bag are ROS1 (rosbag v2). ~40 bags. You want to search them later for
+    pedestrians near the vehicle. No ROS install on this machine. Branch `track-archive`.
+  expect:
+    intent: data-first
+    form: one-off (backlog)
+    open_items: [ROS1 .bag has no built-in reader in the skills (mcap, parquet, csv, h5, dataframe) -> the brief names the choice: convert to mcap, or a custom reader (e.g. the pure-Python rosbags package)]
+    traps: [pretending .bag is a supported format with no plan, installing ROS during onboarding]
+
+  metrics_hint: [pedestrian-near-vehicle events, per-bag topic inventory]
+- id: dirty-tree-version
+  tags: [behavior, mid, csv, regression]
+  fixture: sim_runner_dirty
+  prompt: "I want these runs in SignalFlag."
+  persona: |
+    Controls engineer. runs/ holds results from 3 days of tuning with local edits that were never
+    committed. You want to compare against each new run. Version: use the date + a short note you type.
+    Branch `tuning`.
+  expect:
+    version: asked; commit isn't reliable (dirty tree) -> open item or user's label
+    traps: [using HEAD sha as the version for old runs]
+
+  metrics_hint: [final error per scenario per tuning run, dashboard over runs]
+- id: rl-sweep-seeds
+  tags: [rl, senior, csv, sweep]
+  fixture: rl_sweep
+  prompt: "I ran a learning-rate sweep, 4 lrs x 3 seeds. Want to compare them in SignalFlag."
+  persona: |
+    RL researcher. sweep/lr_<lr>/seed_<s>/progress.csv (step, mean_return, success_rate). You want final
+    return per lr with spread over seeds, and learning curves. Branch `lr-sweep-sept`. Walk-through.
+  expect:
+    intent: metrics-first, leaderboard over configs
+    shape: one branch; batch per config (version = lr) with tests per seed, or one batch with test per run + dashboard — asked, justified
+    traps: [one branch per lr, A/B framing]
+
+  metrics_hint: [final return per lr with seed spread, learning curves per lr, ranking table]
+- id: knows-signalflag-already
+  tags: [behavior, senior, csv, regression]
+  fixture: sim_runner
+  prompt: "I used ReSim at my last job. Batch per suite run, tests = scenarios, branch ctrl-main. Set it up."
+  persona: |
+    Senior engineer who knows SignalFlag/ReSim terms. Project `acme-robotics`. Wants mode A beyond what was
+    said. Version: commit.
+  expect:
+    behavior: uses what was given (records as confirmed by user), asks only what's missing (project), doesn't re-explain basics
+    traps: [re-asking given decisions, overriding the user's branch]
+
+  metrics_hint: [final_error_m per scenario, replay GIF, margins]
+- id: nothing-run-yet
+  tags: [behavior, junior, none, scope]
+  fixture: harness_no_runs
+  prompt: "I'm building a sim test harness and I want it to report to SignalFlag from day one."
+  persona: |
+    Junior engineer. harness/ has a runner skeleton that will write results/<scenario>/metrics.json, but
+    nothing has been run yet. You'll run it on PRs. Branch `harness-dev`.
+  expect:
+    form: harness
+    open_items: [no artifacts yet -> data profile waits on a first run]
+    traps: [inventing data, designing metrics from nothing]
+
+  metrics_hint: [deferred until first run]
+# ---- real-pattern: failure patterns seen in customer onboarding, anonymized (generic personas, synthetic data) ----
+
+- id: existing-integration-shared-layout
+  tags: [real-pattern, mid, pytest, regression, existing-integration]
+  fixture: mixed_sim_pytest_integrated
+  prompt: "Our tests already upload to SignalFlag but some metrics show internal errors. Am I organizing this right?"
+  persona: |
+    Autonomy engineer, self-serve trial. You integrated SignalFlag yourself without any skill: conftest.py
+    uploads each pytest session, and .resim/metrics/config.resim.yml has one metrics layout for every test.
+    Tests: test_timing_consistency, test_wall_follow[offset=...] (several offsets), test_obstacle_stop[...].
+    Only the obstacle tests publish obstacle_state; the shared layout is on purpose — you want every test to
+    look the same. The errors are on the timing and wall-follow tests. Branch already in use: `sim-int`.
+    Project `acme-sim`. Partial control. You still want one dashboard across all tests.
+  expect:
+    behavior: reads the existing conftest/config before asking; treats it as an existing integration — records the current mapping in a brief instead of re-onboarding or designing a parallel layout; finds that obstacle_state is only emitted by some tests; routes to compose-metrics (skip_if_no_data only on optional metrics, presence gates on required ones, or a set per test type raised as the user's choice)
+    branch: keep sim-int (schemas only grow)
+    traps: [rewriting the integration, moving their data to a new branch (a scratch branch for a check run is fine), skip_if_no_data on everything, calling it a server bug without reading the config]
+  metrics_hint: [verdict + presence gate per required topic, obstacle metrics optional or own set, offset sweep chart, batch pass/fail counts]
+
+- id: mixed-suite-greenfield
+  tags: [real-pattern, mid, pytest, regression, mixed-suite]
+  fixture: mixed_sim_pytest
+  prompt: "Hook our sim integration tests up to SignalFlag. I want the same dashboard layout for all of them."
+  persona: |
+    Same kind of suite, not integrated yet. Some tests publish obstacle_state, others only odometry and
+    clock. You want one consistent layout. Branch `sim-int`. Partial.
+  expect:
+    behavior: Current state records which tests emit which data; the brief carries that to design-metrics (required vs optional, or a set per test type); test names = pytest ids incl. parametrize
+    form: hook
+    traps: [assuming every test emits every topic, inventing test groupings]
+  metrics_hint: [required set for all tests, optional obstacle metrics, margin rows for assertions]
+
+- id: field-uat-manual-verdicts
+  tags: [real-pattern, testing, lead, mcap, physical, regression]
+  fixture: field_uat
+  prompt: "We do acceptance testing on real robots before each release, following written test cases. I want those results in SignalFlag so we can compare releases."
+  persona: |
+    QA lead, outdoor robots. uat/cases/UAT-006.md (docking), UAT-018.md (path retrace) etc. describe
+    procedures. For each release candidate a field tech runs the cases on a robot, records an mcap from just
+    before to just after each test into field/<release>/<case>_<robot>_<n>.mcap, and fills
+    field/<release>/results.csv (case, robot, run, pass/fail, notes) by hand. You want, per release, which
+    cases pass, plus objective numbers from the mcaps to back the manual verdict. Releases look like
+    4.12.0-rc2. Branch `uat`. Partial.
+  expect:
+    intent: metrics-first, release regression; the manual verdict is kept as data (and compared with objective metrics)
+    shape: batch per release-candidate field session, test = UAT case (repeat runs/robots inside it or as tests — asked), version = release
+    form: script over field/<release>/
+    open_items: [free-text notes, which mcap topics back each case's verdict]
+    traps: [version = git commit, ignoring the manual results, one test per mcap without asking]
+  metrics_hint: [manual vs objective verdict, docking time / final dock error, retrace cross-track error, per-case pass rate across releases]
+
+- id: video-dataset-delivery-qa
+  tags: [real-pattern, data, mid, video, data-first]
+  fixture: video_qa
+  prompt: "We deliver egocentric training videos to customers and need QA on each delivery. Can SignalFlag do that?"
+  persona: |
+    Data QA manager at a data-collection vendor. deliveries/<delivery_id>/videos/*.mp4 plus annotations.json
+    (per video: duration, fps, hand-visibility labels, task label). ~150 videos per delivery. You want to
+    flag bad videos (blur, dropped frames, hands missing, wrong task length) before shipping; thresholds
+    aren't decided. Branch `delivery-qa`. Agent-led.
+  expect:
+    intent: metrics-first with provisional thresholds, or a data-first first pass — justified
+    shape: batch per delivery, test per video
+    form: script
+    traps: [uploading full-res videos, presenting invented thresholds as final]
+  metrics_hint: [duration / fps / frame drops per video, hand visibility %, thresholds from measured percentiles, delivery-level fail table]
+
+- id: project-name-unknown
+  tags: [behavior, mid, csv, regression]
+  fixture: sim_runner
+  project_unknown: true
+  prompt: "Put my sim suite results in SignalFlag please."
+  persona: |
+    Controls engineer. You run `python run_suite.py --gain <g>` after controller changes and compare
+    final_error_m against last time. Your team has a SignalFlag account but you don't remember the project
+    name; if asked, say so and ask whether the agent can look it up. Branch `ctrl-regression`. Partial.
+  expect:
+    behavior: doesn't log in, install or list projects mid-interview; records the project as an open item (or asks the user to check the web app) and finishes the brief; project lookup happens at auth, after approval
+    form: harness or script
+    traps: [installing the SDK or starting a login to list projects before the brief, inventing a project name]
+  metrics_hint: [final_error_m per scenario with margin, replay GIF]

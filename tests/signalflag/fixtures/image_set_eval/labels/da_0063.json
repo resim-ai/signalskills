@@ -1,0 +1,32 @@
+{
+  "image_id": "da_0063",
+  "file_name": "images/dashcam_a/da_0063.jpg",
+  "width": 960,
+  "height": 640,
+  "annotations": [
+    {
+      "id": 1,
+      "category": "pedestrian",
+      "bbox": [
+        750.3,
+        279.0,
+        11.4,
+        28.5
+      ],
+      "area": 324.9,
+      "iscrowd": 0
+    },
+    {
+      "id": 2,
+      "category": "car",
+      "bbox": [
+        161.0,
+        285.4,
+        46.5,
+        29.1
+      ],
+      "area": 1353.2,
+      "iscrowd": 0
+    }
+  ]
+}

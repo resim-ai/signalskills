@@ -1,0 +1,36 @@
+epoch  1 loss 3.1950 lr 0.000997
+epoch  2 loss 2.9221 lr 0.000989
+epoch  3 loss 2.6779 lr 0.000976
+epoch  4 loss 2.4594 lr 0.000957
+epoch  5 loss 2.2639 lr 0.000933
+saved runs/centerpoint_v3/ckpt_5.pth
+epoch  6 loss 2.0889 lr 0.000905
+epoch  7 loss 1.9323 lr 0.000872
+epoch  8 loss 1.7922 lr 0.000835
+epoch  9 loss 1.6669 lr 0.000794
+epoch 10 loss 1.5547 lr 0.000750
+saved runs/centerpoint_v3/ckpt_10.pth
+epoch 11 loss 1.4543 lr 0.000703
+epoch 12 loss 1.3644 lr 0.000655
+epoch 13 loss 1.2840 lr 0.000604
+epoch 14 loss 1.2121 lr 0.000552
+epoch 15 loss 1.1477 lr 0.000500
+saved runs/centerpoint_v3/ckpt_15.pth
+epoch 16 loss 1.0901 lr 0.000448
+epoch 17 loss 1.0386 lr 0.000396
+epoch 18 loss 0.9925 lr 0.000345
+epoch 19 loss 0.9512 lr 0.000297
+epoch 20 loss 0.9143 lr 0.000250
+saved runs/centerpoint_v3/ckpt_20.pth
+epoch 21 loss 0.8812 lr 0.000206
+epoch 22 loss 0.8516 lr 0.000165
+epoch 23 loss 0.8252 lr 0.000128
+epoch 24 loss 0.8015 lr 0.000095
+epoch 25 loss 0.7803 lr 0.000067
+saved runs/centerpoint_v3/ckpt_25.pth
+epoch 26 loss 0.7614 lr 0.000043
+epoch 27 loss 0.7444 lr 0.000024
+epoch 28 loss 0.7292 lr 0.000011
+epoch 29 loss 0.7156 lr 0.000003
+epoch 30 loss 0.7035 lr 0.000000
+saved runs/centerpoint_v3/ckpt_30.pth

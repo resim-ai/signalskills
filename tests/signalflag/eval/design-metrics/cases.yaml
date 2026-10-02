@@ -1,0 +1,387 @@
+# signalflag-design-metrics eval cases. Each case starts from an APPROVED brief (onboard sections filled,
+# Data profile onward pending), taken from an onboarding eval run of the same persona (`brief_from`) and
+# committed into the fixture workspace. The agent designs the metrics; the simulated user answers.
+# expect.bad_runs are faults planted in the fixture data: the plan must make each one fail/warn or raise an
+# event, AND show it on a chart, AND point toward the cause.
+# expect.max_test_metrics is a ceiling for this audience (the skill's own rule is 5–20).
+
+- id: m-planner-pytest
+  tags: [behavior, mid, pytest, regression]
+  fixture: pytest_suite
+  brief_from: pytest-planner-ci
+  brief_file: planner-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/planner-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Planning engineer. Runs pytest locally and in GitHub Actions on every PR. When a test fails you want to
+    see the numbers behind it: path length vs straight line, clearance, and how far from the limit. You
+    look at one PR's results, and sometimes how a scenario trended over the last few weeks. Partial
+    control: pick from options.
+  expect:
+    audience: engineer debugging a PR failure
+    bad_runs: ["clutter fails both asserts: path 2.2× straight line (limit 1.2×), clearance 0.20 m (limit 0.25 m)"]
+    must_show: [path ratio and clearance with margin to the existing assert thresholds, at least one per-test chart of the evidence, trend per scenario across PRs on a dashboard]
+    open_items: [plan() returns only lengths and clearance, not the path: a path-vs-obstacles picture needs the planner to return waypoints (structure-runs), flagged rather than invented]
+    max_test_metrics: 10
+    traps: [new thresholds instead of the existing asserts, scalars only with no chart]
+
+- id: m-perception-det
+  tags: [perception, mid, json, checkpoints]
+  fixture: perception_det
+  brief_from: perception-det-checkpoints
+  brief_file: det3d-checkpoint-eval-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/det3d-checkpoint-eval-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Perception ML engineer. Evaluates checkpoints every 5 epochs on day/night/rain splits. Your worry: night
+    getting worse while day improves. You also look at per-class AP when something drops. Partial control.
+  expect:
+    audience: ML engineer tracking training
+    bad_runs: ["night mAP falls after epoch 15 while day rises", "epoch 20 has no rain metrics file (eval OOM in eval.log)"]
+    must_show: [mAP/NDS per split over epochs on a dashboard, per-class AP table or heatmap per split, a required presence check so a missing split fails loudly, gap or regression check between splits]
+    max_test_metrics: 25
+    traps: [averaging splits into one number, missing split silently skipped]
+
+- id: m-loc-bench
+  tags: [localization, senior, csv, regression]
+  fixture: loc_bench
+  brief_from: loc-ate-pr
+  brief_file: loc-bench-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/loc-bench-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Senior localization engineer. bench.py + pytest assert ATE < 0.15 m and RPE < 0.05 m per sequence on
+    every PR. You want to know which PR made which sequence worse, and when it fails, where along the
+    trajectory the error grew. User-led on metric choice: you want ATE, RPE, error over time and the XY
+    trajectory against ground truth; you decide.
+  expect:
+    audience: senior engineer, user-led
+    bad_runs: ["test_rpe[yard_figure8] fails the RPE limit"]
+    must_show: [ATE and RPE per sequence with margin to the asserted limits, error-over-time line, XY trajectory vs ground truth (custom chart), trend across PRs]
+    python_metrics: [ATE/RPE need trajectory alignment (computed in Python at ingest, emitted as values + series)]
+    max_test_metrics: 20
+    traps: [trying to compute ATE in SQL, inventing thresholds instead of reading the asserts]
+
+- id: m-field-loc-drift
+  tags: [localization, mid, mcap, physical, data-first]
+  fixture: field_mcap
+  brief_from: loc-field-no-gt
+  brief_file: field-localization-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/field-localization-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Localization engineer. Warehouse robots log one mcap per shift. No ground truth. You want to explore
+    drift and relocalization jumps; you don't know thresholds yet. Agent-led.
+  expect:
+    audience: engineer exploring field data
+    bad_runs: ["relocalization jumps in some shifts", "newer logs carry an extra match_score field (schema drift)"]
+    must_show: [jump events with time and size, odom-vs-localization divergence over time, light summary per log, raw pose series emitted for later queries]
+    max_test_metrics: 10
+    traps: [block/warn gates when the user has no thresholds, wide topic that breaks on the new field]
+
+- id: m-fleet-interventions-lead
+  tags: [field, lead, mcap, physical]
+  fixture: field_mcap
+  brief_from: field-ops-lead-interventions
+  brief_file: fleet-shift-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/fleet-shift-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Engineering lead, not hands-on. You want weekly numbers for a Monday review: interventions per hour of
+    autonomy by robot and by week, and which shifts were worst. Agent-led; you only want the headline.
+  expect:
+    audience: lead / manager, weekly review
+    bad_runs: ["shifts with 3 takeovers stand out against 0–1 elsewhere"]
+    must_show: [interventions per autonomy-hour trend by week (dashboard), per-robot comparison, worst-shift table with links/events, few test metrics]
+    max_test_metrics: 6
+    traps: [engineer-level detail for a lead, 15+ metrics]
+
+- id: m-lerobot-ckpt-real
+  tags: [imitation, mid, lerobot, checkpoints, physical]
+  fixture: lerobot_act
+  brief_from: lerobot-act-real-robot
+  brief_file: act-real-arm-eval-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/act-real-arm-eval-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    IL engineer. Each checkpoint gets 10 trials on the real arm; the operator logs success, time and notes.
+    You want to pick the checkpoint to deploy and understand failure modes. Partial.
+  expect:
+    audience: ML engineer choosing a checkpoint
+    bad_runs: ["the newest checkpoint (100000, 6/10) is worse than 080000 (8/10)", "failure modes only in free-text notes"]
+    must_show: [success rate and time per checkpoint ranked, failure-mode tally from notes, a downscaled MP4 per trial or per failure (grasp slips are fast - the viewer scrubs), trend over training step]
+    max_test_metrics: 10
+    traps: [ignoring the notes, every trial video at full res]
+
+- id: m-lerobot-demo-qa
+  tags: [imitation, mid, lerobot, data-first]
+  fixture: lerobot_act
+  brief_from: lerobot-dataset-quality
+  brief_file: teleop-demos-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/teleop-demos-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    IL data engineer. Teleop demos from 3 operators. You want to spot bad demos before training: too long,
+    gripper never closes, jerky actions. "I don't know what I'm looking for yet." Agent-led.
+  expect:
+    audience: data engineer screening a dataset
+    bad_runs: ["episode 4 too long", "episode 9 gripper never closes", "episode 13 jerky actions"]
+    must_show: [per-episode length/gripper/jerk values with events for outliers, distribution (histogram) across episodes, per-operator comparison, thresholds from measured percentiles marked provisional]
+    python_metrics: [jerk from action derivatives computed in Python]
+    max_test_metrics: 10
+    traps: [hard gates with invented thresholds]
+
+- id: m-robomimic
+  tags: [imitation, senior, h5, checkpoints]
+  fixture: robomimic_h5
+  brief_from: robomimic-h5-diffusion
+  brief_file: robomimic-rollout-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/robomimic-rollout-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Senior IL researcher. Success rate per task (lift, can, square) over epochs; rollout length matters when
+    success is equal. Walk-through mode.
+  expect:
+    audience: researcher comparing epochs
+    bad_runs: ["square is much harder: lower success than lift/can"]
+    must_show: [success rate per task per epoch on a dashboard, rollout length distribution per task, a ranking table of epochs]
+    max_test_metrics: 8
+    traps: [one test per rollout, per-step charts nobody reads]
+
+- id: m-behavior-nightly
+  tags: [testing, lead, json, regression, large]
+  fixture: behavior_ci
+  brief_from: behavior-nightly-400
+  brief_file: behavior-nightly-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/behavior-nightly-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Test lead. ~400 scenarios nightly; you need regressions vs last night and a release block. Your
+    engineers dig into individual scenarios; you look at the batch summary. Partial.
+  expect:
+    audience: test lead + engineers, large regression
+    bad_runs: ["8 scenarios fail on low TTC, low route completion or hard braking (no collisions)"]
+    must_show: [batch-level pass rate and failing-scenario table with the failing criterion, per-scenario min TTC / max decel / route completion with margins, block on collisions, trend of pass rate across nights, per-family breakdown]
+    max_test_metrics: 15
+    traps: [heavy per-test charts across 400 scenarios, no batch-level summary]
+
+- id: m-hil-motor
+  tags: [testing, mid, pytest, physical, regression]
+  fixture: hil_bench
+  brief_from: hil-bench-pytest
+  brief_file: hil-motor-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/hil-motor-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Test engineer. HIL bench with a real motor controller. You want the current/velocity trace for a
+    failing test, and rise time per firmware version over time.
+  expect:
+    audience: test engineer debugging hardware
+    bad_runs: ["test_step_response[3000rpm] fails rise time"]
+    must_show: [rise time with margin to spec, velocity/current trace chart per test, trend of rise time per firmware on a dashboard]
+    python_metrics: [rise time / overshoot computed from the trace in Python]
+    max_test_metrics: 15
+    traps: [no trace chart, version = git commit]
+
+- id: m-mixed-suite
+  tags: [real-pattern, mid, pytest, regression, mixed-suite]
+  fixture: mixed_sim_pytest
+  brief_from: mixed-suite-greenfield
+  brief_file: sim-integration-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/sim-integration-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Autonomy engineer. One consistent dashboard layout for all sim integration tests. Only obstacle tests
+    publish obstacle_state. Partial.
+  expect:
+    audience: engineer, shared layout
+    bad_runs: ["test_wall_follow[offset=1.2] fails", "non-obstacle tests have no obstacle_state"]
+    must_show: [obstacle metrics marked optional (or a separate set per test type, raised as the user's choice), required verdict + presence gates, offset sweep chart]
+    max_test_metrics: 20
+    traps: [required metrics on a topic only some tests emit (shows as errors), skip_if_no_data on the verdict]
+
+- id: m-field-uat
+  tags: [real-pattern, testing, lead, mcap, physical, regression]
+  fixture: field_uat
+  brief_from: field-uat-manual-verdicts
+  brief_file: field-uat-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/field-uat-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    QA lead. Release acceptance on real robots; techs record manual pass/fail. You want objective numbers
+    that back (or contradict) the manual verdict, per case, per release. Partial.
+  expect:
+    audience: QA lead comparing releases
+    bad_runs: ["rc2 UAT-018 marked PASS manually but max cross-track 0.157 m exceeds the 15 cm criterion", "an rc1 row has no recording"]
+    must_show: [manual verdict vs objective verdict side by side with disagreement flagged, per-case criterion metric with margin (from the case's written criterion), per-release pass table on a dashboard, missing-recording check]
+    max_test_metrics: 8
+    traps: [trusting the manual verdict only, thresholds not taken from the written case criteria]
+
+- id: m-video-qa
+  tags: [real-pattern, data, mid, video, data-first]
+  fixture: video_qa
+  brief_from: video-dataset-delivery-qa
+  brief_file: delivery-qa-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/delivery-qa-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Data QA manager. ~150 egocentric videos per delivery. Flag bad videos before shipping; thresholds not
+    decided. You want a delivery summary you can send a customer and per-video flags. Agent-led.
+  expect:
+    audience: QA manager, customer-facing summary
+    bad_runs: ["~16% clips: blur, frozen frames, hands missing (some still labelled visible), wrong length"]
+    must_show: [per-video flags with reason, delivery-level fail table and pass rate, distributions of blur/frozen-frame/hand-visibility, label-vs-measured hand visibility mismatch, a thumbnail or short clip for flagged videos]
+    python_metrics: [blur (e.g. Laplacian variance) and frozen-frame detection computed in Python]
+    max_test_metrics: 10
+    traps: [full-res video uploads, final thresholds invented]
+
+- id: m-rl-sweep
+  tags: [rl, senior, csv, sweep]
+  fixture: rl_sweep
+  brief_from: rl-sweep-seeds
+  brief_file: ppo-reach-lr-sweep-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/ppo-reach-lr-sweep-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    RL researcher. 4 lrs × 3 seeds. Final return per lr with spread, learning curves. Walk-through.
+  expect:
+    audience: researcher picking a hyperparameter
+    bad_runs: ["lr 3e-3 seed 2 diverged and stopped at 610k steps"]
+    must_show: [learning curves per lr (mean ± spread), final return ranking table with seed spread, divergence/early-stop detected and flagged]
+    max_test_metrics: 8
+    traps: [mean that hides the diverged seed]
+
+- id: m-rl-ckpt
+  tags: [rl, junior, csv, checkpoints]
+  fixture: rl_project
+  brief_from: rl-intern-vague
+  brief_file: checkpoint-eval-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/checkpoint-eval-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Junior intern. Your lead wants to know if the new checkpoint is better. "you decide". If asked what
+    you'd check: "I guess whether it's better than the last one?"
+  expect:
+    audience: junior, lead consumes it
+    bad_runs: ["one eval folder has no checkpoint label (excluded or flagged, never guessed)"]
+    must_show: [mean return and success rate trend over step, ranking table, per-seed spread]
+    max_test_metrics: 6
+    traps: [many metrics for a junior, jargon]
+
+- id: m-parquet-drives
+  tags: [field, mid, parquet, data-first]
+  fixture: parquet_dump
+  brief_from: parquet-field-dump
+  brief_file: field-drive-telemetry-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/field-drive-telemetry-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Field engineer. "I want it all queryable; I don't know what I'll ask yet." Agent-led.
+  expect:
+    audience: engineer, data-first
+    bad_runs: ["drive_02 has mode chatter (17 quick flips)", "drive_04 has an extra motor_temp_c column"]
+    must_show: [every column emitted for later SQL, light profile metrics, a mode state_timeline, speed vs command chart, the new column handled additively]
+    max_test_metrics: 8
+    traps: [heavy gated plan for a data-first user, dropping columns]
+
+- id: m-ros2-replay
+  tags: [perception, senior, mcap, data-first]
+  fixture: ros2_replay
+  brief_from: ros2-perception-replay
+  brief_file: perception-replay-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/perception-replay-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Senior perception engineer. Every replay run reported; grading against labels later. Partial.
+  expect:
+    audience: perception engineer, grading later
+    bad_runs: []
+    must_show: [detection/track counts over time, track lifetime distribution, replay media first, raw detections emitted for later grading]
+    max_test_metrics: 8
+    traps: [inventing accuracy metrics without labels, using header.stamp and log_time interchangeably]
+
+- id: m-uat-dirty-runs
+  tags: [behavior, mid, csv, regression]
+  fixture: sim_runner_dirty
+  brief_from: dirty-tree-version
+  brief_file: point-robot-suite-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/point-robot-suite-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Controls engineer tuning a point robot. 5 runs over 3 days with local edits. You want to see if each new
+    run beat the previous ones per scenario. Agent-led.
+  expect:
+    audience: engineer iterating locally
+    bad_runs: ["day-1 results have no kd field"]
+    must_show: [final error per scenario across runs (dashboard), replay first as a GIF (glance at the whole path), error over time, kd as optional]
+    max_test_metrics: 8
+    traps: [required metric on a field older runs lack]
+
+- id: m-nothing-run
+  tags: [behavior, junior, none, scope]
+  fixture: harness_no_runs
+  brief_from: nothing-run-yet
+  brief_file: nav-sim-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/nav-sim-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Junior engineer. Harness not run yet. You'd like to see something useful from the first PR run.
+  expect:
+    audience: junior, no data yet
+    bad_runs: []
+    must_show: [plan limited to the fields the code will write, no thresholds or gates yet, open item to re-run design after the first run]
+    max_test_metrics: 6
+    traps: [invented thresholds, a data profile of data that doesn't exist]
+
+- id: m-ros1-archive
+  tags: [perception, mid, rosbag1, data-first]
+  fixture: ros1_bags
+  brief_from: ros1-bags-legacy
+  brief_file: track-bags-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/track-bags-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Perception engineer. You want to search the archive later for pedestrians near the vehicle. Agent-led.
+  expect:
+    audience: engineer building a searchable archive
+    bad_runs: ["some bags contain pedestrians within a few meters of the vehicle"]
+    must_show: [pedestrian-proximity events with time and distance, per-bag topic inventory, raw objects emitted for later queries]
+    python_metrics: [distance to nearest pedestrian computed in Python per frame]
+    max_test_metrics: 6
+    traps: [gates on an archive, decoding plan missing for .bag]
+
+- id: m-perc-debug
+  tags: [perception, senior, mcap, regression, media]
+  fixture: perception_cam
+  brief_from: hand-written
+  brief_file: perception-replay-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/perception-replay-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Senior perception engineer. After each release-candidate replay you debug: which classes, ranges and
+    scenarios got worse, whether tracking broke, latency. You want to scrub to the frames where something was
+    missed. You're fine with a lot of metrics if each tells you something different. Partial: pick from options.
+  expect:
+    audience: senior engineer debugging a perception stack
+    bad_runs: ["recall collapses beyond 40 m in highway_merge_far", "night pedestrian recall 0.24 vs 0.98 by day (cars fine)", "16 ID switches + track flicker in crowded_loading_dock", "rain_crosswalk latency p95 126 ms over the 100 ms budget for 1.8 s with diagnostics WARN", "phantom pedestrian burst for 0.5 s in rain_crosswalk"]
+    must_show: [annotated camera MP4 first (scrub to misses), per-class precision/recall with IoU matching (py), recall by range bin, recall over time, missed-object / false-positive events with frames at severity levels, tracking ID switches and flicker, latency p50/p95 vs budget + over time with the diagnostics timeline, per-scenario/per-class batch breakdown, per-class recall over builds]
+    python_metrics: [matching against labels, recall by range, ID switches, flicker]
+    max_test_metrics: 25
+    traps: [one aggregate mAP, an event per missed frame (spam), GIF where scrubbing is needed, gating on invented limits]
+  metrics_hint: [see must_show]
+
+- id: m-perc-lead
+  tags: [perception, lead, mcap, regression, media]
+  fixture: perception_cam
+  brief_from: hand-written
+  brief_file: perception-replay-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/perception-replay-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Perception lead. You decide whether a stack build ships. You want a quick read: overall and per-scenario
+    status, which scenarios regressed vs the last build, the trend over builds. Details are for your
+    engineers. You'll just give a go.
+  expect:
+    audience: lead deciding a release
+    bad_runs: ["night pedestrian recall collapse", "far-range recall collapse", "rain latency over budget"]
+    must_show: [per-scenario verdict with the failing criterion named, headline scalars (recall, precision, p95 latency) per test, batch table of what regressed vs the last build, dashboard trend per class over builds, one short media per test, raw data emitted for engineers]
+    max_test_metrics: 6
+    traps: [20 engineer charts for a lead, no per-scenario status]
+  metrics_hint: [see must_show]
+
+- id: m-photo-set-eval
+  tags: [perception, mid, images, experiments]
+  fixture: image_set_eval
+  brief_from: hand-written
+  brief_file: detector-photo-eval-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/detector-photo-eval-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Perception ML engineer. Every new detector version gets evaluated on the labeled photo set. You want to
+    know if the new version is better than the last, where it got better or worse (class, condition, object
+    size, camera source), and which images to look at. Partial: pick from options.
+  expect:
+    audience: ML engineer comparing model versions (experiment tracking)
+    bad_runs: ["det-v4.2 is better overall (mAP 0.65 -> 0.76) but regresses on fog (recall 0.71 -> 0.54) and on small objects (0.55 -> 0.35)", "8 images have label errors that show as the same high-score false positive under both versions"]
+    must_show: [batch-level comparison per class / condition / size / source so a regression hidden by the overall gain is visible, a ranking or delta card between versions, per-image result with the image and boxes, worst-images table, a check or event for false positives repeated across versions (probable label errors), per-class recall over versions on a dashboard]
+    python_metrics: [matching with eval.py's matcher, slicing by condition / size / source]
+    max_test_metrics: 10
+    traps: [only the overall mAP (hides the fog and small-object regression), blaming the model for label errors, 240 per-image charts nobody reads]
+  metrics_hint: [see must_show]

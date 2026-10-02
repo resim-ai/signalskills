@@ -1,0 +1,3 @@
+[replay] scenario=parking_lot_03 bag=/scenarios/parking_lot_03.mcap rate=1.0 clock=on
+[replay] recorded /perception/detections /perception/tracks -> /outputs/parking_lot_03/output.mcap
+[replay] done: exit 0
