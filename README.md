@@ -73,7 +73,7 @@ cd tests/signalflag/eval/onboard && ../../.venv/bin/python run_eval.py --approve
 ../../.venv/bin/python run_eval.py --variant baseline --reps 2                       # writes .claude/hillclimb/onboard/
 ```
 
-A full onboarding pass costs about $125 in API calls (64 conversations). Cases drawn from real customer threads are anonymized patterns only.
+Each case runs twice; about a third of the cases are held out from tuning and decide whether a change is kept. Cases drawn from real customer threads are anonymized patterns only.
 
 `docs/design.md` is the spec and `docs/plan.md` the implementation plan.
 
