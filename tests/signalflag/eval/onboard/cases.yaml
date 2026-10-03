@@ -491,3 +491,44 @@
     form: harness or script
     traps: [installing the SDK or starting a login to list projects before the brief, inventing a project name]
   metrics_hint: [final_error_m per scenario with margin, replay GIF]
+
+# ---- flavors of test: systems, test suites, metrics sets ----
+
+- id: flavors-regression-known-failures
+  tags: [flavors, lead, json, regression]
+  fixture: behavior_ci_known_failures
+  prompt: "We run ~400 behavior scenarios nightly. Some are known failures with tickets. I want SignalFlag to gate releases on the real regressions and keep an eye on the known ones separately."
+  persona: |
+    Test lead. Nightly `python -m simtest run scenarios/ --out results/`. known_failures.yaml lists ticketed
+    scenarios that fail; they must not block a release, but you want to know when one starts passing so the
+    ticket can be closed, or gets worse. Same planning stack for all of them. Branch `nightly`. Partial.
+  expect:
+    intent: metrics-first; regression gate + known-failure tracking
+    shape: one system (the stack); two test suites — regression (gates) and known failures (tracked, never blocks); metrics set shared without block statuses on the known-failures side, or separate — justified
+    open_items: [two known failures (cut_in_006, cut_in_007) already pass tonight -> candidates to close/move]
+    traps: [one suite where known failures block the release, dropping known failures entirely, inventing tickets]
+  metrics_hint: [regression verdict + margins, known-failure still-failing/margin trend, now-passing flag]
+
+- id: flavors-two-systems
+  tags: [flavors, lead, mcap, mixed]
+  fixture: monorepo
+  prompt: "Perception and planning are separate stacks owned by different teams. Get both into SignalFlag so each team tracks its own, and I can see both."
+  persona: |
+    Autonomy lead. perception/ is a replay harness, planning/ is a pytest suite. Different owners, different
+    release cadence. You'd like each team to have its own view and you want an overview. Project `acme-av`.
+    Start with planning. Partial.
+  expect:
+    behavior: two systems (perception stack, planner); suites and metrics sets per system; one brief per test type; asks which first
+    traps: [one system for both, one metrics set across stacks that emit different data, one brief for everything]
+
+- id: flavors-sim-and-real
+  tags: [flavors, senior, mcap, regression]
+  fixture: perception_cam_sim
+  prompt: "We replay the perception stack on real drives and on sim-rendered drives of the same scenes. Put both in SignalFlag — I want to track each and see the sim-to-real gap."
+  persona: |
+    Senior perception engineer. outputs/ = real recorded drives; sim/outputs/ = the same stack on drives
+    rendered in the digital twin (sim/scenarios/*.yaml say which real scenario each mirrors; sim labels are
+    exact). Same stack image for both. Branch `perception-replay`. Partial.
+  expect:
+    shape: one system (same stack); two sources as two test suites (or one suite with source-tagged tests) — justified; one shared metrics set since the data is the same, with source kept so batch/dashboard can compare sim vs real per mirrored scenario
+    traps: [two systems for one stack, test names that can't be paired across sim and real, ignoring that sim labels are exact]

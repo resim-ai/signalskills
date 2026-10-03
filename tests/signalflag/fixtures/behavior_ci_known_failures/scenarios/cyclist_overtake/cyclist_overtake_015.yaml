@@ -1,0 +1,13 @@
+id: cyclist_overtake_015
+family: cyclist_overtake
+seed: 6215
+duration_s: 15.0
+map: town_grid_v3
+params:
+  ego_speed: 18.9
+  actor_speed: 15.9
+  gap_m: 64.2
+  actor_brake: 1.9
+  event_t: 4.9
+  planner_ttc: 5.0
+  route_m: 131.2

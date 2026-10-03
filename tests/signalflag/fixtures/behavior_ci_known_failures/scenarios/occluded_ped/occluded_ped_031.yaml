@@ -1,0 +1,13 @@
+id: occluded_ped_031
+family: occluded_ped
+seed: 3918
+duration_s: 15.0
+map: suburb_loop_v2
+params:
+  ego_speed: 23.7
+  actor_speed: 23.3
+  gap_m: 13.4
+  actor_brake: 3.7
+  event_t: 2.4
+  planner_ttc: 5.0
+  route_m: 192.2

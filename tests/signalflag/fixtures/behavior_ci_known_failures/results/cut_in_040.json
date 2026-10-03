@@ -1,0 +1,9 @@
+{
+  "scenario_id": "cut_in_040",
+  "family": "cut_in",
+  "pass": true,
+  "min_ttc_s": 4.932,
+  "max_decel": 2.177,
+  "collisions": 0,
+  "route_completion": 1.0
+}

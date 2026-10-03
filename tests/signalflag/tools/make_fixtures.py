@@ -3482,11 +3482,70 @@ def image_set_eval(dest: Path) -> Path:
 
 # ---- dispatch ----
 
+
+def _derived(dest: Path, base, name: str) -> Path:
+    """Build `base` in a temp dir and copy it to dest/name (derived fixtures add files on top)."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        src = base(Path(td))
+        root = dest / name
+        shutil.copytree(src, root)
+    return root
+
+
+def behavior_ci_known_failures(dest: Path) -> Path:
+    """behavior_ci + a known-failures list: tracked bugs that run nightly but must not gate a release."""
+    root = _derived(dest, behavior_ci, "behavior_ci_known_failures")
+    res = {p.stem: json.loads(p.read_text()) for p in sorted((root / "results").glob("*.json")) if p.stem != "summary"}
+    failing = sorted(k for k, r in res.items() if r.get("pass") is False)
+    passing = sorted(k for k, r in res.items() if r.get("pass") is True)
+    known = [(sid, f"PLAN-{412 + i}", "2026-09-0" + str(1 + i)) for i, sid in enumerate(failing[:4])]
+    fixed = [(sid, f"PLAN-{390 + i}", "2026-08-2" + str(1 + i)) for i, sid in enumerate(passing[5:7])]  # now passing
+    lines = ["# Scenarios that fail for known, ticketed reasons. They run every night but are excluded from the",
+             "# release gate (see README). Remove an entry once its ticket is closed and it passes.", "known_failures:"]
+    for sid, t, since in known + fixed:
+        lines.append(f"  - {{scenario_id: {sid}, ticket: {t}, since: {since}}}")
+    _write(root / "known_failures.yaml", "\n".join(lines) + "\n")
+    readme = (root / "README.md").read_text()
+    _write(root / "README.md", readme + """
+## Known failures
+
+`known_failures.yaml` lists scenarios that fail for ticketed reasons. They still run every night, but the
+release job ignores them when deciding pass/fail. Nobody checks the list regularly, so some entries may already pass.
+""")
+    return root
+
+
+def perception_cam_sim(dest: Path) -> Path:
+    """perception_cam + the same stack replayed on sim-rendered drives (a second source/modality of one system)."""
+    root = _derived(dest, perception_cam, "perception_cam_sim")
+    for real, simname in (("day_parking_lot", "sim_lot_day"), ("night_parking_lot", "sim_lot_night"),
+                          ("rain_crosswalk", "sim_crosswalk_rain")):
+        (root / "sim" / "outputs" / simname).mkdir(parents=True, exist_ok=True)
+        shutil.copy(root / "outputs" / real / "replay.mcap", root / "sim" / "outputs" / simname / "replay.mcap")
+        shutil.copy(root / "outputs" / real / "camera.mp4", root / "sim" / "outputs" / simname / "camera.mp4")
+        (root / "sim" / "labels").mkdir(parents=True, exist_ok=True)
+        shutil.copy(root / "labels" / f"{real}.jsonl", root / "sim" / "labels" / f"{simname}.jsonl")
+        _write(root / "sim" / "scenarios" / f"{simname}.yaml", f"""
+            name: {simname}
+            source: sim   # rendered in the yard digital twin; labels are exact (from the simulator)
+            mirrors: {real}
+            """)
+    _write(root / "sim" / "README.md", """
+        # Sim replays
+
+        The same perception stack (`acme/perception`, tag in ../compose.yaml) run on drives rendered in the yard
+        digital twin. `python ../replay/run_replay.py --source sim` writes `sim/outputs/<scenario>/`. Labels come
+        straight from the simulator, so they're exact. The real-drive replays are in ../outputs/.
+        """)
+    return root
+
+
 FIXTURES = (rl_project, pytest_suite, parquet_dump, sim_runner,
             ros2_replay, perception_det, loc_bench, field_mcap, lerobot_act, robomimic_h5, behavior_ci, hil_bench,
             rl_project_with_brief, pytest_suite_with_brief_plus_sim, monorepo, ros1_bags, sim_runner_dirty, rl_sweep,
             harness_no_runs, mixed_sim_pytest, mixed_sim_pytest_integrated, field_uat, video_qa, perception_cam,
-            image_set_eval)
+            image_set_eval, behavior_ci_known_failures, perception_cam_sim)
 
 if __name__ == "__main__":
     dest = Path(sys.argv[1])

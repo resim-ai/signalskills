@@ -1,0 +1,8 @@
+{
+  "started_at": "2026-09-30T03:00:12+00:00",
+  "commit": "4f1c9e2a7b3d5e6f8091a2b3c4d5e6f708192a3b",
+  "ref": "main",
+  "scenarios": 412,
+  "passed": 404,
+  "failed": 8
+}

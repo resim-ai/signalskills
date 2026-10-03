@@ -39,7 +39,8 @@ if subprocess.run([sys.executable, CHECK_TOKEN]).returncode:   # signalflag-auth
     sys.exit("run signalflag-auth")    # DeviceCodeClient() would start a login here
 client = DeviceCodeClient()
 cfg = ROOT / ".resim/metrics"          # absolute, so a temp cwd keeps validation
-with Batch(client, project_name=P, branch=B, version=V, name=N, metrics_set_name=S,
+with Batch(client, project_name=P, branch=B, version=V, name=N, metrics_set_name=S,   # S from the brief
+           system=SYS, test_suite=SUITE,          # from the brief; omit until they exist (below)
            metrics_config_path=str(cfg / "config.resim.yml"), templates_path=str(cfg / "templates")) as batch:
     for run in runs[:max_tests]:
         with Test(client, batch, name=run.test_name) as t:   # same name => same experience
@@ -48,6 +49,10 @@ with Batch(client, project_name=P, branch=B, version=V, name=N, metrics_set_name
             t.emit("replay", {"filename": gif.name}, ts[0])   # basename; column typed image (GIF)
 print(f"https://app.signalflag.ai/projects/{batch.project_id}/batches/{batch.id}")
 ```
+
+## Systems and test suites
+
+When the brief names them: after the go, create the system with the MCP's `upsert_system` (by name; safe to repeat). A suite is built from existing tests, so push the first low-res batch without `test_suite`, register its tests on the system (`add_system_experiences`), create the suite (`create_test_suite`: system, test ids, the brief's metrics set), then pass `test_suite=` (and `test_suite_revision=` to pin) on later batches. A test that changes suites is a `revise_test_suite`, never an edit of an old revision. Not yet proven end to end on the server: check the first suite-attached batch reads back before relying on it.
 
 ## Rules
 

@@ -1,0 +1,13 @@
+id: ped_crossing_028
+family: ped_crossing
+seed: 9078
+duration_s: 15.0
+map: suburb_loop_v2
+params:
+  ego_speed: 23.0
+  actor_speed: 19.9
+  gap_m: 37.7
+  actor_brake: 2.8
+  event_t: 4.6
+  planner_ttc: 5.0
+  route_m: 164.2

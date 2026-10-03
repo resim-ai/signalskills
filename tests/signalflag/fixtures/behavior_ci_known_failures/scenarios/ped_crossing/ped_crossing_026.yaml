@@ -1,0 +1,13 @@
+id: ped_crossing_026
+family: ped_crossing
+seed: 7546
+duration_s: 15.0
+map: town_grid_v3
+params:
+  ego_speed: 12.6
+  actor_speed: 11.4
+  gap_m: 58.3
+  actor_brake: 2.5
+  event_t: 4.2
+  planner_ttc: 5.0
+  route_m: 94.1

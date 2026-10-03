@@ -1,0 +1,13 @@
+id: stop_and_go_046
+family: stop_and_go
+seed: 4750
+duration_s: 15.0
+map: town_grid_v3
+params:
+  ego_speed: 13.5
+  actor_speed: 10.8
+  gap_m: 43.3
+  actor_brake: 1.6
+  event_t: 3.3
+  planner_ttc: 5.0
+  route_m: 89.1

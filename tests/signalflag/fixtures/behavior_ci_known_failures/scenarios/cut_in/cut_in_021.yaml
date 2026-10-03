@@ -1,0 +1,13 @@
+id: cut_in_021
+family: cut_in
+seed: 27
+duration_s: 15.0
+map: suburb_loop_v2
+params:
+  ego_speed: 15.0
+  actor_speed: 11.6
+  gap_m: 68.7
+  actor_brake: 0.6
+  event_t: 1.5
+  planner_ttc: 5.0
+  route_m: 95.7

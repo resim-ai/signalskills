@@ -1,0 +1,13 @@
+id: occluded_ped_043
+family: occluded_ped
+seed: 1701
+duration_s: 15.0
+map: highway_ring_v1
+params:
+  ego_speed: 23.5
+  actor_speed: 19.9
+  gap_m: 35.9
+  actor_brake: 0.1
+  event_t: 2.3
+  planner_ttc: 5.0
+  route_m: 164.2

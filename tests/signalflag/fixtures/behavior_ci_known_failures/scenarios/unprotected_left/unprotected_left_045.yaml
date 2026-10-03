@@ -1,0 +1,13 @@
+id: unprotected_left_045
+family: unprotected_left
+seed: 2197
+duration_s: 15.0
+map: highway_ring_v1
+params:
+  ego_speed: 19.3
+  actor_speed: 18.7
+  gap_m: 49.4
+  actor_brake: 2.6
+  event_t: 4.0
+  planner_ttc: 5.0
+  route_m: 154.3

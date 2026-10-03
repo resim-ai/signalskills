@@ -18,6 +18,7 @@ _onboard — in the user's words first, then SignalFlag's._
 - Batch is:
 - Test is: (confirmed by user: yes | chosen by agent — why)
 - Version is: (confirmed by user: yes | chosen by agent — why)
+- System(s), test suite(s), metrics set(s): (one line each, or "one of each: <names>"; confirmed by user | chosen by agent — why)
 
 ## Integration
 _onboard_

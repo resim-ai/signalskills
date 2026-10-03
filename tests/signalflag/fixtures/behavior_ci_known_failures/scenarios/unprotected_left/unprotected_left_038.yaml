@@ -1,0 +1,13 @@
+id: unprotected_left_038
+family: unprotected_left
+seed: 1677
+duration_s: 15.0
+map: suburb_loop_v2
+params:
+  ego_speed: 21.9
+  actor_speed: 16.8
+  gap_m: 35.1
+  actor_brake: 2.5
+  event_t: 2.0
+  planner_ttc: 5.0
+  route_m: 138.6

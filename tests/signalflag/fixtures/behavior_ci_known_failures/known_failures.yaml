@@ -1,0 +1,9 @@
+# Scenarios that fail for known, ticketed reasons. They run every night but are excluded from the
+# release gate (see README). Remove an entry once its ticket is closed and it passes.
+known_failures:
+  - {scenario_id: cut_in_013, ticket: PLAN-412, since: 2026-09-01}
+  - {scenario_id: cut_in_036, ticket: PLAN-413, since: 2026-09-02}
+  - {scenario_id: cyclist_overtake_003, ticket: PLAN-414, since: 2026-09-03}
+  - {scenario_id: lead_brake_032, ticket: PLAN-415, since: 2026-09-04}
+  - {scenario_id: cut_in_006, ticket: PLAN-390, since: 2026-08-21}
+  - {scenario_id: cut_in_007, ticket: PLAN-391, since: 2026-08-22}

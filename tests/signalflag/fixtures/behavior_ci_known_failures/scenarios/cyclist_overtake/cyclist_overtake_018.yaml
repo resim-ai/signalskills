@@ -1,0 +1,13 @@
+id: cyclist_overtake_018
+family: cyclist_overtake
+seed: 4962
+duration_s: 15.0
+map: highway_ring_v1
+params:
+  ego_speed: 20.2
+  actor_speed: 18.7
+  gap_m: 66.8
+  actor_brake: 0.8
+  event_t: 4.0
+  planner_ttc: 5.0
+  route_m: 154.3

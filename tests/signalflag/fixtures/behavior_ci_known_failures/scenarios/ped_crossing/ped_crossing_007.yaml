@@ -1,0 +1,13 @@
+id: ped_crossing_007
+family: ped_crossing
+seed: 5003
+duration_s: 15.0
+map: highway_ring_v1
+params:
+  ego_speed: 19.7
+  actor_speed: 18.0
+  gap_m: 57.1
+  actor_brake: 2.9
+  event_t: 2.6
+  planner_ttc: 5.0
+  route_m: 148.5

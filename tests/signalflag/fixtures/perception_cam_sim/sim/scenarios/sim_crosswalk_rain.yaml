@@ -1,0 +1,3 @@
+name: sim_crosswalk_rain
+source: sim   # rendered in the yard digital twin; labels are exact (from the simulator)
+mirrors: rain_crosswalk

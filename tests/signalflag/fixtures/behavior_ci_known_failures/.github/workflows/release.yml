@@ -1,0 +1,20 @@
+name: release
+        on:
+          push:
+tags: ["rc-*"]
+        jobs:
+          simtest:
+            runs-on: [self-hosted, sim]
+            timeout-minutes: 120
+            steps:
+              - uses: actions/checkout@v4
+              - uses: actions/setup-python@v5
+                with: {python-version: "3.11"}
+              - run: pip install -r requirements.txt
+              - run: python -m simtest run scenarios/ --out results/
+              - uses: actions/upload-artifact@v4
+                if: always()
+                with: {name: simtest-release-${{ github.run_id }}, path: results/}
+              - uses: mikepenz/action-junit-report@v4
+                if: always()
+                with: {report_paths: results/junit.xml}

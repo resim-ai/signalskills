@@ -7,7 +7,7 @@ Claude Code skills for getting experiment and simulation results into [SignalFla
 | Skill | Does |
 |---|---|
 | `signalflag-onboard` | The entry point. It checks for an existing brief and asks one question first: *you decide* (only the project is asked) or *walk me through it* (options with a recommendation at each step). Then it writes the plan as `docs/signalflag/<test-type>-test-brief.md`. Today it routes to the SDK path; cloud runs will branch here later. |
-| `signalflag-auth` | Checks the SDK's device-code token with `check_token.py`. The person runs `login.py` themselves. Finds the SignalFlag MCP by its tools. |
+| `signalflag-auth` | Checks the SDK's device-code token with `check_token.py`. After your go, Claude starts `login.py` and posts the sign-in link for you to approve. Finds the SignalFlag MCP by its tools. |
 | `signalflag-design-metrics` | Profiles the data and writes the metrics plan: what ran first, 5–20 test metrics, margins, threshold sources, events. |
 | `signalflag-compose-metrics` | Writes `.resim/metrics/config.resim.yml` and templates, validates and previews them, and proves them with a scratch-branch sync. |
 | `signalflag-ingest` | Readers, event detectors and the uploader (Batch/Test/emit/attach_log) for mcap, parquet, csv, h5 and dataframes. Pushes low-res only. |
@@ -81,9 +81,10 @@ Each case runs twice; about a third of the cases are held out from tuning and de
 
 Installed plugins update only when `version` in `.claude-plugin/plugin.json` changes. Claude Code compares that number, not the commits. So with every change users should get:
 
-1. Bump `version`, following semver: patch for skill wording and fixes, minor for new skills or behaviour, major for breaking renames.
-2. Run `claude plugin validate .`.
-3. Commit and push to `main`.
+1. Run the evals for the skills you changed (`tests/signalflag/eval/`, see Evals) and compare against the last release: held-out scores must not drop.
+2. Bump `version`, following semver: patch for skill wording and fixes, minor for new skills or behaviour, major for breaking renames.
+3. Run `claude plugin validate .`.
+4. Commit and push to `main`.
 
 Users then pick it up with:
 

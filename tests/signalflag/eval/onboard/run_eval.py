@@ -142,10 +142,17 @@ def plugin_dir() -> Path:
     with _lock:
         if _plugin_snap is None:
             d = Path(tempfile.mkdtemp(prefix="sf-plugin-")) / "signalskills"
-            for name in (".claude-plugin", "skills"):
-                shutil.copytree(REPO / name, d / name)
-            if (REPO / ".mcp.json").exists():
-                shutil.copy(REPO / ".mcp.json", d / ".mcp.json")
+            ref = os.environ.get("SF_PLUGIN_REF")  # e.g. HEAD: the committed skills, for a before/after
+            if ref:
+                d.mkdir(parents=True)
+                arc = subprocess.run(["git", "-C", str(REPO), "archive", ref, ".claude-plugin", "skills", ".mcp.json"],
+                                     check=True, capture_output=True).stdout
+                subprocess.run(["tar", "-x", "-C", str(d)], input=arc, check=True)
+            else:
+                for name in (".claude-plugin", "skills"):
+                    shutil.copytree(REPO / name, d / name)
+                if (REPO / ".mcp.json").exists():
+                    shutil.copy(REPO / ".mcp.json", d / ".mcp.json")
             _plugin_snap = d
     return _plugin_snap
 

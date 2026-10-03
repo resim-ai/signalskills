@@ -1,0 +1,16 @@
+name: rain_crosswalk
+description: "Stopped at the gate crosswalk in rain; two pedestrians cross, one waits on the curb, a cyclist waits across the road."
+site: acme yard 3
+vehicle: yt-07
+recorded_at: "2026-09-17T08:15:30Z"
+duration_s: 8.0
+conditions:
+  lighting: day
+  weather: rain
+recording: recordings/rain_crosswalk.mcap
+labels: labels/rain_crosswalk.jsonl
+camera:
+  topic: /camera/front/image
+  rate_hz: 10
+  sensor_px: [1920, 1280]
+  preview_px: [96, 64]

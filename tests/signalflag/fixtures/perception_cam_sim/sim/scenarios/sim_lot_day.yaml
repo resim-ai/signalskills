@@ -1,0 +1,3 @@
+name: sim_lot_day
+source: sim   # rendered in the yard digital twin; labels are exact (from the simulator)
+mirrors: day_parking_lot

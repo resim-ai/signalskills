@@ -33,6 +33,7 @@ The workflow decides which cards:
 | End-to-end regression (nightly) | diverse: one or two headline cards per subsystem (perception, planning, control, system health) + overall verdict |
 | Experiment tracking, developer (training runs, checkpoints, sweeps, sim or field evals; W&B-style) | curves over step on a dashboard; a batch-level ranking card that says which checkpoint/experiment is best and by how much (spread across seeds/trials); the config that differs between them emitted |
 | Component regression (one subsystem) | depth in that subsystem |
+| Known failures (tracked bugs expected to fail) | per test: is it still failing, and by how much (margin trend); batch: which now pass; no `block` statuses |
 
 ## 3. The plan is exactly this
 
@@ -89,6 +90,8 @@ Rules for the table:
 - **A chart no system template draws** → custom template (Plotly), not dropped.
 
 Levels: `test` (one run) · `batch` (its tests) · `dashboard` (batches over time, one branch).
+
+One plan per metrics set in the brief's Mapping (a system, modality or suite flavor that asks different questions gets its own table); rows that apply to every set are written once and listed in each.
 
 `catalog.md`: templates per question, and starter metrics by domain (only if the profile has their fields).
 

@@ -1,0 +1,13 @@
+id: merge_046
+family: merge
+seed: 8533
+duration_s: 15.0
+map: highway_ring_v1
+params:
+  ego_speed: 9.2
+  actor_speed: 9.1
+  gap_m: 64.7
+  actor_brake: 1.5
+  event_t: 2.5
+  planner_ttc: 5.0
+  route_m: 75.1

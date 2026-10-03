@@ -35,7 +35,7 @@ Record it in Control. Then ask the project, on its own; never create it. Mode in
 - Open from a real run: "Take `<run>` — once it finished, what did you check?"
 - **One question per message**: 2–3 options from their code, each with its trade-off, one marked **(recommended)** with why. A side question waits for its own message.
 - Their words first; show SignalFlag terms on their data: "each rerun of your three routes would be one *batch*; each route, a *test*."
-- Settle in order: **intent** (metrics- or data-first) → **shape** → **integration** → **control** (agent-led, partial, user-led).
+- Settle in order: **intent** (metrics- or data-first) → **shape** → **flavors** (systems, suites, metrics sets — `mapping.md`; usually one of each) → **integration** → **control** (agent-led, partial, user-led).
 - **Branch, test names, version**: asked, never defaulted — they decide what charts together; schemas only grow per branch. Record `confirmed by user: yes`.
 
 **Mode A:** decide all of it from the code; record each as `chosen by agent — <why>`. Your git branch or `main` is still a bad branch name. Unresolvable items (a run missing its checkpoint, CI without a browser) are open items in both modes.

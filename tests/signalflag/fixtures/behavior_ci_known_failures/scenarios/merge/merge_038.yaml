@@ -1,0 +1,13 @@
+id: merge_038
+family: merge
+seed: 7380
+duration_s: 15.0
+map: town_grid_v3
+params:
+  ego_speed: 16.6
+  actor_speed: 13.6
+  gap_m: 67.9
+  actor_brake: 2.0
+  event_t: 4.9
+  planner_ttc: 5.0
+  route_m: 112.2

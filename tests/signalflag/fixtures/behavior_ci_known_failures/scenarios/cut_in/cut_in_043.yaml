@@ -1,0 +1,13 @@
+id: cut_in_043
+family: cut_in
+seed: 2534
+duration_s: 15.0
+map: town_grid_v3
+params:
+  ego_speed: 16.4
+  actor_speed: 12.8
+  gap_m: 52.9
+  actor_brake: 2.1
+  event_t: 4.0
+  planner_ttc: 5.0
+  route_m: 105.6

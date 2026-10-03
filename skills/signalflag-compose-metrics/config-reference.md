@@ -47,6 +47,8 @@ metrics:
 metrics sets:
   Isaac Route Regression:
     metrics: [Replay, Verdict, Terminal Margin, Cross-track Error]
+  Isaac Route Known Failures:          # same metrics, a known-failures suite: no block statuses on its own metrics
+    metrics: [Replay, Terminal Margin, Cross-track Error]
 
 dashboards:
   Isaac Route Trends:

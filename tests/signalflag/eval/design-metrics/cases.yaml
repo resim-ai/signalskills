@@ -385,3 +385,37 @@
     max_test_metrics: 10
     traps: [only the overall mAP (hides the fog and small-object regression), blaming the model for label errors, 240 per-image charts nobody reads]
   metrics_hint: [see must_show]
+
+- id: m-known-failures
+  tags: [flavors, lead, json, regression]
+  fixture: behavior_ci_known_failures
+  brief_from: hand-written
+  brief_file: behavior-nightly-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/behavior-nightly-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Test lead. Regression scenarios gate the release; known failures (known_failures.yaml) must never block,
+    but you want to see when one passes or gets worse. Partial: pick from options.
+  expect:
+    audience: test lead with two suites
+    bad_runs: ["8 regression failures on low TTC / route completion / hard braking", "known failures cut_in_006 and cut_in_007 now pass (ticket can close)"]
+    must_show: [regression set with block statuses on the criteria, a known-failures set (or the same metrics) with no block statuses, a per-test 'still failing / now passing' card with margin, a batch table of known failures that now pass, pass-rate trend per suite]
+    max_test_metrics: 10
+    traps: [known failures blocking the release, one verdict mixing both suites]
+  metrics_hint: [see must_show]
+
+- id: m-sim-vs-real
+  tags: [flavors, senior, mcap, regression, media]
+  fixture: perception_cam_sim
+  brief_from: hand-written
+  brief_file: perception-replay-test-brief.md
+  prompt: "The SignalFlag brief in docs/signalflag/perception-replay-test-brief.md is approved. Let's work out the metrics."
+  persona: |
+    Senior perception engineer. Same stack on real and sim-rendered drives; you want each tracked and the
+    sim-to-real gap per mirrored scenario. Partial.
+  expect:
+    audience: engineer comparing sim and real
+    bad_runs: ["night pedestrian recall collapse in real (and its sim mirror)", "rain latency over budget"]
+    must_show: [one shared metrics set (same data), source carried on each test, batch/dashboard comparison of sim vs real per mirrored scenario (recall gap per class), annotated MP4 first]
+    max_test_metrics: 20
+    traps: [two different metrics sets for identical data, no way to pair sim and real tests]
+  metrics_hint: [see must_show]

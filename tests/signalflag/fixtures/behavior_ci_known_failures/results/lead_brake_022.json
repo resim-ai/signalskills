@@ -1,0 +1,9 @@
+{
+  "scenario_id": "lead_brake_022",
+  "family": "lead_brake",
+  "pass": true,
+  "min_ttc_s": 2.933,
+  "max_decel": 1.856,
+  "collisions": 0,
+  "route_completion": 1.0
+}

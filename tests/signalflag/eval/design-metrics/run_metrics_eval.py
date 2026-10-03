@@ -48,7 +48,8 @@ def section(t, h):
 
 
 def plan_rows(plan):
-    """Rows of the metric table in the Metrics plan (the first table with Metric and Level columns)."""
+    """Rows of every metric table in the Metrics plan (tables with Metric and Level columns; a plan may have one
+    per metrics set). A metric listed in several sets counts once."""
     cells = lambda l: [c.strip() for c in l.strip().strip("|").split("|")]
     blocks, cur = [], []
     for l in plan.splitlines():
@@ -58,21 +59,22 @@ def plan_rows(plan):
             blocks.append(cur); cur = []
     if cur:
         blocks.append(cur)
+    rows, seen = [], set()
     for lines in blocks:
         head = [h.lower() for h in cells(lines[0])]
         if len(lines) < 3 or not any("metric" in h for h in head) or not any("level" in h for h in head):
             continue
-        rows = []
         for l in lines[2:]:
             c = cells(l)
             if len(c) < 3 or set(l.strip()) <= set("|-: ") or not re.match(r"^\**[\d]", c[0]):
                 continue
             d = dict(zip(head, c))
             d["_malformed"] = len(c) != len(head)  # a stray | in a cell shifts columns; don't misread it
-            rows.append(d)
-        if rows:
-            return rows
-    return []
+            key = (re.sub(r"\W+", " ", col(d, "metric")).strip().lower(), col(d, "level").strip().lower())
+            if key in seen:
+                continue
+            seen.add(key); rows.append(d)
+    return rows
 
 
 def col(row, *names):
@@ -87,7 +89,9 @@ def checks(case, trace, before, after):
     plan, prof = section(brief, "Metrics plan"), section(brief, "Data profile")
     rows = plan_rows(plan)
     test_rows = [r for r in rows if re.search(r"\btest\b", col(r, "level"), re.I)]
-    status = [r for r in rows if not r["_malformed"] and col(r, "status").strip("—-– ").strip()]
+    status = [r for r in rows if not r["_malformed"] and col(r, "status").strip("—-– ").strip()
+              and not re.search(r"integrity|presen|missing|exists|gated in row|^\(?none", col(r, "status"), re.I)]
+    # presence/integrity checks are their own source; "gated in row N" points at a sourced gate
     charts = [r for r in rows if CHART_RE.search(col(r, "template"))]
     c = {"plan_written": int(bool(plan) and not plan.startswith("_pending") and len(rows) > 0),
          "profile_written": int(bool(prof) and not prof.startswith("_pending")),

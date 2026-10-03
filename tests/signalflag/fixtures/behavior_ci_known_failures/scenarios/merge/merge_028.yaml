@@ -1,0 +1,13 @@
+id: merge_028
+family: merge
+seed: 7781
+duration_s: 15.0
+map: suburb_loop_v2
+params:
+  ego_speed: 15.3
+  actor_speed: 11.9
+  gap_m: 69.9
+  actor_brake: 2.3
+  event_t: 3.8
+  planner_ttc: 5.0
+  route_m: 98.2
