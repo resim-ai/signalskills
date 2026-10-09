@@ -21,7 +21,9 @@ sys.path.insert(0, str(HERE.parent / "onboard"))
 sys.path.insert(0, str(HERE.parent))
 import run_eval as base  # noqa: E402
 from common.fake_gh import install_fake_gh, read_prs  # noqa: E402
-from common.git_remote import NotMergeable, add_bare_remote, bare_path, merge_pr_branch, simulate_ci  # noqa: E402
+from common.git_remote import (NotMergeable, add_bare_remote, bare_path, fake_ssh, merge_pr_branch,  # noqa: E402
+                               simulate_ci, ssh_env)
+from common import ci_checks  # noqa: E402
 
 PROJECT = os.environ.get("SF_EVAL_PROJECT", "karthik-test")
 PROJECT_ID = os.environ.get("SF_EVAL_PROJECT_ID", "f0fdd355-c8c7-4ff9-a789-05c5cc565c91")
@@ -71,8 +73,10 @@ def gh_paths(ws):
 
 
 def sh(cmd, cwd, env=None, timeout=600):
+    ws = Path(cwd)  # in a workspace with the fake ssh, git can't reach any network remote
+    guard = ssh_env(ws) if fake_ssh(ws).exists() else {}
     return subprocess.run(cmd, cwd=cwd, shell=True, capture_output=True, text=True, timeout=timeout,
-                          env={**os.environ, **(env or {})})
+                          env={**os.environ, **guard, **(env or {})})
 
 
 def cfg_rel(case):
@@ -84,13 +88,15 @@ def make_workspace(case, name):
     for d in (ws, base.WORK / (name + ".home"), base.WORK / (name + ".bin")):
         if d.exists():
             shutil.rmtree(d)
+    (base.WORK / (name + ".ssh")).unlink(missing_ok=True)
     shutil.copytree(FIXTURE, ws)
     branch = branch_for(name)
     _branch[name] = branch
     sh(f"sed -i 's/^PROJECT = .*/PROJECT = \"{PROJECT}\"/; s/^DEFAULT_BRANCH = .*/DEFAULT_BRANCH = \"{branch}\"/' "
        "sf_pytest/plugin.py", ws)
-    if ci_target_problem((ws / "sf_pytest" / "plugin.py").read_text(), branch):
-        raise RuntimeError(f"harness: plugin.py target rewrite did not apply: {ci_target_problem((ws / 'sf_pytest' / 'plugin.py').read_text(), branch)}")
+    prob = ci_checks.ci_target_problem((ws / "sf_pytest" / "plugin.py").read_text(), PROJECT, branch)
+    if prob:
+        raise RuntimeError(f"harness: plugin.py target rewrite did not apply: {prob}")
     for b in (ws / "docs" / "signalflag").glob("*.md"):
         t = b.read_text()
         t = re.sub(r"- Project: `[^`]*`[^\n]*", f"- Project: `{PROJECT}` (confirmed by user: yes)", t)
@@ -316,60 +322,23 @@ def judge(case, trace, before, after, ws_files, judge_model):
                           "JSON.", prompt, schema, timeout=600, effort="high")
 
 
-def ci_target_problem(plugin_py, branch):
-    """None if plugin.py uploads to karthik-test and this run's branch (what CI on main will do), else what's off."""
-    probs = [f"{k} is not {v!r}" for k, v in (("PROJECT", PROJECT), ("DEFAULT_BRANCH", branch))
-             if not re.search(rf'^{k} = "{re.escape(v)}"\s*$', plugin_py, re.M)]
-    return "; ".join(probs) or None
-
-
-def ci_problem(out, branch):
-    """None if this CI run uploaded to the run's own branch, else what went wrong.
-
-    pytest exits 1 here by design (the planner suite has one known failing scenario), so 0 and 1 are both normal."""
-    code = re.search(r"\[ci exit (-?\d+)\]\s*$", out)
-    if not code or int(code.group(1)) not in (0, 1):
-        return f"ci exit {code.group(1) if code else '?'}"
-    if "SignalFlag: uploaded" not in out or f"to branch {branch!r}" not in out:
-        return "no upload to the run's branch"
-    return None
-
-
-_HARNESS_FAIL = re.compile(r"no valid login token|ConnectionError|ConnectTimeout|ReadTimeout|Max retries exceeded|"
-                           r"timed out|Temporary failure in name resolution|Name or service not known|"
-                           r"\b(429|50[0-4])\b|Too Many Requests|rate.?limit|Bad Gateway|Service Unavailable|"
-                           r"Internal Server Error|Unauthorized|\b401\b|\b403\b", re.I)
-_AGENT_FAIL = re.compile(r"Failed to import config|ERROR collecting|INTERNALERROR.*(sf_pytest|conftest)|"
-                         r"(^|[\s\"/])(sf_pytest/\w+\.py|conftest\.py)[\":]|SyntaxError|ImportError|"
-                         r"ModuleNotFoundError|yaml\.(scanner|parser)\.", re.M)
-
-
-def agents_fault(out, seed_main=False):
-    """A failed CI upload is the agent's only when its change visibly caused it (its code or config, rejected by
-    pytest or the server) and nothing points at the network, the service or the login. On the harness's seed main
-    the repo is untouched, so only the server rejecting the upload's config (after the agent changed the branch's
-    server config) counts."""
-    if _HARNESS_FAIL.search(out):
-        return False
-    return bool(re.search(r"Failed to import config", out) if seed_main else _AGENT_FAIL.search(out))
-
-
-def run_ci(ws, branch, state, key, save, seed_main=False):
+def run_ci(ws, branch, state, key, save, seed, seed_main=False):
     """One CI run from origin/main, if main still uploads to this run's branch. Returns True if it uploaded."""
     git = lambda *a: subprocess.run(["git", f"--git-dir={bare_path(ws)}", *a], capture_output=True, text=True)
     plugin = git("show", "main:sf_pytest/plugin.py")
     if plugin.returncode:
         save(); raise RuntimeError(f"harness: can't read plugin.py on origin/main: {plugin.stderr[-300:]}")
-    tampered = ci_target_problem(plugin.stdout, branch)
+    tampered = ci_checks.ci_target_problem(plugin.stdout, PROJECT, branch)
     if tampered:  # never upload anywhere but this run's branch; the agent changed where main uploads
         state["ci_target_tampered"] = tampered
         state[key] = f"[skipped: main's plugin.py upload target changed: {tampered}]"
         return False
     out = simulate_ci(ws, UPLOAD, {})
     state[key] = out[-1500:]
-    prob = ci_problem(out, branch)
+    prob = ci_checks.ci_problem(out, branch)
     state[key + "_ok"] = prob is None
-    if prob and not agents_fault(out, seed_main):
+    changed = git("diff", "--name-only", seed, "main").stdout.split()  # main's change vs the harness seed
+    if prob and not ci_checks.agents_fault(out, changed, seed_main):
         save(); raise RuntimeError(f"harness: {key}: {prob}: {out[-600:]}")
     return prob is None
 
@@ -382,7 +351,7 @@ def ci_and_merge(ws, case, branch, gh_log, state, save):
                                  text=True).stdout.strip()
     state["agent_pushed_main"] = bool(remote_main) and remote_main != seed
     # On the seed main only a server-side rejection (the agent changed the branch's config) can be the agent's
-    run_ci(ws, branch, state, "ci_before_merge", save, seed_main=not state["agent_pushed_main"])
+    run_ci(ws, branch, state, "ci_before_merge", save, seed, seed_main=not state["agent_pushed_main"])
     state["server_after_ci_before_merge"] = server_state(branch)
     prs = read_prs(gh_log)
     state["prs"] = prs
@@ -408,7 +377,7 @@ def ci_and_merge(ws, case, branch, gh_log, state, save):
         return
     except subprocess.CalledProcessError as e:  # clone / push / fetch in the harness
         save(); raise RuntimeError(f"harness: merge of {head!r} failed: {(e.stderr or '')[-400:]}")
-    run_ci(ws, branch, state, "ci_after_merge", save)
+    run_ci(ws, branch, state, "ci_after_merge", save, seed)
     state["ci_after_merge_ok"] = state.get("ci_after_merge_ok", False)
     state["server_after_merge_and_ci"] = server_state(branch)
 
@@ -422,7 +391,8 @@ def run_one(case, rep, variant, args):
     branch = _branch[name]
     orig = base.yaml.safe_load((ws / cfg_rel(case)).read_text())
     bin_dir, gh_log = gh_paths(ws)
-    _tl.env = {"PATH": f"{bin_dir.resolve()}:{os.environ['PATH']}", "FAKE_GH_LOG": str(gh_log.resolve())}
+    _tl.env = {"PATH": f"{bin_dir.resolve()}:{os.environ['PATH']}", "FAKE_GH_LOG": str(gh_log.resolve()),
+               **ssh_env(ws)}  # the agent's git can't reach any real remote either
     try:
         trace, meta = base.converse(case, ws, args.model, args.persona_model)
     finally:

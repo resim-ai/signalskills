@@ -151,3 +151,15 @@ def test_two_prs_and_edit_keep_one_record_per_line(tmp_path):
     run("pr", "create", "--head", "a", "--title", "A"); run("pr", "create", "--head", "b", "--title", "B")
     assert run("pr", "edit", "1", "--title", "A2").returncode == 0
     assert [(p["number"], p["title"]) for p in read_prs(log)] == [(1, "A2"), (2, "B")]
+
+
+def test_fake_ssh_refuses_other_remotes(tmp_path):
+    from common.git_remote import ssh_env
+    import os
+    ws = _repo(tmp_path); add_bare_remote(ws)
+    env = {**os.environ, **ssh_env(ws)}
+    for url in ("git@github.com:other/x.git", "git@gitlab.com:acme/planner.git", "ssh://git@github.com/other/x.git"):
+        r = subprocess.run(["git", "ls-remote", url], capture_output=True, text=True, env=env, timeout=20)
+        assert r.returncode != 0 and "fake ssh: refusing" in r.stderr, (url, r.stderr)
+    r = subprocess.run(["git", "ls-remote", GITHUB_URL], capture_output=True, text=True, env=env, timeout=20)
+    assert r.returncode == 0 and "refs/heads/main" in r.stdout
