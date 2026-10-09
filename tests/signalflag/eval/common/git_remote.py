@@ -41,9 +41,10 @@ def fake_ssh(ws: Path) -> Path:
 
 
 def ssh_env(ws: Path) -> dict:
-    """Env that routes every ssh git does through the fake ssh (which refuses anything but origin): no network."""
+    """Env that routes every ssh git does through the fake ssh (which refuses anything but origin): no network; https/git protocols blocked."""
     s = str(fake_ssh(ws).resolve())
-    return {"GIT_SSH_COMMAND": s, "GIT_SSH": s, "GIT_SSH_VARIANT": "simple"}
+    return {"GIT_SSH_COMMAND": s, "GIT_SSH": s, "GIT_SSH_VARIANT": "simple",
+            "GIT_ALLOW_PROTOCOL": "file:ssh"}
 
 
 def add_bare_remote(ws: Path) -> Path:
