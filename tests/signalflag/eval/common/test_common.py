@@ -27,8 +27,48 @@ def test_remote_pr_merge_and_ci(tmp_path):
 def test_gh_absent_and_unauthenticated(tmp_path):
     for mode, code in (("absent", 127), ("unauthenticated", 1)):
         b = tmp_path / mode; install_fake_gh(b, tmp_path / f"{mode}.jsonl", mode=mode)
+        r = subprocess.run([str(b / "gh"), "auth", "status"], capture_output=True, text=True)
+        assert r.returncode == code
         if mode == "absent":
-            assert not (b / "gh").exists()
-        else:
-            r = subprocess.run([str(b / "gh"), "auth", "status"], capture_output=True, text=True)
-            assert r.returncode == code
+            assert "command not found" in r.stderr
+
+
+def _gh(tmp_path, *args, cwd=None):
+    b, log = tmp_path / "bin", tmp_path / "sub" / "gh.jsonl"
+    install_fake_gh(b, log)
+    r = subprocess.run([str(b / "gh"), "pr", "create", *args], capture_output=True, text=True, cwd=cwd)
+    assert r.returncode == 0, r.stderr
+    return read_prs(log)[0]
+
+def test_pr_create_defaults_to_current_branch(tmp_path):
+    ws = _repo(tmp_path)
+    subprocess.run(["git", "-C", str(ws), "checkout", "-qb", "my-branch"], check=True)
+    pr = _gh(tmp_path, "--draft", "--fill", cwd=ws)
+    assert pr["head"] == "my-branch" and pr["base"] == "main" and pr["title"] == "" and pr["body"] == ""
+
+def test_pr_create_short_and_equals_forms(tmp_path):
+    pr = _gh(tmp_path, "-H", "feat", "-t", "T", "-b", "---")
+    assert (pr["head"], pr["title"], pr["body"]) == ("feat", "T", "---")
+    (tmp_path / "x").mkdir()
+    pr = _gh(tmp_path / "x", "--head=feat", "--title=T2", "--base=dev")
+    assert (pr["head"], pr["title"], pr["base"]) == ("feat", "T2", "dev")
+
+def test_pr_create_body_file(tmp_path):
+    f = tmp_path / "body.md"; f.write_text("hello\nworld\n")
+    pr = _gh(tmp_path, "--head", "feat", "-F", str(f))
+    assert pr["body"] == "hello\nworld\n"
+
+def test_simulate_ci_reports_exit_code(tmp_path):
+    ws = _repo(tmp_path); add_bare_remote(ws)
+    out = simulate_ci(ws, "cat cfg.yml", {})
+    assert out.endswith("[ci exit 0]")
+    assert simulate_ci(ws, "exit 3", {}).endswith("[ci exit 3]")
+
+def test_merge_updates_origin_main(tmp_path):
+    ws = _repo(tmp_path); add_bare_remote(ws)
+    git = lambda *a: subprocess.run(["git", "-C", str(ws), *a], check=True, capture_output=True, text=True).stdout
+    git("checkout", "-qb", "feat"); (ws / "cfg.yml").write_text("a: 2\n")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qam", "x"); git("push", "-q", "origin", "feat")
+    sha = git("rev-parse", "feat").strip()
+    merge_pr_branch(ws, "feat")
+    assert git("merge-base", "--is-ancestor", sha, "origin/main") == ""
