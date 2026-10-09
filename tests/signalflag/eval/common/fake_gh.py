@@ -27,7 +27,8 @@ if a[:2] == ["pr", "create"]:
         else:
             i += 1   # value-less flag (--draft, --fill, --web) or unknown: tolerated
     if "body-file" in opts:
-        opts["body"] = open(opts.pop("body-file")).read()
+        f = opts.pop("body-file")
+        opts["body"] = sys.stdin.read() if f == "-" else open(f).read()
     if not opts.get("head"):
         opts["head"] = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"],
                                       capture_output=True, text=True).stdout.strip()
