@@ -39,7 +39,7 @@ if a[:2] == ["pr", "edit"]:
     prs = [json.loads(l) for l in open(log).read().splitlines() if l.strip()] if os.path.exists(log) else []
     if not prs:
         print("no pull requests found", file=sys.stderr); sys.exit(1)
-    ref = pos[0] if pos else None
+    ref = a[2] if len(a) > 2 and not a[2].startswith("-") else None   # `gh pr edit [<number|url|branch>] ...`
     hit = [p for p in prs if ref is None or str(p["number"]) == ref.lstrip("#").rsplit("/", 1)[-1] or p["head"] == ref]
     if not hit:
         print(f"no pull requests found for {{ref}}", file=sys.stderr); sys.exit(1)
@@ -62,8 +62,38 @@ if a[:2] == ["pr", "create"]:
     os.makedirs(os.path.dirname(os.path.abspath(log)), exist_ok=True)
     open(log, "a").write(json.dumps(opts) + "\\n")
     print(f"https://github.com/acme/planner/pull/{{n}}"); sys.exit(0)
-if a[:2] in (["pr", "list"], ["pr", "view"]):
-    print(open(log).read() if os.path.exists(log) else ""); sys.exit(0)
+prs = [json.loads(l) for l in open(log).read().splitlines() if l.strip()] if os.path.exists(log) else []
+url = lambda p: f"https://github.com/acme/planner/pull/{{p['number']}}"
+if a[:2] == ["pr", "view"]:
+    ref = a[2] if len(a) > 2 and not a[2].startswith("-") else None
+    hit = [p for p in prs if ref is None or str(p["number"]) == ref.lstrip("#").rsplit("/", 1)[-1] or p["head"] == ref]
+    if not ref:
+        cur = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True).stdout.strip()
+        hit = [p for p in prs if p["head"] == cur]
+    if not hit:
+        print("no pull requests found", file=sys.stderr); sys.exit(1)
+    p = hit[-1]
+    if "--json" in a or any(t.startswith("--json=") for t in a):
+        print(json.dumps({{"number": p["number"], "title": p["title"], "body": p["body"], "headRefName": p["head"],
+                          "baseRefName": p["base"], "state": "OPEN", "url": url(p)}}))
+    else:
+        print(f"{{p['title']}} #{{p['number']}}\\nOpen • wants to merge into {{p['base']}} from {{p['head']}}\\n\\n{{p['body']}}\\n\\nView this pull request on GitHub: {{url(p)}}")
+    sys.exit(0)
+if a[:2] == ["pr", "list"]:
+    if "--json" in a or any(t.startswith("--json=") for t in a):
+        print(json.dumps([{{"number": p["number"], "title": p["title"], "headRefName": p["head"],
+                           "baseRefName": p["base"], "state": "OPEN", "url": url(p)}} for p in reversed(prs)]))
+    else:
+        for p in reversed(prs):
+            print(f"{{p['number']}}\\t{{p['title']}}\\t{{p['head']}}\\tOPEN")
+    sys.exit(0)
+if a[:2] == ["repo", "view"]:
+    if "--json" in a or any(t.startswith("--json=") for t in a):
+        print(json.dumps({{"name": "planner", "nameWithOwner": "acme/planner", "url": "https://github.com/acme/planner",
+                          "defaultBranchRef": {{"name": "main"}}}}))
+    else:
+        print("acme/planner\\nPath planner and its tests.\\n\\nView this repository on GitHub: https://github.com/acme/planner")
+    sys.exit(0)
 print("gh (fake): unsupported " + " ".join(a), file=sys.stderr); sys.exit(1)
 '''
 

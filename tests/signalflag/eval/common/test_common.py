@@ -1,6 +1,7 @@
 import json, subprocess
 from pathlib import Path
-from common.git_remote import add_bare_remote, merge_pr_branch, simulate_ci
+from common.git_remote import GITHUB_URL, NotMergeable, add_bare_remote, merge_pr_branch, simulate_ci
+import pytest
 from common.fake_gh import install_fake_gh, read_prs
 
 def _repo(tmp_path):
@@ -104,3 +105,49 @@ def test_version(tmp_path):
     for mode, code in (("ok", 0), ("unauthenticated", 0), ("absent", 127)):
         b = tmp_path / mode; install_fake_gh(b, tmp_path / f"{mode}.jsonl", mode=mode)
         assert subprocess.run([str(b / "gh"), "--version"], capture_output=True).returncode == code
+
+
+def test_origin_reads_as_github_and_pushes_locally(tmp_path):
+    ws = _repo(tmp_path); remote = add_bare_remote(ws)
+    git = lambda *a: subprocess.run(["git", "-C", str(ws), *a], check=True, capture_output=True, text=True).stdout
+    assert git("remote", "-v").split()[1] == GITHUB_URL and str(remote) not in git("remote", "-v")
+    git("checkout", "-qb", "feat"); git("push", "-q", "origin", "feat")
+    assert "refs/heads/feat" in subprocess.run(["git", "-C", str(remote), "show-ref"], capture_output=True,
+                                               text=True).stdout
+    git("fetch", "-q", "origin"); assert "origin/feat" in git("branch", "-r")
+
+
+def test_merge_not_mergeable(tmp_path):
+    ws = _repo(tmp_path); add_bare_remote(ws)
+    git = lambda *a: subprocess.run(["git", "-C", str(ws), *a], check=True, capture_output=True, text=True).stdout
+    with pytest.raises(NotMergeable, match="not on origin"):
+        merge_pr_branch(ws, "never-pushed")
+    git("checkout", "-qb", "feat"); (ws / "cfg.yml").write_text("a: 2\n")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qam", "x"); git("push", "-q", "origin", "feat")
+    git("checkout", "-q", "main"); (ws / "cfg.yml").write_text("a: 9\n")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qam", "y"); git("push", "-q", "origin", "main")
+    with pytest.raises(NotMergeable, match="conflict"):
+        merge_pr_branch(ws, "feat")
+
+
+def test_pr_view_list_repo_view_and_edit_flags(tmp_path):
+    b, log = tmp_path / "bin", tmp_path / "gh.jsonl"
+    install_fake_gh(b, log)
+    run = lambda *a, **k: subprocess.run([str(b / "gh"), *a], capture_output=True, text=True, **k)
+    assert run("pr", "create", "--head", "feat", "--title", "T", "--body", "B").returncode == 0
+    assert run("pr", "edit", "--add-label", "x", "--body", "B2").returncode == 0      # no ref: last PR; label ignored
+    assert read_prs(log)[0]["body"] == "B2"
+    v = json.loads(run("pr", "view", "1", "--json", "title,body,url").stdout)
+    assert (v["title"], v["body"], v["headRefName"]) == ("T", "B2", "feat")
+    assert "T #1" in run("pr", "view", "feat").stdout
+    assert run("pr", "list").stdout.startswith("1\tT\tfeat")
+    assert json.loads(run("repo", "view", "--json", "nameWithOwner").stdout)["nameWithOwner"] == "acme/planner"
+
+
+def test_two_prs_and_edit_keep_one_record_per_line(tmp_path):
+    b, log = tmp_path / "bin", tmp_path / "gh.jsonl"
+    install_fake_gh(b, log)
+    run = lambda *a: subprocess.run([str(b / "gh"), *a], capture_output=True, text=True)
+    run("pr", "create", "--head", "a", "--title", "A"); run("pr", "create", "--head", "b", "--title", "B")
+    assert run("pr", "edit", "1", "--title", "A2").returncode == 0
+    assert [(p["number"], p["title"]) for p in read_prs(log)] == [(1, "A2"), (2, "B")]

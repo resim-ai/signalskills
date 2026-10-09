@@ -55,3 +55,26 @@ Per-case RED failures:
   (`acme-robotics`) into the persona, and it conflicts with the prefix's `karthik-test`.
 - **PR body content**: only the two um-drift PR bodies mention drift. The other 8 opened PRs don't say to check the
   server config for drift before merging, yet the judge passed pr_ready on them. The judge is lenient on that clause.
+
+## 2026-10-09 harness fix 1 smoke (variant pilot-git-fix, --reps 1, um-config-moved / um-dirty-tree / um-no-gh)
+
+What changed in the harness:
+- **origin looks like GitHub.** `origin` is `git@github.com:acme/planner.git`. Transport goes through a fake ssh (`core.sshCommand`) to the local bare repo. `url.insteadOf` was not used because `git remote -v` prints the rewritten local path.
+- **New check `pr_body_drift_note` (gates pass).** It looks for get_metrics_config, server config, drift or server-only in the last PR body, or in the chat PR text when gh is unusable. The judge's `pr_ready` now requires the drift line.
+- **Personas get `Your SignalFlag project: \`karthik-test\``.** This replaces onboard's default `acme-robotics`.
+- **CI target guard.** Before each CI upload, the harness checks main's `sf_pytest/plugin.py` in the remote. If it no longer targets karthik-test and the run's branch, the upload is skipped and the run is marked `ci_target_tampered`.
+- **Agent pushed main.** pr_opened, merged_ci_has_change and git_review_branch are zeroed.
+- **Error attribution.**
+  - A failure is a harness error when the server read is empty twice, or a CI failure shows no sign of the agent's change (network, 5xx, token).
+  - Merge conflicts and unpushed heads count against the agent. Clone and push failures are harness errors.
+- **No-gh `pr_opened`.** It now needs a pushed branch plus chat PR text with a title line.
+- **Fake gh** gained `pr view`, `pr list` and `repo view`.
+
+Smoke results: 3 runs, 0 harness errors.
+- **Target:** every CI upload went to the run's own `skilltest-um-pilot-git-fix-*` branch.
+- **PRs:** both gh-ok runs opened a PR with `gh pr create`. No run mentioned a local or bare remote.
+- **Merge and CI:** chk_pr_opened and chk_merged_ci_has_change were 3/3, and ci_survives was 3/3.
+- **Pass: 0/3.** pr_ready failed 0/3 because no PR body asks the reviewer to check the server config for drift before merging.
+  - chk_pr_body_drift_note was 1/3. um-config-moved's body says the server matched the repo. The regex accepts that, but the judge does not.
+
+This is now the main RED for the skill. One um-no-gh agent ran `which gh` and remarked that the shim lives in a `.bin` folder next to the workspace.

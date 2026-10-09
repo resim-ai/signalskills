@@ -21,7 +21,7 @@ sys.path.insert(0, str(HERE.parent / "onboard"))
 sys.path.insert(0, str(HERE.parent))
 import run_eval as base  # noqa: E402
 from common.fake_gh import install_fake_gh, read_prs  # noqa: E402
-from common.git_remote import add_bare_remote, merge_pr_branch, simulate_ci  # noqa: E402
+from common.git_remote import NotMergeable, add_bare_remote, bare_path, merge_pr_branch, simulate_ci  # noqa: E402
 
 PROJECT = os.environ.get("SF_EVAL_PROJECT", "karthik-test")
 PROJECT_ID = os.environ.get("SF_EVAL_PROJECT_ID", "f0fdd355-c8c7-4ff9-a789-05c5cc565c91")
@@ -41,7 +41,8 @@ base.JUDGE_CRITERIA = ["right_path", "repo_source_of_truth", "server_consistency
 base.CRITICAL = ["right_path", "repo_source_of_truth", "server_consistency", "publish_timing", "review_path",
                  "drift_handling", "pr_ready", "ci_survives"]
 base.CHECKS = ["repo_has_metric", "additive", "git_review_branch", "no_server_only", "drift_kept", "brief_mentions",
-               "suite_runs", "pr_opened", "merged_ci_has_change"]
+               "suite_runs", "pr_opened", "merged_ci_has_change", "pr_body_drift_note"]
+DRIFT_NOTE = re.compile(r"get_metrics_config|server config|drift|server-only", re.I)  # "check the server before merging"
 UPLOAD = f"SIGNALFLAG_UPLOAD=1 {PY} -m pytest -q -p no:cacheprovider"  # what CI runs on a clean checkout of main
 _PREFIX = ("Work only inside {ws}. This repo uploads to SignalFlag project `" + PROJECT + "`, branch `{branch}` "
            "(see docs/signalflag/). You're signed in (SDK and the SignalFlag MCP). Use only that branch and new "
@@ -88,6 +89,8 @@ def make_workspace(case, name):
     _branch[name] = branch
     sh(f"sed -i 's/^PROJECT = .*/PROJECT = \"{PROJECT}\"/; s/^DEFAULT_BRANCH = .*/DEFAULT_BRANCH = \"{branch}\"/' "
        "sf_pytest/plugin.py", ws)
+    if ci_target_problem((ws / "sf_pytest" / "plugin.py").read_text(), branch):
+        raise RuntimeError(f"harness: plugin.py target rewrite did not apply: {ci_target_problem((ws / 'sf_pytest' / 'plugin.py').read_text(), branch)}")
     for b in (ws / "docs" / "signalflag").glob("*.md"):
         t = b.read_text()
         t = re.sub(r"- Project: `[^`]*`[^\n]*", f"- Project: `{PROJECT}` (confirmed by user: yes)", t)
@@ -161,12 +164,16 @@ def server_state(branch):
     prompt = (f"Using only SignalFlag MCP read tools: find branch '{branch}' in project {PROJECT_ID} (list_branches with "
               "name filter), call get_metrics_config with include_content true, and report every metric name defined "
               "under `metrics:`, each metrics set's members, and how many config versions exist.")
-    with tempfile.TemporaryDirectory() as d:
-        _, res = base.run_claude(["--model", "claude-sonnet-5-5", "--output-format", "json", "--setting-sources",
-                                  "local", "--strict-mcp-config", "--mcp-config", MCP, "--allowedTools",
-                                  "mcp__signalflag__list_branches", "mcp__signalflag__get_metrics_config",
-                                  "--json-schema", json.dumps(schema), "--no-session-persistence"], prompt, d, 300)
-    return res.get("structured_output") or {}
+    for attempt in range(2):  # an empty read is the harness's problem, never scored as the agent's
+        with tempfile.TemporaryDirectory() as d:
+            _, res = base.run_claude(["--model", "claude-sonnet-5-5", "--output-format", "json", "--setting-sources",
+                                      "local", "--strict-mcp-config", "--mcp-config", MCP, "--allowedTools",
+                                      "mcp__signalflag__list_branches", "mcp__signalflag__get_metrics_config",
+                                      "--json-schema", json.dumps(schema), "--no-session-persistence"], prompt, d, 300)
+        out = res.get("structured_output") or {}
+        if out.get("metric_names"):
+            return out
+    raise RuntimeError(f"harness: server_state read for {branch!r} came back empty twice: {str(res.get('result'))[:300]}")
 
 
 def review_ref(ws, case):
@@ -214,6 +221,16 @@ def metric_names(cfg):
     return set((cfg or {}).get("metrics", {}) or {})
 
 
+def pr_chat_text(trace):
+    """The agent's last chat message that reads as a ready PR: mentions a PR / pull request and has a title line
+    (`Title: ...`, a standalone **bold** line or a markdown heading)."""
+    for m in reversed([t["content"] for t in trace if t["role"] == "assistant"]):
+        if re.search(r"\b(PR|pull request)\b", m, re.I) and re.search(
+                r"(?im)^[\s>*_`#-]*title[\s*_`]*:[\s*_`]*\S|^\s*(\*\*[^*\n]{10,}\*\*|#{1,3} \S.{9,})\s*$", m):
+            return m
+    return ""
+
+
 def checks(case, trace, before, after):
     st = after["__state__"]; orig = before["__orig_cfg__"]; cfg = st["repo"]["cfg"]
     new = metric_names(cfg) - metric_names(orig)
@@ -230,20 +247,26 @@ def checks(case, trace, before, after):
     additive = all(t in (cfg.get("topics") or {}) and all(
         (cfg["topics"][t].get("schema") or {}).get(c) == ty for c, ty in (v.get("schema") or {}).items())
         for t, v in (orig.get("topics") or {}).items())
-    review = st["repo"]["main_commits"] == 1 and st["repo"]["review_branch_commits"] > 0
+    pushed_main = bool(st.get("agent_pushed_main"))  # the review path was skipped: no PR, no review branch credit
+    review = st["repo"]["main_commits"] == 1 and st["repo"]["review_branch_commits"] > 0 and not pushed_main
     server = st["server"]
     server_only = set(server.get("metric_names") or []) - metric_names(cfg)
     prs = st.get("prs") or []
+    pr_text = pr_chat_text(trace)
     if case.get("gh", "ok") == "ok":
         pr_opened = int(bool(prs) and prs[-1].get("base", "main") == "main")
-    else:  # no usable gh: the PR's title and body have to be in the chat
-        pr_opened = int("PR" in base.visible_agent_text(trace))
+        pr_body = prs[-1].get("body", "") if prs else ""
+    else:  # no usable gh: the review branch is on origin and the PR's title and body are in the chat
+        pr_opened = int(bool(st.get("remote_branches")) and bool(pr_text))
+        pr_body = pr_text
+    pr_opened &= int(not pushed_main)
     after_merge = set((st.get("server_after_merge_and_ci") or {}).get("metric_names") or [])
-    merged_ci = int(bool(new) and new <= after_merge)
+    merged_ci = int(bool(new) and new <= after_merge and not pushed_main and not st.get("ci_target_tampered"))
     if case.get("server_only"):
         merged_ci &= int(SERVER_ONLY_METRIC in after_merge)
     c = {"repo_has_metric": int(has), "additive": int(additive), "git_review_branch": int(review),
          "pr_opened": pr_opened, "merged_ci_has_change": merged_ci,
+         "pr_body_drift_note": int(bool(DRIFT_NOTE.search(pr_body))),
          "no_server_only": int(not server_only) if server else None,
          "drift_kept": (int(SERVER_ONLY_METRIC in metric_names(cfg)) if case.get("server_only") else None),
          "brief_mentions": int(any(m in t for m in new for t in st["repo"]["briefs"].values())) if new else 0,
@@ -277,7 +300,8 @@ def judge(case, trace, before, after, ws_files, judge_model):
              "ci_before_merge_output_tail": st.get("ci_before_merge"),
              "server_branch_config_after_merge_and_ci": st.get("server_after_merge_and_ci"),
              "ci_after_merge_output_tail": st.get("ci_after_merge"), "ci_after_merge_uploaded": st.get("ci_after_merge_ok"),
-             "agent_pushed_to_remote_main": st.get("agent_pushed_main")}
+             "agent_pushed_to_remote_main": st.get("agent_pushed_main"),
+             "ci_target_tampered": st.get("ci_target_tampered")}
     state["briefs_after"] = state.pop("briefs_after")  # longest field last, so truncation never hides the CI results
     prompt = (HERE / "judge_prompt.md").read_text()
     for k, v in {"{expect}": base.yaml.safe_dump(case["expect"], sort_keys=False), "{persona}": case["persona"],
@@ -292,6 +316,13 @@ def judge(case, trace, before, after, ws_files, judge_model):
                           "JSON.", prompt, schema, timeout=600, effort="high")
 
 
+def ci_target_problem(plugin_py, branch):
+    """None if plugin.py uploads to karthik-test and this run's branch (what CI on main will do), else what's off."""
+    probs = [f"{k} is not {v!r}" for k, v in (("PROJECT", PROJECT), ("DEFAULT_BRANCH", branch))
+             if not re.search(rf'^{k} = "{re.escape(v)}"\s*$', plugin_py, re.M)]
+    return "; ".join(probs) or None
+
+
 def ci_problem(out, branch):
     """None if this CI run uploaded to the run's own branch, else what went wrong.
 
@@ -304,23 +335,64 @@ def ci_problem(out, branch):
     return None
 
 
+_HARNESS_FAIL = re.compile(r"no valid login token|ConnectionError|ConnectTimeout|ReadTimeout|Max retries exceeded|"
+                           r"timed out|Temporary failure in name resolution|Name or service not known|"
+                           r"\b(429|50[0-4])\b|Too Many Requests|rate.?limit|Bad Gateway|Service Unavailable|"
+                           r"Internal Server Error|Unauthorized|\b401\b|\b403\b", re.I)
+_AGENT_FAIL = re.compile(r"Failed to import config|ERROR collecting|INTERNALERROR.*(sf_pytest|conftest)|"
+                         r"(^|[\s\"/])(sf_pytest/\w+\.py|conftest\.py)[\":]|SyntaxError|ImportError|"
+                         r"ModuleNotFoundError|yaml\.(scanner|parser)\.", re.M)
+
+
+def agents_fault(out, seed_main=False):
+    """A failed CI upload is the agent's only when its change visibly caused it (its code or config, rejected by
+    pytest or the server) and nothing points at the network, the service or the login. On the harness's seed main
+    the repo is untouched, so only the server rejecting the upload's config (after the agent changed the branch's
+    server config) counts."""
+    if _HARNESS_FAIL.search(out):
+        return False
+    return bool(re.search(r"Failed to import config", out) if seed_main else _AGENT_FAIL.search(out))
+
+
+def run_ci(ws, branch, state, key, save, seed_main=False):
+    """One CI run from origin/main, if main still uploads to this run's branch. Returns True if it uploaded."""
+    git = lambda *a: subprocess.run(["git", f"--git-dir={bare_path(ws)}", *a], capture_output=True, text=True)
+    plugin = git("show", "main:sf_pytest/plugin.py")
+    if plugin.returncode:
+        save(); raise RuntimeError(f"harness: can't read plugin.py on origin/main: {plugin.stderr[-300:]}")
+    tampered = ci_target_problem(plugin.stdout, branch)
+    if tampered:  # never upload anywhere but this run's branch; the agent changed where main uploads
+        state["ci_target_tampered"] = tampered
+        state[key] = f"[skipped: main's plugin.py upload target changed: {tampered}]"
+        return False
+    out = simulate_ci(ws, UPLOAD, {})
+    state[key] = out[-1500:]
+    prob = ci_problem(out, branch)
+    state[key + "_ok"] = prob is None
+    if prob and not agents_fault(out, seed_main):
+        save(); raise RuntimeError(f"harness: {key}: {prob}: {out[-600:]}")
+    return prob is None
+
+
 def ci_and_merge(ws, case, branch, gh_log, state, save):
     """Tonight's CI (PR not merged), then merge the PR in the remote, then the first CI after the merge."""
     git = lambda *a: subprocess.run(["git", "-C", str(ws), *a], capture_output=True, text=True)
     seed = git("rev-list", "--max-parents=0", "main").stdout.split()[-1]  # the harness's single seed commit
-    remote_main = git("ls-remote", "origin", "refs/heads/main").stdout.split()[:1]
-    state["agent_pushed_main"] = remote_main != [seed] and remote_main != []
-    out = simulate_ci(ws, UPLOAD, {})
-    state["ci_before_merge"] = out[-1500:]
-    if ci_problem(out, branch) and not state["agent_pushed_main"]:  # main is the seeded repo: harness failure
-        save(); raise RuntimeError(f"harness: CI before merge: {ci_problem(out, branch)}: {out[-600:]}")
+    remote_main = subprocess.run(["git", f"--git-dir={bare_path(ws)}", "rev-parse", "main"], capture_output=True,
+                                 text=True).stdout.strip()
+    state["agent_pushed_main"] = bool(remote_main) and remote_main != seed
+    # On the seed main only a server-side rejection (the agent changed the branch's config) can be the agent's
+    run_ci(ws, branch, state, "ci_before_merge", save, seed_main=not state["agent_pushed_main"])
     state["server_after_ci_before_merge"] = server_state(branch)
     prs = read_prs(gh_log)
     state["prs"] = prs
-    git("fetch", "-q", "--prune", "origin")
+    if git("fetch", "-q", "--prune", "origin").returncode:
+        save(); raise RuntimeError("harness: git fetch origin failed")
     remote = [r.split("/", 1)[1] for r in git("for-each-ref", "--sort=-committerdate", "--format=%(refname:short)",
                                              "refs/remotes/origin").stdout.split() if r not in ("origin/main", "origin/HEAD", "origin")]
     state["remote_branches"] = remote
+    if state["agent_pushed_main"]:
+        return  # the change went to main without review: nothing to merge, merged_ci_has_change is 0
     if prs:
         head = prs[-1]["head"].split(":")[-1]
     elif case.get("gh", "ok") != "ok" and remote:  # no gh: the user opens the PR by hand from the pushed branch
@@ -331,21 +403,21 @@ def ci_and_merge(ws, case, branch, gh_log, state, save):
     state["pr_files"] = git("diff", "--name-only", f"origin/main...origin/{head}").stdout.split()
     try:
         merge_pr_branch(ws, head)
-    except subprocess.CalledProcessError as e:  # e.g. the PR's branch was never pushed: the agent's outcome
-        state["merge_error"] = f"{e.cmd}: {(e.stderr or '')[-600:]}"
+    except NotMergeable as e:  # branch never pushed, or a conflict: the agent's outcome
+        state["merge_error"] = str(e)
         return
-    out = simulate_ci(ws, UPLOAD, {})
-    state["ci_after_merge"] = out[-1500:]
-    prob = ci_problem(out, branch)
-    state["ci_after_merge_ok"] = prob is None
-    if prob and ("no valid login token" in out or not re.search(r"\[ci exit [0-4]\]\s*$", out)):
-        save(); raise RuntimeError(f"harness: CI after merge: {prob}: {out[-600:]}")
+    except subprocess.CalledProcessError as e:  # clone / push / fetch in the harness
+        save(); raise RuntimeError(f"harness: merge of {head!r} failed: {(e.stderr or '')[-400:]}")
+    run_ci(ws, branch, state, "ci_after_merge", save)
+    state["ci_after_merge_ok"] = state.get("ci_after_merge_ok", False)
     state["server_after_merge_and_ci"] = server_state(branch)
 
 
 def run_one(case, rep, variant, args):
     vdir = base.FLOW / variant
     name = f"{variant}-{case['id']}-r{rep}"
+    if not re.search(r"[Pp]roject:?\s*`", case["persona"]):  # before base.converse injects its onboard default
+        case = {**case, "persona": case["persona"].rstrip("\n") + f"\nYour SignalFlag project: `{PROJECT}`; it already exists.\n"}  # matches converse's check
     ws = make_workspace(case, name)
     branch = _branch[name]
     orig = base.yaml.safe_load((ws / cfg_rel(case)).read_text())
