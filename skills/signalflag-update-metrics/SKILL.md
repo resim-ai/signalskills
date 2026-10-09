@@ -34,7 +34,11 @@ The repo's metrics config is the source of truth. Every upload's `Batch(...)` sy
 
 ## 5. Ship through git
 
-One question per message throughout; settle details (units, names, keep-or-drop) before asking for the go. Show the diff and ask. On yes: a branch (`signalflag/<what>`), one commit with the config, templates, emit code and the brief's Config/Integration lines, then push and `gh pr create`. No remote or no `gh`: the branch, the commit and a ready PR description in chat.
+One question per message; settle details before asking for the go. Show the diff and ask. On yes:
+1. A branch from the default branch: `signalflag/<what>`. Stage only the files you changed by name (`git add <paths>`, never `-A`): config, templates, emit code, the brief.
+2. One commit; `git push -u origin <branch>`.
+3. `gh pr create --base <default> --title "SignalFlag: <what>" --body-file <tmp>` with: what changed and why; the scratch branch/batch link and preview result; "After merge, the next upload from <default> publishes it to `<branch>`"; "Before merging, check `get_metrics_config` on `<branch>` for charts added on the server since <date>; they'd be overwritten."
+4. No remote, `gh` missing or not logged in: the pushed branch (if any), and the PR title and body in chat for them to open.
 
 ## 6. When it goes live
 
@@ -50,6 +54,7 @@ The real branch picks up the change at the first upload after the merge. Until t
 |---|---|
 | "I'll run the real upload to check it" | That publishes the unmerged config to the real branch. Scratch branch (step 4). |
 | "I'll sync it so they can see it now" | Live before review, reverted by the next default-branch upload. Step 6. |
+| "Publish now as well; with the PR open it stays" | Every upload from the default branch reverts it until the merge. Say so in the same sentence as the offer. |
 | "They said don't touch the repo, so here's a snippet" | A snippet changes nothing and the server edit vanishes. Recommend the repo change. |
 | "I'll quietly keep the teammate's chart" | Ask. It's their call. |
 | "The brief says `.resim/metrics/`" | The code's `metrics_config_path` wins; fix the brief. |

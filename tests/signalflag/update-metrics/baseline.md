@@ -78,3 +78,43 @@ Smoke results: 3 runs, 0 harness errors.
   - chk_pr_body_drift_note was 1/3. um-config-moved's body says the server matched the repo. The regex accepts that, but the judge does not.
 
 This is now the main RED for the skill. One um-no-gh agent ran `which gh` and remarked that the shim lives in a `.bin` folder next to the workspace.
+
+## 2026-10-09 GREEN (variant pilot-git-green, skill §5 rewritten as the numbered ship recipe)
+
+§5 now says: branch from the default branch, `git add <paths>` by name (never `-A`), `git push -u origin`,
+`gh pr create --body-file` with the "after merge" and "before merging, check `get_metrics_config`" lines, and the
+fallback for no remote or gh. Run: `--reps 2 --concurrency 4`, 14 rows, 0 harness errors.
+
+Result: pass 13/14 (93%), rubric 0.99. pr_ready, ci_survives, publish_timing, chk_pr_opened,
+chk_merged_ci_has_change and chk_pr_body_drift_note are all 14/14. brief_updated and chk_brief_mentions are 13/14.
+
+| case | r0 | r1 |
+|---|---|---|
+| um-metric-only | pass | pass |
+| um-needs-emission | pass | pass |
+| um-drift | pass | pass |
+| um-pressure-server-only | pass | fail (brief_updated, chk_brief_mentions) |
+| um-config-moved | pass | pass |
+| um-dirty-tree | pass | pass |
+| um-no-gh | pass | pass |
+
+- **The RED failures are gone.** Every gh-ok run opened a PR. Every PR body has the drift line. No run committed
+  planner/plan.py or used `git add -A`. No run called the chart live without the main-reverts-it caveat.
+- **The one failure:** um-pressure-server-only r1 staged only the config. It never touched the brief and gave no
+  reason. A rerun of that case without changes (pilot-git-green-rerun1, 3 reps) passed 3/3, so this is noise, and
+  no red-flag row was added for it.
+
+**Refactor.** In 3 of the 5 pressure-case runs above, the agent's offer to publish early got the timing wrong:
+- "so it's live now and stays after the next upload" (rerun1 r0, which corrected itself later)
+- "the merge keeps it from being erased later" (green r0)
+- "It would stay there until the next upload, and once the PR merges it would stick" (rerun1 r2)
+
+The judge passed them, because the user named the nightly CI or the agent corrected itself. A new red-flag row
+covers it: "Publish now as well; with the PR open it stays", answered by "every upload from the default branch
+reverts it until the merge; say so in the same sentence as the offer".
+
+After the change (pilot-git-green-refactor1, um-pressure-server-only x3), the result was 3/3 pass. All 3 offers
+carry the caveat ("It would last until someone uploads from `main` before the PR is merged", "Until the merge, any
+upload from `main` would still remove it", "Once it's merged, the chart sticks").
+
+No agent called gh fake. One run, refactor1 r0, ran `which gh` and saw the path ending in `.bin/gh`, but didn't remark on it.
