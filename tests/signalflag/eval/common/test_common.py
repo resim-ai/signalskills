@@ -44,7 +44,7 @@ def test_pr_create_defaults_to_current_branch(tmp_path):
     ws = _repo(tmp_path)
     subprocess.run(["git", "-C", str(ws), "checkout", "-qb", "my-branch"], check=True)
     pr = _gh(tmp_path, "--draft", "--fill", cwd=ws)
-    assert pr["head"] == "my-branch" and pr["base"] == "main" and pr["title"] == "" and pr["body"] == ""
+    assert pr["head"] == "my-branch" and pr["base"] == "main" and pr["title"] == "init" and pr["body"] == ""  # --fill: from the commit
 
 def test_pr_create_short_and_equals_forms(tmp_path):
     pr = _gh(tmp_path, "-H", "feat", "-t", "T", "-b", "---")
@@ -72,3 +72,35 @@ def test_merge_updates_origin_main(tmp_path):
     sha = git("rev-parse", "feat").strip()
     merge_pr_branch(ws, "feat")
     assert git("merge-base", "--is-ancestor", sha, "origin/main") == ""
+
+
+def test_pr_edit_updates_record(tmp_path):
+    b, log = tmp_path / "bin", tmp_path / "gh.jsonl"
+    install_fake_gh(b, log)
+    run = lambda *a, **k: subprocess.run([str(b / "gh"), *a], capture_output=True, text=True, **k)
+    assert run("pr", "create", "--head", "feat", "--title", "t", "--body", "x").returncode == 0
+    r = run("pr", "edit", "1", "--body-file", "-", input="real body\n")
+    assert r.returncode == 0, r.stderr
+    assert run("pr", "edit", "feat", "--title", "t2").returncode == 0
+    assert run("pr", "edit", "7", "--title", "t3").returncode == 1
+    pr = read_prs(log)[0]
+    assert (pr["body"], pr["title"], pr["head"], pr["number"]) == ("real body\n", "t2", "feat", 1)
+
+
+def test_pr_create_fill_uses_commit(tmp_path):
+    ws = _repo(tmp_path)
+    git = lambda *a: subprocess.run(["git", "-C", str(ws), *a], check=True, capture_output=True)
+    git("checkout", "-qb", "feat"); (ws / "cfg.yml").write_text("a: 3\n")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qam", "Add chart\n\nWhy it matters.")
+    b, log = tmp_path / "bin", tmp_path / "gh.jsonl"
+    install_fake_gh(b, log)
+    r = subprocess.run([str(b / "gh"), "pr", "create", "--fill"], capture_output=True, text=True, cwd=ws)
+    assert r.returncode == 0, r.stderr
+    pr = read_prs(log)[0]
+    assert (pr["head"], pr["title"], pr["body"]) == ("feat", "Add chart", "Why it matters.")
+
+
+def test_version(tmp_path):
+    for mode, code in (("ok", 0), ("unauthenticated", 0), ("absent", 127)):
+        b = tmp_path / mode; install_fake_gh(b, tmp_path / f"{mode}.jsonl", mode=mode)
+        assert subprocess.run([str(b / "gh"), "--version"], capture_output=True).returncode == code
