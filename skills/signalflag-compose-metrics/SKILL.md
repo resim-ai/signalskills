@@ -1,6 +1,6 @@
 ---
 name: signalflag-compose-metrics
-description: Use when a SignalFlag (formerly ReSim) brief has an approved Metrics plan and its Config section is pending — writing or editing .resim/metrics/config.resim.yml, topics, SQL metrics, metrics sets, dashboards, status checks or custom Liquid/Plotly templates.
+description: Use when a SignalFlag (formerly ReSim) brief has an approved Metrics plan and its Config section is pending — writing or editing .resim/metrics/config.resim.yml, topics, SQL metrics, metrics sets, dashboards, status checks or custom Liquid/Plotly templates. A repo that already uploads and wants a metric added or changed → signalflag-update-metrics.
 ---
 
 # signalflag-compose-metrics

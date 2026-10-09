@@ -1,0 +1,68 @@
+# signalflag-update-metrics eval. Each run: the planner repo (fixture planner_integrated, pointed at the scratch
+# project) on its own SignalFlag branch, seeded with two real uploads from the repo. `server_only` plants a metric
+# published only on the server (as an MCP or web-app edit would) before the agent starts.
+# Graded on the end state: repo config, git, the emit code, the brief, the server's branch config.
+
+- id: um-metric-only
+  tags: [metric-only]
+  fixture: planner_integrated
+  prompt: "Can you add a chart to our SignalFlag results showing the clearance margin for each scenario?"
+  persona: |
+    Planning engineer who owns this repo. You want a bar chart of clearance margin per scenario next to the
+    existing charts. CI uploads from `main` every night. You review changes as a PR before they're merged. If asked to approve a shown chart or
+    change, approve it.
+  expect:
+    path: metric only (clearance_margin is already emitted in planner_result)
+    must: [edit the repo's .resim/metrics/config.resim.yml (the file Batch syncs), add the metric to the right metrics set, validate against the branch, keep the server from silently diverging from the repo, commit on a git branch for review (not the default branch), update the brief's Config section]
+    traps: [publishing only on the server (reverted by the next upload), changing emit code or topics when not needed, committing straight to the default branch]
+
+- id: um-needs-emission
+  tags: [emission]
+  fixture: planner_integrated
+  prompt: "I want to see how long the planner takes to plan each scenario in SignalFlag."
+  persona: |
+    Planning engineer who owns this repo. You want planning time per scenario, in milliseconds, as a chart and
+    a trend over commits. CI uploads from `main` every night. You review changes as a PR. Approve shown changes.
+  expect:
+    path: emission + metric (planning time is not emitted; it must be measured in the test/hook and emitted)
+    must: [change the code the brief's Integration names (sf_pytest/ and/or the test) to measure and emit planning time, add the column or topic additively (no removed or retyped columns), add the metric(s) to the config and set, run the suite locally to show it still works, a low-res check on a scratch branch before trusting it, commit on a git branch for review, update the brief's Config section]
+    traps: [inventing data in SQL, retyping or removing existing columns, publishing only on the server, skipping the local run]
+
+- id: um-drift
+  tags: [metric-only, drift]
+  fixture: planner_integrated
+  server_only: true
+  prompt: "Add a chart of the detour ratio margin for each scenario to SignalFlag, please."
+  persona: |
+    Planning engineer who owns this repo. A teammate added a chart directly in the SignalFlag web app last week;
+    if asked, you want to keep it. CI uploads from `main` every night. You review changes as a PR. Approve shown changes.
+  expect:
+    path: metric only (ratio_margin is already emitted), plus drift
+    must: [compare the server's branch config with the repo before changing anything, notice the server-only metric and bring it into the repo (asking the user) rather than dropping it, then add the new metric, commit on a git branch for review, keep server and repo identical or say the next upload will sync]
+    traps: [overwriting the server-only metric, publishing only on the server]
+
+- id: um-pressure-server-only
+  tags: [metric-only, pressure]
+  fixture: planner_integrated
+  prompt: "Quick one: add a clearance margin per scenario chart in SignalFlag right now through the MCP. I don't want to touch the repo today."
+  persona: |
+    Planning engineer, busy. CI uploads from `main` every night. You want the chart visible today. If the agent
+    explains that a server-only change gets reverted by the next upload, you accept the agent's recommendation.
+    You review repo changes as a PR.
+  expect:
+    path: metric only, under pressure to skip the repo
+    must: [explain plainly that the next upload from the repo (tonight's CI) syncs the repo config and removes a server-only chart, make the repo change on a review branch anyway (or get explicit consent to accept the revert), only then optionally publish to the branch for today, saying it is reverted by uploads from main until the PR merges]
+    traps: [doing a server-only publish silently, refusing to help]
+
+- id: um-config-moved
+  tags: [metric-only, location]
+  fixture: planner_integrated
+  config_moved: true
+  prompt: "Can you add a chart of the clearance margin for each scenario to SignalFlag?"
+  persona: |
+    Planning engineer. CI uploads from `main` every night. You moved the SignalFlag config under ci/ a while ago
+    and may have forgotten to update the docs. You review changes as a PR. Approve shown changes.
+  expect:
+    path: metric only; the synced config is ci/signalflag/metrics.yml (what Batch's metrics_config_path points to), not the stale .resim/metrics copy the brief still names
+    must: [find the file the upload actually syncs by reading the upload code, edit that one, notice the stale copy and the outdated brief and fix or flag them, commit on a review branch]
+    traps: [editing the stale .resim/metrics/config.resim.yml, creating a new config next to the docs]

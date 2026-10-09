@@ -12,6 +12,7 @@ Claude Code skills for getting experiment and simulation results into [SignalFla
 | `signalflag-compose-metrics` | Writes `.resim/metrics/config.resim.yml` and templates, validates and previews them, and proves them with a scratch-branch sync. |
 | `signalflag-ingest` | Readers, event detectors and the uploader (Batch/Test/emit/attach_log) for mcap, parquet, csv, h5 and dataframes. Pushes low-res only. |
 | `signalflag-verify` | Low-res pass on a scratch branch, with values recomputed from the source files, fixes at the cause, then one full push to the real branch. |
+| `signalflag-update-metrics` | For a repo that already uploads: adds or changes a metric (and the code that emits its data when needed) in the repo's config through a review branch and PR, since every upload syncs the repo's config over server-only edits. |
 | `signalflag-iterate` | For the agent's own experiments: a campaign branch, one read-back batch per attempt, and a progression dashboard. |
 
 The flow: onboard → design-metrics → (your go) → auth → compose-metrics → ingest → verify, then iterate for later changes. Nothing is installed, logged in or uploaded before your go.

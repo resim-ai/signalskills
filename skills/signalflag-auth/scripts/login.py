@@ -2,7 +2,7 @@
 import sys
 
 NOTICE = ("SignalFlag login: a URL prints below. Open it in a browser and approve; "
-          "this finishes by itself. The token is cached in ~/.signalflag/token.json.")
+          "this finishes by itself. The token is cached in ~/.resim/token.json (~/.signalflag/ on newer SDKs).")
 
 
 def main(make_client=None) -> int:

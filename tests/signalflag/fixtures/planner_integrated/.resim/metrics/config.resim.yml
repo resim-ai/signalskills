@@ -1,0 +1,147 @@
+version: 1
+
+topics:
+  planner_result:                   # one row per test that produced a Result
+    schema:
+      scenario: string
+      path_length_m: float
+      straight_m: float
+      detour_ratio: float
+      ratio_limit: float
+      ratio_margin: float
+      min_clearance_m: float
+      clearance_limit: float
+      clearance_margin: float
+      goal_x: float
+      obstacle_count: int
+      passed: boolean
+  test_outcome:                     # one row per test, always, even on error
+    schema:
+      outcome: string               # passed | failed | error | skipped
+      duration_s: float
+      message: string
+      git_commit: string
+      git_dirty: boolean
+  scenario_map_fig:                 # Plotly figure JSON built in conftest
+    schema:
+      raw_metric: string
+  planner_event:
+    event: true
+    schema:
+      name: string
+      description: string
+      status: status
+      tags: string[]
+      metrics: metric[]
+
+metrics:
+  # ---- test ----
+  Scenario Map:
+    type: test
+    description: Obstacles, start to goal, the straight line, and the closest obstacle with its clearance (m).
+    query_string: SELECT raw_metric FROM scenario_map_fig
+    template_type: custom
+    template_file: raw.liquid
+    skip_if_no_data: false
+  Gate Table:
+    type: test
+    description: Detour ratio and min clearance against the test's limits, with margin; blocks if either fails.
+    query_string: >-
+      SELECT "Check", "Value", "Limit", "Margin", "Status" FROM (
+        SELECT 1 AS k, 'Detour ratio (path / straight)' AS "Check",
+               CAST(ROUND(detour_ratio, 3) AS VARCHAR) AS "Value",
+               '< ' || CAST(ratio_limit AS VARCHAR) AS "Limit",
+               CAST(ROUND(ratio_margin, 3) AS VARCHAR) AS "Margin",
+               CASE WHEN detour_ratio < ratio_limit THEN 'PASS' ELSE 'FAIL' END AS "Status"
+        FROM planner_result
+        UNION ALL
+        SELECT 2 AS k, 'Min clearance (m)' AS "Check",
+               CAST(ROUND(min_clearance_m, 3) AS VARCHAR) AS "Value",
+               '> ' || CAST(clearance_limit AS VARCHAR) AS "Limit",
+               CAST(ROUND(clearance_margin, 3) AS VARCHAR) AS "Margin",
+               CASE WHEN min_clearance_m > clearance_limit THEN 'PASS' ELSE 'FAIL' END AS "Status"
+        FROM planner_result
+      ) t ORDER BY k
+    template_type: system
+    template: table
+    skip_if_no_data: false
+    status:
+      query_string: SELECT 1 FROM planner_result WHERE (CASE WHEN detour_ratio >= ratio_limit OR min_clearance_m <= clearance_limit THEN 1 ELSE 0 END) >= ?
+      block: 1
+  Planner Result Present:
+    type: test
+    description: Rows in planner_result; blocks when the test errored before producing a Result.
+    query_string: SELECT COUNT(*) AS value FROM planner_result
+    template_type: system
+    template: scalar
+    units: rows
+    skip_if_no_data: false
+    status: {query_string: "SELECT 1 FROM (SELECT COUNT(*) AS n FROM planner_result) s WHERE s.n <= ?", block: 0}
+
+  # ---- batch ----
+  Detour Ratio by Scenario:
+    type: batch
+    description: Path length / straight-line length per scenario, beside the 1.2 limit.
+    query_string: >-
+      SELECT 'Detour ratio' AS group_name, experience_name AS "Scenario", detour_ratio AS "Ratio" FROM planner_result
+      UNION ALL
+      SELECT 'Limit' AS group_name, experience_name AS "Scenario", ratio_limit AS "Ratio" FROM planner_result
+    template_type: system
+    template: bar
+    skip_if_no_data: false
+  Min Clearance by Scenario:
+    type: batch
+    description: Closest approach to an obstacle per scenario, beside the 0.25 m limit.
+    query_string: >-
+      SELECT 'Min clearance' AS group_name, experience_name AS "Scenario", min_clearance_m AS "Clearance (m)" FROM planner_result
+      UNION ALL
+      SELECT 'Limit' AS group_name, experience_name AS "Scenario", clearance_limit AS "Clearance (m)" FROM planner_result
+    template_type: system
+    template: bar
+    skip_if_no_data: false
+  Scenarios Passed:
+    type: batch
+    description: Number of scenario tests that passed in this run (errors and failures count against it).
+    query_string: SELECT SUM(CASE WHEN outcome = 'passed' THEN 1 ELSE 0 END) AS value FROM test_outcome
+    template_type: system
+    template: scalar
+    units: passed
+    skip_if_no_data: false
+
+  # ---- dashboard ----
+  Detour Ratio Over Commits:
+    type: dashboard
+    description: Detour ratio per scenario across batches on this branch, with the 1.2 limit.
+    query_string: >-
+      SELECT experience_name AS group_name, MIN(timestamp) / 1E9 AS "Batch time (s)", AVG(detour_ratio) AS "Ratio"
+      FROM planner_result GROUP BY experience_name, batch_id
+      UNION ALL
+      SELECT 'Limit' AS group_name, MIN(timestamp) / 1E9 AS "Batch time (s)", MAX(ratio_limit) AS "Ratio"
+      FROM planner_result GROUP BY batch_id
+    template_type: system
+    template: line
+    skip_if_no_data: false
+  Min Clearance Over Commits:
+    type: dashboard
+    description: Min clearance per scenario across batches on this branch, with the 0.25 m limit.
+    query_string: >-
+      SELECT experience_name AS group_name, MIN(timestamp) / 1E9 AS "Batch time (s)", AVG(min_clearance_m) AS "Clearance (m)"
+      FROM planner_result GROUP BY experience_name, batch_id
+      UNION ALL
+      SELECT 'Limit' AS group_name, MIN(timestamp) / 1E9 AS "Batch time (s)", MAX(clearance_limit) AS "Clearance (m)"
+      FROM planner_result GROUP BY batch_id
+    template_type: system
+    template: line
+    skip_if_no_data: false
+
+metrics sets:
+  Planner Pytest:
+    metrics: [Scenario Map, Gate Table, Planner Result Present, Detour Ratio by Scenario, Min Clearance by Scenario, Scenarios Passed]
+  Planner Pytest Trends:
+    metrics: [Detour Ratio Over Commits, Min Clearance Over Commits]
+
+dashboards:
+  Planner Pytest Trends:
+    metrics_set: Planner Pytest Trends
+    refresh: auto
+    day_range: 90

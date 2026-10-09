@@ -14,7 +14,7 @@ Read `docs/signalflag/*-test-brief.md` (or older `*-brief.md`). One covers this 
 No brief, but SignalFlag is already wired in (SDK calls in their hooks or runner, `.resim/metrics/`)? An existing integration: keep it; don't re-onboard or rewrite it.
 - Read the hook, the config and the code that writes each topic before asking. Answer their question from that: one recommendation, one question.
 - Brief: Current state and Mapping record what they built (`existing — kept`); their branch stays (schemas only grow). Ask the project if the code doesn't say.
-- Route to the skill that owns the fix: config or metric errors → `signalflag-compose-metrics`; upload code → `signalflag-ingest`. Their go comes before any install, login or edit.
+- Route to the skill that owns the fix: metric changes or errors → `signalflag-update-metrics`; upload code → `signalflag-ingest`. Their go comes before any install, login or edit.
 
 ## 1. Read before asking
 
