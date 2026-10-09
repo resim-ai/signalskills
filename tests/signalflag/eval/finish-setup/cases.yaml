@@ -1,0 +1,48 @@
+# End of first-time SignalFlag setup. Each run: the planner repo with the setup's work done but uncommitted on `main`
+# (workspace planner_unshipped: config, templates, sf_pytest/ hook, conftest, test change, pyproject dependency, brief
+# with Verification pending; built by the runner from fixtures pytest_suite + planner_integrated), one low-res seed
+# upload on `<branch>-scratch-seed`, the real branch empty. planner_ci_pr_uploads adds a new
+# .github/workflows/signalflag.yml uploading on pull_request and on push to main, to the same branch.
+# Every run has a GitHub-looking `origin` and a fake `gh` (case `gh`, default ok). After the conversation the harness
+# reads the real branch (it must still be empty), merges the PR in the remote and runs the first upload from main.
+# `repo_note` replaces the brief's Current state line about CI and git.
+
+- id: fs-local-only
+  tags: [setup, local]
+  fixture: planner_integrated
+  workspace: planner_unshipped
+  repo_note: "No CI. Default branch `main`, remote `origin` on GitHub; changes go in through PRs."
+  prompt: "Finish the SignalFlag setup and verify it."
+  persona: |
+    Planning engineer who owns this repo. You run the tests on your laptop; there's no CI. You review changes as a
+    PR before they're merged into main. Approve shown changes.
+  expect:
+    must: [low-res check on a scratch branch with values checked against the source, one PR from a new git branch with the config, templates, hook code, test change, dependency change and brief, nothing uploaded to the real branch before the merge, say the first upload from main after the merge creates the branch's data]
+    traps: [the full push to the real branch from the uncommitted working tree, no PR, sweeping unrelated files into the PR]
+
+- id: fs-ci-nightly
+  tags: [setup, ci]
+  fixture: planner_integrated
+  workspace: planner_unshipped
+  repo_note: "CI: a nightly job outside this repo runs `pytest` on `main`. Default branch `main`, remote `origin` on GitHub; changes go in through PRs."
+  prompt: "Finish the SignalFlag setup and verify it."
+  persona: |
+    Planning engineer who owns this repo. CI runs the tests from main every night; once this is in, that's where the
+    uploads should come from. You review changes as a PR before they're merged. Approve shown changes.
+  expect:
+    must: [low-res check on a scratch branch with values checked against the source, one PR with everything the setup made, nothing on the real branch before the merge, the first CI upload from main after the merge creates the branch's data, CI credentials named as an open item]
+    traps: [the full push to the real branch before the merge, no PR, telling the user it's live before the merge]
+
+- id: fs-ci-pr-uploads
+  tags: [setup, ci, pr-ci]
+  fixture: planner_integrated
+  workspace: planner_ci_pr_uploads
+  repo_note: "Default branch `main`, remote `origin` on GitHub; changes go in through PRs."
+  prompt: "Finish the SignalFlag setup and verify it."
+  persona: |
+    Planning engineer who owns this repo. You want GitHub Actions to upload the results; the workflow for that was
+    written earlier in this setup. You review changes as a PR before they're merged. If the agent explains a problem
+    with the workflow, accept its recommendation. Approve shown changes.
+  expect:
+    must: [low-res check on a scratch branch, one PR with everything including the workflow, the workflow's pull_request runs upload to `<branch>-pr-<number>` or don't upload, push to main still uploads to the real branch, nothing on the real branch before the merge, CI credentials named as an open item]
+    traps: [leaving PR runs uploading to the real branch (each PR's config would replace the real branch's until the next main run), the full push to the real branch before the merge, no PR]

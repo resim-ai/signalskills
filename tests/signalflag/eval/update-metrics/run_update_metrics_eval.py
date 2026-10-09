@@ -20,24 +20,21 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "onboard"))
 sys.path.insert(0, str(HERE.parent))
 import run_eval as base  # noqa: E402
-from common.fake_gh import install_fake_gh, read_prs  # noqa: E402
-from common.git_remote import (NotMergeable, add_bare_remote, bare_path, fake_ssh, merge_pr_branch,  # noqa: E402
-                               simulate_ci, ssh_env)
-from common import ci_checks  # noqa: E402
+from common import ci_checks, flow  # noqa: E402
+from common.flow import gh_paths, sh  # noqa: E402
 
 PROJECT = os.environ.get("SF_EVAL_PROJECT", "karthik-test")
 PROJECT_ID = os.environ.get("SF_EVAL_PROJECT_ID", "f0fdd355-c8c7-4ff9-a789-05c5cc565c91")
 BRANCH_PREFIX = "skilltest-um"
 FIXTURE = base.SKT / "fixtures" / "planner_integrated"
 PY = str(base.SKT / ".venv" / "bin" / "python")
-MCP = json.dumps({"mcpServers": {"signalflag": {"type": "http", "url": "https://bff.resim.ai/mcp"}}})
 SERVER_ONLY_METRIC = "Teammate Detour Chart"
 
 base.HERE = HERE
 base.FLOW = base.REPO / ".claude" / "hillclimb" / "update-metrics"
 base.HARNESS_FILES = [HERE / f for f in ("run_update_metrics_eval.py", "persona_prompt.md", "judge_prompt.md",
                                          "cases.yaml")] + [HERE.parent / "onboard" / "run_eval.py"] + \
-                   [HERE.parent / "common" / f for f in ("git_remote.py", "fake_gh.py")]
+                   [HERE.parent / "common" / f for f in ("git_remote.py", "fake_gh.py", "ci_checks.py", "flow.py")]
 base.JUDGE_CRITERIA = ["right_path", "repo_source_of_truth", "server_consistency", "publish_timing", "checked_on_real_data",
                        "review_path", "brief_updated", "drift_handling", "process", "pr_ready", "ci_survives"]
 base.CRITICAL = ["right_path", "repo_source_of_truth", "server_consistency", "publish_timing", "review_path",
@@ -66,17 +63,6 @@ base.PREFIX = _Prefix("")
 
 _cases, _branch = {}, {}
 _tl = threading.local()  # per-run agent env (PATH with the fake gh, FAKE_GH_LOG); converse runs in run_one's thread
-
-
-def gh_paths(ws):
-    return ws.parent / (ws.name + ".bin"), ws.parent / (ws.name + ".gh.jsonl")
-
-
-def sh(cmd, cwd, env=None, timeout=600):
-    ws = Path(cwd)  # in a workspace with the fake ssh, git can't reach any network remote
-    guard = ssh_env(ws) if fake_ssh(ws).exists() else {}
-    return subprocess.run(cmd, cwd=cwd, shell=True, capture_output=True, text=True, timeout=timeout,
-                          env={**os.environ, **guard, **(env or {})})
 
 
 def cfg_rel(case):
@@ -136,10 +122,7 @@ def make_workspace(case, name):
                    f"templates_path='{ws}/{Path(cfg_rel(case)).parent}/templates')\"", ws)
             if r.returncode:
                 raise RuntimeError(f"server-only plant failed: {r.stderr[-600:]}")
-    add_bare_remote(ws)  # origin = a local bare repo standing in for GitHub; main pushed
-    bin_dir, gh_log = gh_paths(ws)
-    gh_log.unlink(missing_ok=True)
-    install_fake_gh(bin_dir, gh_log, case.get("gh", "ok"))
+    flow.install_github(ws, case.get("gh", "ok"))  # origin = a local bare repo standing in for GitHub; main pushed
     if case.get("dirty_tree"):  # an unrelated, uncommitted edit the user doesn't want in the PR
         with open(ws / "planner" / "plan.py", "a") as f:
             f.write("# wip\n")
@@ -147,39 +130,11 @@ def make_workspace(case, name):
 
 
 def agent_args(model, session, first):
-    a = ["--model", model, "--output-format", "stream-json", "--verbose", "--setting-sources", "project,local",
-         "--plugin-dir", str(base.plugin_dir()), "--strict-mcp-config", "--mcp-config", MCP,
-         "--allowedTools", "Bash", "Read", "Write", "Edit", "Glob", "Grep", "Skill", "TodoWrite", "mcp__signalflag",
-         "--disallowedTools", "AskUserQuestion", "WebFetch", "WebSearch", "Agent", "Task",
-         "mcp__signalflag__draft_launch_batch", "mcp__signalflag__draft_archive", "mcp__signalflag__draft_delete",
-         "mcp__signalflag__upsert_project"]
-    env = getattr(_tl, "env", None)
-    if env:
-        a += ["--settings", json.dumps({"env": env})]
-    return a + (["--session-id", session] if first else ["--resume", session])
+    return flow.agent_args(base, getattr(_tl, "env", None), model, session, first)
 
 
 def server_state(branch):
-    """Read the branch's server config through the MCP (read-only side call)."""
-    schema = {"type": "object", "additionalProperties": False,
-              "required": ["metric_names", "set_members", "version_count"],
-              "properties": {"metric_names": {"type": "array", "items": {"type": "string"}},
-                             "set_members": {"type": "object", "additionalProperties": {"type": "array",
-                                                                                       "items": {"type": "string"}}},
-                             "version_count": {"type": "integer"}}}
-    prompt = (f"Using only SignalFlag MCP read tools: find branch '{branch}' in project {PROJECT_ID} (list_branches with "
-              "name filter), call get_metrics_config with include_content true, and report every metric name defined "
-              "under `metrics:`, each metrics set's members, and how many config versions exist.")
-    for attempt in range(2):  # an empty read is the harness's problem, never scored as the agent's
-        with tempfile.TemporaryDirectory() as d:
-            _, res = base.run_claude(["--model", "claude-sonnet-5-5", "--output-format", "json", "--setting-sources",
-                                      "local", "--strict-mcp-config", "--mcp-config", MCP, "--allowedTools",
-                                      "mcp__signalflag__list_branches", "mcp__signalflag__get_metrics_config",
-                                      "--json-schema", json.dumps(schema), "--no-session-persistence"], prompt, d, 300)
-        out = res.get("structured_output") or {}
-        if out.get("metric_names"):
-            return out
-    raise RuntimeError(f"harness: server_state read for {branch!r} came back empty twice: {str(res.get('result'))[:300]}")
+    return flow.server_state(base, PROJECT_ID, branch)
 
 
 def review_ref(ws, case):
@@ -227,16 +182,6 @@ def metric_names(cfg):
     return set((cfg or {}).get("metrics", {}) or {})
 
 
-def pr_chat_text(trace):
-    """The agent's last chat message that reads as a ready PR: mentions a PR / pull request and has a title line
-    (`Title: ...`, a standalone **bold** line or a markdown heading)."""
-    for m in reversed([t["content"] for t in trace if t["role"] == "assistant"]):
-        if re.search(r"\b(PR|pull request)\b", m, re.I) and re.search(
-                r"(?im)^[\s>*_`#-]*title[\s*_`]*:[\s*_`]*\S|^\s*(\*\*[^*\n]{10,}\*\*|#{1,3} \S.{9,})\s*$", m):
-            return m
-    return ""
-
-
 def checks(case, trace, before, after):
     st = after["__state__"]; orig = before["__orig_cfg__"]; cfg = st["repo"]["cfg"]
     new = metric_names(cfg) - metric_names(orig)
@@ -258,14 +203,7 @@ def checks(case, trace, before, after):
     server = st["server"]
     server_only = set(server.get("metric_names") or []) - metric_names(cfg)
     prs = st.get("prs") or []
-    pr_text = pr_chat_text(trace)
-    if case.get("gh", "ok") == "ok":
-        pr_opened = int(bool(prs) and prs[-1].get("base", "main") == "main")
-        pr_body = prs[-1].get("body", "") if prs else ""
-    else:  # no usable gh: the review branch is on origin and the PR's title and body are in the chat
-        pr_opened = int(bool(st.get("remote_branches")) and bool(pr_text))
-        pr_body = pr_text
-    pr_opened &= int(not pushed_main)
+    pr_opened, pr_body = flow.pr_opened(case, st, trace)  # no usable gh: pushed branch + PR text in chat
     after_merge = set((st.get("server_after_merge_and_ci") or {}).get("metric_names") or [])
     merged_ci = int(bool(new) and new <= after_merge and not pushed_main and not st.get("ci_target_tampered"))
     if case.get("server_only"):
@@ -323,60 +261,18 @@ def judge(case, trace, before, after, ws_files, judge_model):
 
 
 def run_ci(ws, branch, state, key, save, seed, seed_main=False):
-    """One CI run from origin/main, if main still uploads to this run's branch. Returns True if it uploaded."""
-    git = lambda *a: subprocess.run(["git", f"--git-dir={bare_path(ws)}", *a], capture_output=True, text=True)
-    plugin = git("show", "main:sf_pytest/plugin.py")
-    if plugin.returncode:
-        save(); raise RuntimeError(f"harness: can't read plugin.py on origin/main: {plugin.stderr[-300:]}")
-    tampered = ci_checks.ci_target_problem(plugin.stdout, PROJECT, branch)
-    if tampered:  # never upload anywhere but this run's branch; the agent changed where main uploads
-        state["ci_target_tampered"] = tampered
-        state[key] = f"[skipped: main's plugin.py upload target changed: {tampered}]"
-        return False
-    out = simulate_ci(ws, UPLOAD, {})
-    state[key] = out[-1500:]
-    prob = ci_checks.ci_problem(out, branch)
-    state[key + "_ok"] = prob is None
-    changed = git("diff", "--name-only", seed, "main").stdout.split()  # main's change vs the harness seed
-    if prob and not ci_checks.agents_fault(out, changed, seed_main):
-        save(); raise RuntimeError(f"harness: {key}: {prob}: {out[-600:]}")
-    return prob is None
+    return flow.run_ci(ws, PROJECT, branch, UPLOAD, state, key, save, seed, seed_main)
 
 
 def ci_and_merge(ws, case, branch, gh_log, state, save):
     """Tonight's CI (PR not merged), then merge the PR in the remote, then the first CI after the merge."""
-    git = lambda *a: subprocess.run(["git", "-C", str(ws), *a], capture_output=True, text=True)
-    seed = git("rev-list", "--max-parents=0", "main").stdout.split()[-1]  # the harness's single seed commit
-    remote_main = subprocess.run(["git", f"--git-dir={bare_path(ws)}", "rev-parse", "main"], capture_output=True,
-                                 text=True).stdout.strip()
-    state["agent_pushed_main"] = bool(remote_main) and remote_main != seed
+    seed = flow.mark_pushed_main(ws, state)
     # On the seed main only a server-side rejection (the agent changed the branch's config) can be the agent's
     run_ci(ws, branch, state, "ci_before_merge", save, seed, seed_main=not state["agent_pushed_main"])
     state["server_after_ci_before_merge"] = server_state(branch)
-    prs = read_prs(gh_log)
-    state["prs"] = prs
-    if git("fetch", "-q", "--prune", "origin").returncode:
-        save(); raise RuntimeError("harness: git fetch origin failed")
-    remote = [r.split("/", 1)[1] for r in git("for-each-ref", "--sort=-committerdate", "--format=%(refname:short)",
-                                             "refs/remotes/origin").stdout.split() if r not in ("origin/main", "origin/HEAD", "origin")]
-    state["remote_branches"] = remote
-    if state["agent_pushed_main"]:
-        return  # the change went to main without review: nothing to merge, merged_ci_has_change is 0
-    if prs:
-        head = prs[-1]["head"].split(":")[-1]
-    elif case.get("gh", "ok") != "ok" and remote:  # no gh: the user opens the PR by hand from the pushed branch
-        head = remote[0]
-    else:
+    head = flow.find_pr_head(ws, case, gh_log, state, save)  # None: pushed to main (merged_ci_has_change is 0) or no PR
+    if head is None or not flow.merge(ws, head, state, save):
         return
-    state["merged_head"] = head
-    state["pr_files"] = git("diff", "--name-only", f"origin/main...origin/{head}").stdout.split()
-    try:
-        merge_pr_branch(ws, head)
-    except NotMergeable as e:  # branch never pushed, or a conflict: the agent's outcome
-        state["merge_error"] = str(e)
-        return
-    except subprocess.CalledProcessError as e:  # clone / push / fetch in the harness
-        save(); raise RuntimeError(f"harness: merge of {head!r} failed: {(e.stderr or '')[-400:]}")
     run_ci(ws, branch, state, "ci_after_merge", save, seed)
     state["ci_after_merge_ok"] = state.get("ci_after_merge_ok", False)
     state["server_after_merge_and_ci"] = server_state(branch)
@@ -391,8 +287,7 @@ def run_one(case, rep, variant, args):
     branch = _branch[name]
     orig = base.yaml.safe_load((ws / cfg_rel(case)).read_text())
     bin_dir, gh_log = gh_paths(ws)
-    _tl.env = {"PATH": f"{bin_dir.resolve()}:{os.environ['PATH']}", "FAKE_GH_LOG": str(gh_log.resolve()),
-               **ssh_env(ws)}  # the agent's git can't reach any real remote either
+    _tl.env = flow.agent_env(ws)  # the fake gh first on PATH; the agent's git can't reach any real remote either
     try:
         trace, meta = base.converse(case, ws, args.model, args.persona_model)
     finally:
