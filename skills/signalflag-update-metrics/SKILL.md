@@ -29,7 +29,7 @@ The repo's metrics config is the source of truth. Every upload's `Batch(...)` sy
 
 ## 4. Prove it without touching the real branch
 
-- Metric only: `validate_metrics_config` on the branch, then `preview_metric` on its real emissions. Show the rows or chart.
+- Metric only: `validate_metrics_config` on the branch, then `preview_metric` on its real emissions. Show the rows or chart. The validator gets no templates: "unknown template" on a templated chart is expected; the upload carries them.
 - Emission: run the suite or runner locally with uploads off, then one low-res upload to `<branch>-scratch-<yyyymmdd-hhmm>` and `preview_metric` there.
 
 ## 5. Ship through git
