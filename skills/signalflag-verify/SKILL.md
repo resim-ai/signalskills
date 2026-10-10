@@ -28,7 +28,7 @@ Hand the user the batch link now; they review charts here.
 
 ## 2. High-res — the real branch, once
 
-Only after low-res passes: `--branch <branch> --version V`, nothing else. Then:
+Only after low-res passes: one full push from the default branch after the merge (§6), `--branch <branch> --version V`, nothing else. Then:
 
 - Tests = source runs; events per test = what `events.py` finds (`list_events`).
 - Values: step 3 on every test.
@@ -62,11 +62,19 @@ Then rerun **low-res** on a fresh `<branch>-lowres-<hhmm>`. Not a new real branc
 
 ```markdown
 - Low-res: <branch>-lowres-<hhmm>, <batch link> — checks passed / failed: …
-- High-res: <branch>, <batch link> — N tests, M events; values checked: <metric: local vs server> …
+- High-res: <branch>, <batch link> — N tests, M events; values checked: <metric: local vs server> … (before the merge: "first upload from <default> after the merge")
 - Fixed: <what, where> / Open: <what wasn't checkable and why>
 ```
 
 Fill it even when it fails.
+
+## 6. Ship it through git
+
+The real branch's first data comes from the default branch, after the merge. Before that, only scratch branches.
+1. Branch `signalflag/setup-<test type>`; stage by name: the config and templates, the upload code or hook, the dependency change, the brief, the CI change. CI that uploads on PRs: PR jobs go to `<branch>-pr-<number>` or skip the upload (`signalflag-ingest`, CI rule).
+2. Commit, `git push -u origin`, `gh pr create` with: the brief's summary, the low-res scratch batch link and what was checked, open items (CI credentials), and "the first upload from <default> after merge creates `<branch>`'s data".
+3. No `gh`/remote: the branch and the PR text in chat.
+4. The full push moves to after the merge: the first CI run (or `SIGNALFLAG_UPLOAD=1` from the default branch). Needed sooner: say the default branch's uploads overwrite it until the merge; only on an explicit yes.
 
 ## Limits
 

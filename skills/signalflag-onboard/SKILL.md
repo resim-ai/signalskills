@@ -48,7 +48,7 @@ Copy `brief-template.md` to `docs/signalflag/<test-type>-test-brief.md`. Fill Cu
 
 End with:
 
-`Next skills: signalflag-design-metrics → signalflag-auth → signalflag-compose-metrics → signalflag-ingest → signalflag-verify`
+`Next skills: signalflag-design-metrics → signalflag-auth → signalflag-compose-metrics → signalflag-ingest → signalflag-verify → PR → merge → first upload from the default branch`
 
 design-metrics comes before auth: it only reads local data, and the go (mode A: after the metrics plan; mode B: the approved brief, then the plan) comes before anything that logs in or installs the SDK.
 

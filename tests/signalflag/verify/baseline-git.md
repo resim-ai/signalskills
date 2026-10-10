@@ -35,3 +35,42 @@ What happened:
 - **PR CI already off the real branch (2/2).** The expected RED did not materialize: both fs-ci-pr-uploads runs
   rewrote the workflow so PR runs use `--sf-branch <branch>-pr-<number>`. One of them invented
   `SIGNALFLAG_USERNAME/PASSWORD` secrets that the hook doesn't read, so CI credentials are not covered.
+
+## 2026-10-10 GREEN
+
+Skill edits:
+- verify: new §6 "Ship it through git"; §2's full push comes from the default branch after the merge; the §5
+  template line for the pre-merge state.
+- ingest: CI rule, including the ReSim machine-credentials line.
+- onboard and README: the flow line.
+
+### pilot-setup-green (first edit)
+5/6 pass, rubric 0.95. Every real-branch and PR check passed (6/6), except fs-ci-pr-uploads r1, which failed
+ci_pr_safe and chk_pr_ci_off_real_branch: its workflow still uploads on PRs to the real branch. In both
+fs-ci-pr-uploads runs the agent loaded only verify (plus auth), never ingest, so the new ingest CI rule wasn't in its
+context.
+
+| case | rep | pass | real branch before merge | PR head | PR missing | failed |
+|---|---|---|---|---|---|---|
+| fs-local-only | 1 | 1 | empty | signalflag/setup-planner-pytest | - | - |
+| fs-ci-nightly | 0 | 1 | empty | signalflag/setup-planner-pytest | - | - |
+| fs-local-only | 0 | 1 | empty | skilltest-fs-signalflag-setup-planner-pytest | - | - |
+| fs-ci-nightly | 1 | 1 | empty | signalflag/setup-planner-pytest | - | - |
+| fs-ci-pr-uploads | 1 | 0 | empty | skilltest-fs-signalflag-setup-planner-pytest | - | ci_pr_safe, chk_pr_ci_off_real_branch |
+| fs-ci-pr-uploads | 0 | 1 | empty | skilltest-fs-signalflag-setup-planner-pytest | - | process |
+
+### pilot-setup-green2 (after the fix)
+Fix: verify §6 step 1 now says "CI that uploads on PRs: PR jobs go to `<branch>-pr-<number>` or skip the upload
+(`signalflag-ingest`, CI rule)".
+
+6/6 pass, rubric 0.98, $10.92. Every check is at 100%: real_branch_empty_until_merge 6/6, pr_has_everything 6/6,
+pr_ci_off_real_branch 2/2, merged_upload_has_config 6/6. The one judge miss is process 5/6 (non-critical).
+
+| case | rep | pass | real branch before merge | PR head | PR missing | failed |
+|---|---|---|---|---|---|---|
+| fs-local-only | 1 | 1 | empty | signalflag/setup-planner-pytest | - | - |
+| fs-ci-nightly | 0 | 1 | empty | signalflag/setup-planner-pytest | - | - |
+| fs-local-only | 0 | 1 | empty | skilltest-fs-signalflag-setup-planner-pytest | - | - |
+| fs-ci-pr-uploads | 1 | 1 | empty | signalflag/setup-planner-pytest | - | - |
+| fs-ci-nightly | 1 | 1 | empty | skilltest-fs-signalflag-setup-planner-pytest | - | - |
+| fs-ci-pr-uploads | 0 | 1 | empty | skilltest-fs-signalflag-setup-planner-pytest | - | process |

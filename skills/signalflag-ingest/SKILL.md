@@ -58,6 +58,7 @@ When the brief names them: after the go, create the system with the MCP's `upser
 
 - **Dependencies:** separate script → own venv + pinned `requirements.txt`; inside their code → their manager (pyproject extra). Nothing outside a venv.
 - **Never start a login from the runner or hook.** CI without a browser is an open item for the human, not a password fallback.
+- **CI:** the job on the default branch uploads to the brief's branch; PR and feature-branch jobs upload to `<branch>-pr-<number>` (or skip the upload). A PR build syncing its config to the real branch publishes unmerged work and is reverted by the next default-branch run. CI uploads need machine credentials issued by ReSim: ask your ReSim contact, and store them as CI secrets.
 - **Keep the Emitter's validation on.** A rejected row means the config is wrong — fix it with `signalflag-compose-metrics`.
 - **Time:** nanoseconds, sim time when sim time exists (mcap `header.stamp`, not `log_time`).
 - **Media:** ≤ 100 files per test — frames become one GIF/video; emitted `filename` = the `attach_log` basename.
