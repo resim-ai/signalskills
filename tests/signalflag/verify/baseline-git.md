@@ -8,7 +8,7 @@ uncommitted on `main` (workspace `planner_unshipped`; `planner_ci_pr_uploads` ad
 upload on `<branch>-scratch-seed`, and the real branch does not exist. Each run also has a GitHub-looking `origin`
 and a fake `gh`. After the conversation the harness reads the real branch, merges the PR in the remote, and runs the
 first upload from a clean checkout of `main`. Prompt: "Finish the SignalFlag setup and verify it."
-`--reps 2 --concurrency 3`, 6 scored rows, 0 harness errors, $22.60.
+`--reps 2 --concurrency 3`, 6 scored rows, 0 harness errors.
 
 Result: pass 0/6, rubric 0.39.
 - chk_real_branch_empty_until_merge 0/6, real_branch_timing 0/6, brief_verification 0/6
@@ -63,7 +63,7 @@ context.
 Fix: verify §6 step 1 now says "CI that uploads on PRs: PR jobs go to `<branch>-pr-<number>` or skip the upload
 (`signalflag-ingest`, CI rule)".
 
-6/6 pass, rubric 0.98, $10.92. Every check is at 100%: real_branch_empty_until_merge 6/6, pr_has_everything 6/6,
+6/6 pass, rubric 0.98. Every check is at 100%: real_branch_empty_until_merge 6/6, pr_has_everything 6/6,
 pr_ci_off_real_branch 2/2, merged_upload_has_config 6/6. The one judge miss is process 5/6 (non-critical).
 
 | case | rep | pass | real branch before merge | PR head | PR missing | failed |

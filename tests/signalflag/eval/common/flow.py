@@ -51,8 +51,10 @@ def agent_args(base, env, model, session, first):
 
 
 # ---------------------------------------------------------------- the server
-def server_state(base, project_id, branch):
-    """Read the branch's server config through the MCP (read-only side call)."""
+def server_state(base, project_id, branch, allow_empty=False):
+    """Read the branch's server config through the MCP (read-only side call).
+
+    allow_empty: a branch that exists with no config reads as no metrics and 0 versions instead of a harness error."""
     schema = {"type": "object", "additionalProperties": False,
               "required": ["metric_names", "set_members", "version_count"],
               "properties": {"metric_names": {"type": "array", "items": {"type": "string"}},
@@ -71,6 +73,8 @@ def server_state(base, project_id, branch):
         out = res.get("structured_output") or {}
         if out.get("metric_names"):
             return out
+    if allow_empty and not res.get("is_error") and "structured_output" in res:
+        return {"metric_names": [], "set_members": {}, "version_count": out.get("version_count") or 0}
     raise RuntimeError(f"harness: server_state read for {branch!r} came back empty twice: {str(res.get('result'))[:300]}")
 
 
@@ -159,10 +163,10 @@ def merge(ws, head, state, save):
 # ---------------------------------------------------------------- the PR
 def pr_chat_text(trace):
     """The agent's last chat message that reads as a ready PR: mentions a PR / pull request and has a title line
-    (`Title: ...`, a standalone **bold** line or a markdown heading)."""
+    (`Title: ...`, `**Title:**`, `- **PR title:** ...`, a standalone **bold** line or a markdown heading)."""
     for m in reversed([t["content"] for t in trace if t["role"] == "assistant"]):
         if re.search(r"\b(PR|pull request)\b", m, re.I) and re.search(
-                r"(?im)^[\s>*_`#-]*title[\s*_`]*:[\s*_`]*\S|^\s*(\*\*[^*\n]{10,}\*\*|#{1,3} \S.{9,})\s*$", m):
+                r"(?im)^[\s>*_`#-]*(?:PR\s+)?title[\s*_`]*:[\s*_`]*\S|^\s*(\*\*[^*\n]{10,}\*\*|#{1,3} \S.{9,})\s*$", m):
             return m
     return ""
 

@@ -48,3 +48,11 @@ def test_find_pr_head_and_merge(tmp_path):
     head = flow.find_pr_head(ws, {}, log, state, lambda: None)
     assert head == "feat" and state["remote_branches"] == ["feat"]
     assert flow.merge(ws, head, state, lambda: None) and state["pr_files"] == ["b.txt"]
+
+
+def test_pr_chat_text_markdown_labels():
+    for title in ("- **PR title:** `SignalFlag: add chart`", "**Title:** SignalFlag: add chart",
+                  "Title: SignalFlag: add chart", "**PR Title**: SignalFlag: add chart"):
+        msg = f"Couldn't open the PR (no gh). Open it from `signalflag/x`:\n\n{title}\n\nBody ..."
+        assert flow.pr_chat_text([{"role": "assistant", "content": msg}]) == msg, title
+    assert flow.pr_chat_text([{"role": "assistant", "content": "The PR is ready.\nno title here"}]) == ""
