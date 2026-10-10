@@ -118,3 +118,10 @@ carry the caveat ("It would last until someone uploads from `main` before the PR
 upload from `main` would still remove it", "Once it's merged, the chart sticks").
 
 No agent called gh fake. One run, refactor1 r0, ran `which gh` and saw the path ending in `.bin/gh`, but didn't remark on it.
+
+## 2026-10-10 pilot-git-green3 (skills at c88fffa: update-metrics PR-CI line; shared eval/common/flow.py, wider PR-title match)
+
+Full set, `--reps 2`, 14 rows, 0 harness errors. Pass 14/14, rubric 1.00. Every criterion and check is at 100%:
+- pr_ready, ci_survives, publish_timing: 14/14
+- chk_pr_opened, chk_merged_ci_has_change, chk_pr_body_drift_note: 14/14
+- drift_handling 3/3, chk_drift_kept 2/2

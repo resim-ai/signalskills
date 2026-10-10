@@ -74,3 +74,45 @@ pr_ci_off_real_branch 2/2, merged_upload_has_config 6/6. The one judge miss is p
 | fs-ci-pr-uploads | 1 | 1 | empty | signalflag/setup-planner-pytest | - | - |
 | fs-ci-nightly | 1 | 1 | empty | skilltest-fs-signalflag-setup-planner-pytest | - | - |
 | fs-ci-pr-uploads | 0 | 1 | empty | skilltest-fs-signalflag-setup-planner-pytest | - | process |
+
+## 2026-10-10 Fix round 1 (pilot-setup-green3, skills at c88fffa, harness at e1aee7f)
+
+Skill fixes:
+- verify §6 asks first, uses a generic branch and upload, describes the early-push risk, and runs §2's checks on
+  the first default-branch batch.
+- ingest has a single CI rule. The ReSim credentials are an open item; no invented secrets or login code.
+- update-metrics: a repo whose CI uploads PRs to the real branch gets the CI fix first.
+
+Harness fixes:
+- pr_ci_off_real_branch:
+  - Checks only PR runs and feature-branch pushes; main pushes are no longer required to upload.
+  - Upload detection looks for an actual SignalFlag upload, not any pytest run.
+  - The reader also sees conftest.py and pyproject.toml.
+  - Fixed reader tests: 5 LLM cases plus deterministic ones.
+- `- **PR title:**` lines now count as a PR title in chat.
+- A real branch that exists with no config reads as 0 versions.
+- The brief's replacements are checked.
+- `.gitignore` is required in the PR, since the setup adds it.
+
+Runs: all cases at `--reps 2`, plus fs-ci-pr-uploads up to rep 4 (9 rows), 0 harness errors.
+
+Result: pass 9/9, rubric 1.00. Every check and criterion is at 100%:
+- real_branch_empty_until_merge 9/9
+- pr_has_everything 9/9
+- pr_ci_off_real_branch 5/5
+- merged_upload_has_config 9/9
+- ci_pr_safe 5/5
+
+No workflow references invented secrets.
+
+| case | rep | pass | real branch before merge | PR head | PR missing | PR-CI readers (pr branch) | secrets in workflow |
+|---|---|---|---|---|---|---|---|
+| fs-ci-nightly | 0 | 1 | empty | signalflag/setup-planner-pytest | - | n/a | - |
+| fs-ci-nightly | 1 | 1 | empty | signalflag/setup-planner-pytest | - | n/a | - |
+| fs-ci-pr-uploads | 0 | 1 | empty | skilltest-fs-signalflag-setup-planner-pytest | - | <branch>-pr-7 | - |
+| fs-ci-pr-uploads | 1 | 1 | empty | signalflag/setup-planner-pytest | - | <branch>-pr-7 | - |
+| fs-ci-pr-uploads | 2 | 1 | empty | signalflag/setup-planner-pytest | - | <branch>-pr-7 | - |
+| fs-ci-pr-uploads | 3 | 1 | empty | signalflag/setup-planner-pytest | - | <branch>-pr-7 | - |
+| fs-ci-pr-uploads | 4 | 1 | empty | skilltest-fs-signalflag-setup-planner-pytest | - | <branch>-pr-7 | - |
+| fs-local-only | 0 | 1 | empty | signalflag/setup-planner-pytest | - | n/a | - |
+| fs-local-only | 1 | 1 | empty | signalflag/setup-planner-pytest | - | n/a | - |
