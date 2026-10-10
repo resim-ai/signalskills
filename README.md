@@ -15,7 +15,7 @@ Claude Code skills for getting experiment and simulation results into [SignalFla
 | `signalflag-update-metrics` | For a repo that already uploads: adds or changes a metric (and the code that emits its data when needed) in the repo's config through a review branch and PR, since every upload syncs the repo's config over server-only edits. |
 | `signalflag-iterate` | For the agent's own experiments: a campaign branch, one read-back batch per attempt, and a progression dashboard. |
 
-The flow: onboard → design-metrics → (your go) → auth → compose-metrics → ingest → verify → PR → merge → first upload from the default branch, then iterate for later changes. Nothing is installed, logged in or uploaded before your go.
+The flow: onboard → design-metrics → (your go) → auth → compose-metrics → ingest → verify → PR → merge → first upload from main. Then update-metrics for later metric changes, iterate for experiments. Nothing is installed, logged in or uploaded before your go.
 
 ## Install
 
@@ -26,7 +26,7 @@ As a Claude Code plugin (recommended). In Claude Code:
 /plugin install signalskills@signalskills
 ```
 
-This installs the seven skills and registers the SignalFlag MCP server (`https://bff.resim.ai/mcp`). Run `/mcp` once and sign in. Update later with `/plugin marketplace update signalskills`.
+This installs the eight skills and registers the SignalFlag MCP server (`https://bff.resim.ai/mcp`). Run `/mcp` once and sign in. Update later with `/plugin marketplace update signalskills`.
 
 Or link the skills yourself, into a project's `.claude/skills/` or `~/.claude/skills/`:
 
@@ -64,10 +64,14 @@ The `rl_project`, `pytest_suite`, `parquet_dump` and `sim_runner` fixtures are s
 
 ### Evals
 
-Two end-to-end evals run the real skills headlessly (`claude -p` with only this plugin) against simulated engineers. A Claude persona answers from its facts, and a judge plus programmatic checks grade the result. Nothing is uploaded.
+Four end-to-end evals run the real skills headlessly (`claude -p` with only this plugin) against simulated engineers. A Claude persona answers from its facts, and a judge plus programmatic checks grade the result.
 
 - `tests/signalflag/eval/onboard/`: 32 personas covering RL, imitation learning, perception, localization, behavior, test, fleet and data-QA work, from junior to lead, with mcap, ROS1, LeRobot, h5, parquet, video and pytest data. Graded on the interview and the brief.
 - `tests/signalflag/eval/design-metrics/`: 23 cases that start from an approved brief, with faults planted in the fixture data. Graded on whether the plan catches each bad run and points to its cause, fits its reader, keeps to one metric per question, uses charts and media (video vs GIF), keeps events leveled and not spammy, and computes in Python what SQL can't.
+- `tests/signalflag/eval/update-metrics/`: 8 cases that start from an integrated repo and ask for a metric change. Graded on the end state: the repo's config, the PR, and the server's branch config before and after the simulated merge and CI.
+- `tests/signalflag/eval/finish-setup/`: 3 cases that start from a finished but uncommitted setup. Graded on verification, the PR, and that the real branch stays empty until the first upload from main.
+
+onboard and design-metrics upload nothing; update-metrics and finish-setup upload to a scratch SignalFlag project the runner names, on `skilltest-*` branches.
 
 ```bash
 cd tests/signalflag/eval/onboard && ../../.venv/bin/python run_eval.py --approve-harness   # once, after reviewing the harness

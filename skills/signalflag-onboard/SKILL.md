@@ -9,7 +9,7 @@ The entry point. Interview the user, write the brief, route to the SDK skills (c
 
 ## 0. Existing briefs first
 
-Read `docs/signalflag/*-test-brief.md` (or older `*-brief.md`). One covers this test type (same runner and artifacts)? Use it, no interview: go to its first `_pending_` section's skill, or `signalflag-iterate` if none. A neighbour (other modality)? New brief, same project and branch conventions.
+Read `docs/signalflag/*-test-brief.md` (or older `*-brief.md`). One covers this test type (same runner and artifacts)? Use it, no interview: go to its first `_pending_` section's skill; none pending: a metric change → `signalflag-update-metrics`; experiments → `signalflag-iterate`. A neighbour (other modality)? New brief, same project and branch conventions.
 
 No brief, but SignalFlag is already wired in (SDK calls in their hooks or runner, `.resim/metrics/`)? An existing integration: keep it; don't re-onboard or rewrite it.
 - Read the hook, the config and the code that writes each topic before asking. Answer their question from that: one recommendation, one question.

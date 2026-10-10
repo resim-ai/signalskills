@@ -40,7 +40,7 @@ A quick local probe to choose the next value is fine. It doesn't replace steps 2
 
 ## Keep the winner
 
-High-res push of the kept candidate only, to the campaign branch, with the ingest's full flags. Then `signalflag-verify` §3 value checks on it. The brief's own branch gets it only if the user says it's the new baseline.
+High-res push of the kept candidate only, to the campaign branch, with the ingest's full flags. Then `signalflag-verify` §3 value checks on it. The brief's own branch gets it only through git: if the user says it's the new baseline, ship the code and config changes as a PR (`signalflag-update-metrics` §5); the first upload from the default branch after the merge publishes it.
 
 ## Final answer
 

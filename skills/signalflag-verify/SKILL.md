@@ -71,11 +71,11 @@ Fill it even when it fails.
 ## 6. Ship it through git
 
 The real branch's data comes from the default branch, after the merge. Before that, only scratch branches. Show the diff and ask. On yes:
-1. Branch `signalflag/<what>` (first setup: `signalflag/setup-<test type>`); stage by name: the config and templates, the upload code or hook, the dependency change, the brief, the CI change. CI that uploads on PRs: PR jobs go to `<branch>-pr-<number>` or skip the upload (`signalflag-ingest`, CI rule).
+1. Branch `signalflag/<what>` (first setup: `signalflag/setup-<test type>`); stage by name: the config and templates, the upload code or hook, the dependency change, the brief, the CI change. CI that uploads on PRs: PR and feature-branch jobs go off the real branch (`signalflag-ingest`, CI rule).
 2. Commit, `git push -u origin`, `gh pr create` with: the brief's summary, the low-res scratch batch link and what was checked, open items (CI credentials), and "the first upload from <default> after merge creates `<branch>`'s data".
 3. No `gh`/remote: the branch and the PR text in chat.
 4. Before the merge nothing new reaches the real branch: the default branch doesn't carry the change yet. An early full push publishes unreviewed config (and a dirty version) to the real branch: only on an explicit yes, from the review branch with the change committed.
-5. After the first default-branch batch (the first CI run, or the repo's upload from the default branch): run §2's checks on it and fill the brief's High-res.
+5. After the first default-branch batch (the first CI run, or the repo's upload from the default branch): run §2's checks on it and fill the brief's High-res (commit it on a small follow-up branch/PR).
 
 ## Limits
 

@@ -5,7 +5,7 @@ description: Use when a repo already sends results to SignalFlag (formerly ReSim
 
 # signalflag-update-metrics
 
-The repo's metrics config is the source of truth. Every upload's `Batch(...)` syncs it to the branch, so a metric that exists only on the server (MCP `push_metrics_config`, `save_metric_instance`, the web app) is overwritten by the next upload. Change the file, review it through git, and let the server follow.
+**REQUIRED:** `signalflag-auth` first. The repo's metrics config is the source of truth. Every upload's `Batch(...)` syncs it to the branch, so a metric that exists only on the server (MCP `push_metrics_config`, `save_metric_instance`, the web app) is overwritten by the next upload. Change the file, review it through git, and let the server follow.
 
 ## 1. Locate — read, don't ask
 

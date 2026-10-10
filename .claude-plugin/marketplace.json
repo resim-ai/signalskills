@@ -6,7 +6,7 @@
     {
       "name": "signalskills",
       "source": "./",
-      "description": "SignalFlag skills: onboard, auth, design-metrics, compose-metrics, ingest, verify, iterate."
+      "description": "SignalFlag skills: onboard, auth, design-metrics, compose-metrics, ingest, verify, update-metrics, iterate."
     }
   ]
 }
