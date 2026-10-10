@@ -125,3 +125,12 @@ Full set, `--reps 2`, 14 rows, 0 harness errors. Pass 14/14, rubric 1.00. Every 
 - pr_ready, ci_survives, publish_timing: 14/14
 - chk_pr_opened, chk_merged_ci_has_change, chk_pr_body_drift_note: 14/14
 - drift_handling 3/3, chk_drift_kept 2/2
+
+### 2026-10-10 um-two-files (pilot-git-green3, skills unchanged)
+
+New edge case: the metrics config is split into `.resim/metrics/planner.yml` (planner topics, test and batch metrics, set
+`Planner Pytest`) and `.resim/metrics/shared.yml` (trend charts, set, dashboard), and `Batch` syncs both as a list. The
+case adds a clearance-margin chart. New check `pr_touches_owner_only`: the PR changes planner.yml and not shared.yml.
+3 reps, 3/3 pass, rubric 1.00, `pr_touches_owner_only` 3/3, `merged_ci_has_change` 3/3. Every PR changed only
+planner.yml and the brief. No skill change was needed. The SDK takes a list for `metrics_config_path` and merges the
+files (duplicate names across files are an error).

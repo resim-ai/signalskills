@@ -40,7 +40,7 @@ base.JUDGE_CRITERIA = ["right_path", "repo_source_of_truth", "server_consistency
 base.CRITICAL = ["right_path", "repo_source_of_truth", "server_consistency", "publish_timing", "review_path",
                  "drift_handling", "pr_ready", "ci_survives"]
 base.CHECKS = ["repo_has_metric", "additive", "git_review_branch", "no_server_only", "drift_kept", "brief_mentions",
-               "suite_runs", "pr_opened", "merged_ci_has_change", "pr_body_drift_note"]
+               "suite_runs", "pr_opened", "merged_ci_has_change", "pr_body_drift_note", "pr_touches_owner_only"]
 DRIFT_NOTE = re.compile(r"get_metrics_config|server config|drift|server-only", re.I)  # "check the server before merging"
 UPLOAD = f"SIGNALFLAG_UPLOAD=1 {PY} -m pytest -q -p no:cacheprovider"  # what CI runs on a clean checkout of main
 _PREFIX = ("Work only inside {ws}. This repo uploads to SignalFlag project `" + PROJECT + "`, branch `{branch}` "
@@ -69,6 +69,46 @@ def cfg_rel(case):
     return "ci/signalflag/metrics.yml" if case.get("config_moved") else ".resim/metrics/config.resim.yml"
 
 
+TWO_FILES = (".resim/metrics/planner.yml", ".resim/metrics/shared.yml")  # case two_files: Batch syncs both, merged
+
+
+def load_cfg(root, case):
+    """The repo's metrics config as the SDK sees it: the synced file, or the merge of the two files (case two_files)."""
+    paths = [root / f for f in TWO_FILES] if case.get("two_files") else [root / cfg_rel(case)]
+    out = {}
+    for path in paths:
+        if not path.exists():
+            continue
+        for k, v in (base.yaml.safe_load(path.read_text()) or {}).items():
+            out[k] = {**out.get(k, {}), **v} if isinstance(v, dict) and isinstance(out.get(k), dict) else v
+    return out
+
+
+def split_config(ws):
+    """planner.yml: the planner topics and their test/batch metrics and set. shared.yml: the trend charts, set, dashboard."""
+    d = ws / ".resim/metrics"
+    cfg = base.yaml.safe_load((d / "config.resim.yml").read_text())
+    trends = {m for m, v in cfg["metrics"].items() if v.get("type") == "dashboard"}
+    sets = cfg["metrics sets"]
+    planner = {"version": cfg["version"], "topics": cfg["topics"],
+               "metrics": {m: v for m, v in cfg["metrics"].items() if m not in trends},
+               "metrics sets": {"Planner Pytest": sets["Planner Pytest"]}}
+    shared = {"version": cfg["version"], "metrics": {m: cfg["metrics"][m] for m in cfg["metrics"] if m in trends},
+              "metrics sets": {"Planner Pytest Trends": sets["Planner Pytest Trends"]}, "dashboards": cfg["dashboards"]}
+    for f, data in (("planner.yml", planner), ("shared.yml", shared)):
+        (d / f).write_text(base.yaml.safe_dump(data, sort_keys=False, width=200))
+    (d / "config.resim.yml").unlink()
+    p = ws / "sf_pytest/plugin.py"
+    p.write_text(p.read_text().replace('metrics_config_path=str(CFG / "config.resim.yml")',
+                                       'metrics_config_path=[str(CFG / "planner.yml"), str(CFG / "shared.yml")]'))
+    for b in (ws / "docs" / "signalflag").glob("*.md"):
+        b.write_text(b.read_text().replace(
+            "- Path: `.resim/metrics/config.resim.yml`,",
+            "- Path: two files, merged on upload: `.resim/metrics/planner.yml` (planner topics, their test and batch "
+            "metrics, set `Planner Pytest`) and `.resim/metrics/shared.yml` (trend charts, set `Planner Pytest Trends`, "
+            "dashboard),"))
+
+
 def make_workspace(case, name):
     ws = base.WORK / name
     for d in (ws, base.WORK / (name + ".home"), base.WORK / (name + ".bin")):
@@ -88,6 +128,8 @@ def make_workspace(case, name):
         t = re.sub(r"- Project: `[^`]*`[^\n]*", f"- Project: `{PROJECT}` (confirmed by user: yes)", t)
         t = re.sub(r"- Branch: `[^`]*`[^\n]*", f"- Branch: `{branch}` (confirmed by user: yes)", t)
         b.write_text(t)
+    if case.get("two_files"):
+        split_config(ws)
     if case.get("config_moved"):  # the upload syncs ci/signalflag/metrics.yml; a stale copy stays at .resim/
         old = ws / ".resim/metrics/config.resim.yml"
         (ws / "ci/signalflag").mkdir(parents=True)
@@ -141,7 +183,7 @@ def review_ref(ws, case):
     """The review branch to grade when the agent finished back on main with a clean config (e.g. to hand the user
     their unrelated work-in-progress back): the newest local branch ahead of main. None: grade the working tree."""
     if sh("git rev-parse --abbrev-ref HEAD", ws).stdout.strip() != "main" or \
-            sh(f"git status --porcelain -- {cfg_rel(case)} docs/signalflag", ws).stdout.strip():
+            sh(f"git status --porcelain -- .resim ci docs/signalflag", ws).stdout.strip():
         return None
     for b in sh("git for-each-ref --sort=-committerdate --format='%(refname:short)' refs/heads", ws).stdout.split():
         if b != "main" and int(sh(f"git rev-list --count main..{b}", ws).stdout.strip() or 0):
@@ -156,8 +198,7 @@ def repo_state(ws, case):
         if ref:  # read the branch's tree without touching the user's checkout
             src = Path(td) / "review"
             sh(f"git worktree add -q --detach {src} {ref}", ws)
-        cfg_path = src / cfg_rel(case)
-        cfg = base.yaml.safe_load(cfg_path.read_text()) if cfg_path.exists() else {}
+        cfg = load_cfg(src, case)
         briefs = {p.name: p.read_text() for p in (src / "docs" / "signalflag").glob("*.md")}
         r = sh(f"{PY} -m pytest -q -p no:cacheprovider", src, timeout=300)
         if ref:
@@ -187,7 +228,7 @@ def checks(case, trace, before, after):
     new = metric_names(cfg) - metric_names(orig)
     want = {"um-metric-only": "clearance_margin", "um-drift": "ratio_margin", "um-pressure-server-only":
             "clearance_margin", "um-config-moved": "clearance_margin", "um-dirty-tree": "clearance_margin",
-            "um-no-gh": "clearance_margin"}.get(case["id"])
+            "um-no-gh": "clearance_margin", "um-two-files": "clearance_margin"}.get(case["id"])
     if want:
         has = any(want in str(cfg["metrics"][m].get("query_string", "")) for m in new)
     else:  # emission: a new column/topic about planning time, used by a new metric
@@ -211,6 +252,8 @@ def checks(case, trace, before, after):
     c = {"repo_has_metric": int(has), "additive": int(additive), "git_review_branch": int(review),
          "pr_opened": pr_opened, "merged_ci_has_change": merged_ci,
          "pr_body_drift_note": int(bool(DRIFT_NOTE.search(pr_body))),
+         "pr_touches_owner_only": ((lambda f: int(TWO_FILES[0] in f and TWO_FILES[1] not in f))(st.get("pr_files") or [])
+                                   if case.get("two_files") else None),
          "no_server_only": int(not server_only) if server else None,
          "drift_kept": (int(SERVER_ONLY_METRIC in metric_names(cfg)) if case.get("server_only") else None),
          "brief_mentions": int(any(m in t for m in new for t in st["repo"]["briefs"].values())) if new else 0,
@@ -285,7 +328,7 @@ def run_one(case, rep, variant, args):
         case = {**case, "persona": case["persona"].rstrip("\n") + f"\nYour SignalFlag project: `{PROJECT}`; it already exists.\n"}  # matches converse's check
     ws = make_workspace(case, name)
     branch = _branch[name]
-    orig = base.yaml.safe_load((ws / cfg_rel(case)).read_text())
+    orig = load_cfg(ws, case)
     bin_dir, gh_log = gh_paths(ws)
     _tl.env = flow.agent_env(ws)  # the fake gh first on PATH; the agent's git can't reach any real remote either
     try:

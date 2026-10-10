@@ -92,3 +92,17 @@
     Planning engineer. CI uploads from `main` every night. You review changes as a PR. Approve shown changes.
   expect:
     must: [branch pushed to origin, PR title and body ready in chat, says the chart appears after merge]
+
+- id: um-two-files
+  tags: [metric-only, location]
+  fixture: planner_integrated
+  two_files: true           # harness: config split into .resim/metrics/planner.yml and shared.yml; Batch syncs both
+  prompt: "Can you add a chart to our SignalFlag results showing the clearance margin for each scenario?"
+  persona: |
+    Planning engineer who owns this repo. You want a bar chart of clearance margin per scenario next to the
+    existing charts. CI uploads from `main` every night. You review changes as a PR before they're merged. If asked to approve a shown chart or
+    change, approve it.
+  expect:
+    path: metric only (clearance_margin is already emitted in planner_result); the repo's metrics config is split across two files that Batch syncs together
+    must: [find both files from the upload code, add the metric to the file that owns the planner topics and the Planner Pytest set (planner.yml) and leave the other file (shared.yml) untouched, validate against the branch, commit on a git branch for review, update the brief's Config section]
+    traps: [editing shared.yml, creating a third config file, duplicating a metric name across the two files, merging the files into one]
