@@ -20,7 +20,7 @@ sys.path.insert(0, str(HERE))
 import run_update_metrics_eval as um  # noqa: E402  (sets up base: plugin dir, MCP agent args, persona loop, judge)
 
 base = um.base
-REPO = "resim-ai/signalskills-sandbox-planner"
+REPO = os.environ.get("SF_SANDBOX_REPO") or sys.exit("set SF_SANDBOX_REPO=<owner>/<private empty repo>")
 SSH_URL = f"git@github.com:{REPO}.git"
 CASE_ID = "um-metric-only"
 OUT = base.WORK / "um-real"
