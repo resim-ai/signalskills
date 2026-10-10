@@ -57,13 +57,12 @@ When the brief names them: after the go, create the system with the MCP's `upser
 ## Rules
 
 - **Dependencies:** separate script → own venv + pinned `requirements.txt`; inside their code → their manager (pyproject extra). Nothing outside a venv.
-- **Never start a login from the runner or hook.** CI without a browser is an open item for the human, not a password fallback.
-- **CI:** the job on the default branch uploads to the brief's branch; PR and feature-branch jobs upload to `<branch>-pr-<number>` (or skip the upload). A PR build syncing its config to the real branch publishes unmerged work and is reverted by the next default-branch run. CI uploads need machine credentials issued by ReSim: ask your ReSim contact, and store them as CI secrets.
+- **Never start a login from the runner or hook. CI:** the job on the default branch uploads to the brief's branch; PR jobs to `<branch>-pr-<number>`, other branches to `<branch>-dev-<git branch>` (or no upload). A PR build syncing its config to the real branch publishes unmerged work and is reverted by the next default-branch run. CI uploads need machine credentials that ReSim issues. That's an open item: the user asks their ReSim contact and stores them as CI secrets. Don't invent secret names or login code.
 - **Keep the Emitter's validation on.** A rejected row means the config is wrong — fix it with `signalflag-compose-metrics`.
 - **Time:** nanoseconds, sim time when sim time exists (mcap `header.stamp`, not `log_time`).
 - **Media:** ≤ 100 files per test — frames become one GIF/video; emitted `filename` = the `attach_log` basename.
 - **A test that fell short is a failure, not an error:** emit its values; status checks decide. Only real exceptions escape `with Test(...)`.
 - **Emissions files:** `Test` writes `emissions_*.resim.jsonl` into cwd — use a temp dir (with the absolute paths above).
-- **Push low-res only**, to a fresh `<branch>-lowres-<hhmm>`, and read it back through the SignalFlag MCP (`get_batch`, `get_metrics_summary`): any `RENDER_ERROR`/`QUERY_ERROR` goes to compose-metrics. "Push it once" means once to their branch — and that one push is verify's.
+- **Push low-res only**, to a fresh `<branch>-lowres-<hhmm>`, and read it back through the SignalFlag MCP (`get_batch`, `get_metrics_summary`): any `RENDER_ERROR`/`QUERY_ERROR` goes to compose-metrics. The full push is the first upload from the default branch after the merge (verify §6).
 
-Done when the low-res batch reads back clean and its link is printed. Next: `signalflag-verify`, which owns the full push.
+Done when the low-res batch reads back clean and its link is printed. Next: `signalflag-verify`, which checks it and ships it through a PR.

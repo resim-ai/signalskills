@@ -46,6 +46,8 @@ The real branch picks up the change at the first upload after the merge. Until t
 
 **"Just do it on the server, skip the repo":** say the server-only change disappears at the next upload (when that is), recommend steps 5–6, and make the repo change on a branch once they agree. Server-only happens only on an explicit yes after that, with the time it will vanish.
 
+**CI uploads PR builds to the real branch?** Fix that first (`signalflag-ingest`, CI rule): each PR build would publish the change early.
+
 **One past batch's chart** (`save_metric_instance`) changes that result only. The definition for future batches still goes in the repo.
 
 ## Red flags
