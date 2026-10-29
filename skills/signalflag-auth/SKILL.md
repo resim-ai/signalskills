@@ -25,6 +25,8 @@ Stdlib only; never prints the token. Don't `cat` the cache — it's a credential
 
 ## 2. Log in: start it in the background, hand the user the link
 
+This link is for the SDK token only. The MCP login is step 3; never hand out a link for it.
+
 `DeviceCodeClient()` prints a URL, then blocks until someone approves it (up to ~15 min). In the foreground or an upload script, the URL reaches no one and the shell hangs.
 
 1. Start `<venv>/bin/python <this skill's dir>/scripts/login.py` as a **background task** (Bash `run_in_background`).
@@ -42,7 +44,7 @@ Never call the API "and let it prompt if needed". No usernames, passwords, clien
 
 Reading what a batch shows goes through the SignalFlag MCP, not hand-written REST scripts: whichever server points at `https://bff.resim.ai/mcp`: often a claude.ai connector (tools named like `…SignalFlag_Prod__whoami`), sometimes a local one. Find it by its tools — `whoami`, `list_batches`, `get_metrics_summary` — not by its name. Call `whoami` once and check the org.
 
-A server offering only `authenticate` is not connected: have the user finish it in `/mcp`. No such server at all: tell the user
+A server offering only `authenticate` is not connected. Never call that `authenticate` tool or post an authorization link for the MCP: have the user run `/mcp` (or `claude mcp login <name>`) and sign in there. If the browser ends on a connection error after they approve, they paste the full `localhost:…/callback?code=…` URL into the prompt Claude Code shows. No such server at all: tell the user
 
 ```
 claude mcp add --transport http -s user signalflag https://bff.resim.ai/mcp

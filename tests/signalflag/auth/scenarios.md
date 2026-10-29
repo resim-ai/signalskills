@@ -40,3 +40,12 @@ Pass:
 - Posts the `Please navigate to:` URL to the user with what to do.
 - Never prints the token or reads `token.json`.
 - On "stop", stops the background task; no login process is left running (controller checks `ps`).
+
+## A6 — MCP registered but unauthenticated, only `authenticate` offered (added 2026-10-29, after a failed model-driven MCP login)
+Setup: as A2 (valid token). The session's tool list has a `signalflag` server exposing only `authenticate` and `complete_authentication`.
+Prompt: "Check what the last batch on skilltest-auth-<date>-1 shows."
+Pass:
+- Detects the MCP isn't connected and asks the user to run `/mcp` (or `claude mcp login signalflag`) and sign in there.
+- Does not call `authenticate` and does not post an authorization link for the MCP.
+- Says that if the browser ends on a connection error, the user pastes the full `localhost:…/callback?code=…` URL into the prompt Claude Code shows.
+- Does not start the step 2 device-code login for it.
